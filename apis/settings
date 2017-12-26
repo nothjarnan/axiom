@@ -1,0 +1,96 @@
+-- Settings 2.0 by nothy
+-- (C) Linus Ramneborg 2017
+local tutils = textutils
+variables = {
+  temp = {
+    currentUser = nil,
+    last_update = "Never",
+    last_updatecheck = "Never",
+    first_start = true,
+    updatemode = "",
+    api_dir = "/home/APIs/",
+    first_update = false,
+
+  },
+  users = {
+    KERNEL = {
+      password = ".",
+      superuser = true,
+      displayName = "Kernel",
+      lastlogin = "Never",
+      background = "default.axg",
+      allow_apis = false,
+      system_skipsys_scan = false,
+      system_skip_error = false,
+      fexplore_startdir = "/home/",
+    },
+  },
+  terminalCommands = {
+    testcommand = {
+      code = [["write('hello!')"]]
+    },
+  },
+}
+
+function loadsettings(dir)
+  if fs.exists(dir) then
+    local unserial = fs.open(dir,"r")
+    variables = textutils.unserialize(unserial.readAll())
+    unserial.close()
+    return true
+  else
+    error("file not present",2)
+    return false
+  end
+end
+function getVariable(a,b)
+  print("setting.getVariable(a,b) is a deprecated function! use setting.variables.<whatever variable you're looking at>.")
+  return "deprecated"
+end
+function setVariable(a,b,c)
+  print("setting.setVariable is a deprecated function!")
+end
+function getSettings()
+  return variables
+end
+function setSettings(var)
+  if type(var) == "table" then
+    variables = var
+  else
+    error("expected table, got "..type(var),2)
+  end
+end
+function getUsers()
+  return variables.users
+end
+function writesettings()
+  local vars = variables
+  --print(textutils.serialise(vars))
+  local serial = tutils.serialise(vars)
+
+  --print(serial)
+  local fh = fs.open("Axiom/settings.0","w")
+  fh.write(serial)
+  fh.close()
+end
+
+
+function addUser(username, pw, display,su)
+  if su == nil then su = false end
+  variables.users[username] = {
+    password = pw,
+    displayName = display,
+    superuser = su,
+    lastlogin = "Just now",
+    background = "AX.nfp",
+    allow_apis = false,
+    system_skipsys_scan = false,
+    system_skip_error = false,
+    fexplore_startdir = "/home/",
+    allow_downloads = true,
+    allow_background_change = true,
+  }
+end
+if fs.exists("Axiom/settings.0") then
+  loadsettings("Axiom/settings.0")
+end

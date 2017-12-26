@@ -1,0 +1,31 @@
+x, y = term.getSize()
+buttons = {}
+button = {
+    add = function(x1, y1, x2, y2, name)
+        buttons[#buttons+1] = {x1, y1, x2, y2, name}
+    end,
+    check = function()
+        _, _, x, y = os.pullEvent("mouse_click")
+        sleep()
+        for i = 1, #buttons do
+            if x >= buttons[i][1] and y >= buttons[i][2] and x <= buttons[i][3] and y <= buttons[i][4] then
+                return buttons[i][5]
+            end
+        end
+    end
+    clear = function()
+      buttons = {}
+    end
+}
+text = {
+    format = function(str, x0, y0)
+        repeat
+            y0 = y0+1
+            term.setCursorPos(x0, y0)
+            p = string.sub(str, 0, x-2)
+            term.write(p)
+            str = string.sub(str, x-1, -1)
+        until string.len(str) == 0
+        return term.getCursorPos()
+    end
+}

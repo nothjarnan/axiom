@@ -1,0 +1,369 @@
+
+alias="At least it works!"
+version = "Edge v3.25"
+noLog = false
+imageDir = "Axiom/images/"
+defc = colors.white
+local easterEgg_allcaps = false
+
+debugOverlay = false
+local debugOverlayMsg = {}
+function log(string)
+  if fs.getFreeSpace("/") < 1500 then
+    noLog = true
+  else
+    noLog = false
+  end
+  if noLog == false then
+    local time = os.clock()
+    if fs.exists("Axiom/logging/system.log") then
+      if fs.getSize("Axiom/logging/system.log") >= 12000 then
+        fs.delete("Axiom/logging/system.log")
+        log(version.." | "..alias)
+      end
+    end
+    if not fs.exists("Axiom/logging/system.log") then
+      logfile = fs.open("Axiom/logging/system.log","w")
+      logfile.close()
+    end
+    logfile = fs.open("Axiom/logging/system.log","a")
+    logfile.writeLine("["..time.." / "..c().."]: "..string.."\n")
+    logfile.flush()
+    logfile.close()
+    if not string.find(string,"rendered") then
+      debugOverlayMsg[#debugOverlayMsg+1] = "["..time.." / "..c().."]: "..string
+    end
+  end
+end
+function llog(string)
+  if noLog == false then
+    local time = os.clock()
+    if fs.exists("Axiom/logging/edge.log") then
+      if fs.getSize("Axiom/logging/edge.log") >= 12000 then
+        fs.delete("Axiom/logging/edge.log")
+      end
+    end
+    if not fs.exists("Axiom/logging/edge.log") then
+      logfile = fs.open("Axiom/logging/edge.log","w")
+      logfile.close()
+    end
+    logfile = fs.open("Axiom/logging/edge.log","a")
+    logfile.writeLine("["..time.." / "..c().."]: "..string.."\n")
+    logfile.close()
+
+    if not string.find(string,"rendered") then
+      --debugOverlayMsg[#debugOverlayMsg+1] = "["..time.." / "..c().."]: "..string
+    end
+  end
+end
+function debugSay(text)
+  local time = os.clock()
+  debugOverlayMsg[#debugOverlayMsg+1] = "["..time.." / "..c().."]: "..text
+end
+function toggleOverlay()
+  debugOverlay = not debugOverlay
+  return debugOverlay
+end
+function getOverlay()
+  return debugOverlay
+end
+function cprint( text, y )
+  local x = term.getSize()
+  local centerXPos = ( x - string.len(text) ) / 2
+  term.setCursorPos( centerXPos, y )
+  write( text )
+end
+function c()
+  local returnTime = textutils.formatTime(os.time(),false)
+  return returnTime
+end
+function ico(x,y,imgPath,defaultcolor)
+  llog("[draw] drew image @ "..x.." "..y..": img: "..imgPath)
+  if fs.exists(imageDir..imgPath) then
+    local img = paintutils.loadImage(imageDir..imgPath)
+    if img == nil then
+      error("nil image data")
+    end
+    paintutils.drawImage(img, x, y)
+    term.setBackgroundColor(defaultcolor)
+  else
+    log("[error] No such image: "..imageDir..imgPath)
+  end
+end
+function image(x,y,imgPath,defaultcolor)
+  if not defaultcolor then defaultcolor = colors.white end
+  llog("[draw] drew image @ "..x.." "..y..": img: "..imgPath)
+  if fs.exists(imageDir..imgPath) then
+    local img = paintutils.loadImage(imageDir..imgPath)
+    if img == nil then
+      error("nil image data")
+    end
+    paintutils.drawImage(img, x, y)
+    term.setBackgroundColor(defaultcolor)
+  else
+    log("[error] No such image: "..imageDir..imgPath)
+  end
+end
+function aprint(string , color)
+  if not term.isColor() then
+    term.setTextColor(colors.white)
+  else
+	 term.setTextColor(color)
+  end
+  if easterEgg_allcaps then
+	   write(string.upper(string))
+  elseif easterEgg_allcaps == "lower" then
+     write(string.lower(string))
+  else
+    write(string)
+  end
+	term.setTextColor(colors.white)
+end
+function setbgColor(color)
+	term.setBackgroundColor(color)
+end
+function textColor(color)
+	term.setTextColor(color)
+end
+function render(x,y,sx,sy,color,defaultcolor,t,tc,shadow)
+  if string.find(t,c()) or t == "" then
+
+  else
+    if fs.getFreeSpace("/") >= 500 then
+      llog("[render] rendered @ "..x.." "..y.." "..sx.." "..sy..": shaded: "..tostring(shadow).." text: "..t)
+    end
+  end
+  if shadow == true then
+    paintutils.drawFilledBox(x + 1,y + 1,sx + 1,sy + 1,colors.gray)
+  end
+	paintutils.drawFilledBox(x,y,sx,sy,color)
+  if easterEgg_allcaps then
+      xprint(string.upper(t),x,y,tc)
+  elseif easterEgg_allcaps == "lower" then
+      xprint(string.lower(t),x,y,tc)
+
+  else
+      xprint(t,x,y,tc)
+  end
+	setbgColor(defaultcolor)
+  defc = defaultcolor
+  --log("debugoverlay:"..tostring(debugOverlay))
+  if debugOverlay then
+    local overlayoffset = 0
+    local t_x, t_y = term.getSize()
+    paintutils.drawFilledBox(1,16-overlayoffset,t_x, t_y, colors.gray)
+    xprint(" Debug overlay",1,16-overlayoffset,colors.white)
+    if #debugOverlayMsg > 0 then
+
+      if string.len("> "..debugOverlayMsg[#debugOverlayMsg])/51 > 1 then
+        overlayoffset = math.floor(string.len("> "..debugOverlayMsg[#debugOverlayMsg])/51)
+      end
+      xprint("> "..debugOverlayMsg[#debugOverlayMsg],1,(t_y-2)-overlayoffset,colors.white)
+      if debugOverlayMsg[#debugOverlayMsg-1] ~= nil then
+
+        xprint("> "..debugOverlayMsg[#debugOverlayMsg-1],1,(t_y-1)-overlayoffset,colors.lightGray)
+      end
+    end
+  end
+  --render(1,16,t_x,t_y,colors.gray,colors.gray," Debug overlay",colors.white,false)
+end
+function box(x,y,sx,sy,color,defcolor,shadow)
+  if fs.getFreeSpace("/") >= 500 then
+    llog("[render] rendered @ "..x.." "..y.." "..sx.." "..sy..": shaded: "..tostring(shadow))
+  end
+  if not color then
+    color = colors.white
+  end
+  if shadow == true then
+    paintutils.drawFilledBox(x + 1,y + 1,sx + 1,sy + 1,colors.gray)
+  end
+  paintutils.drawFilledBox(x,y,sx,sy,color)
+  setbgColor(defaultcolor)
+  defc = defcolor
+end
+function xprint(str,x,y,color)
+	term.setCursorPos(x,y)
+	aprint(str,color)
+	--term.setCursorPos(1,1)
+end
+function window(posx, posy, sizex, sizey, title, windowColor,content)
+  if not windowColor then
+    windowColor = colors.white
+  end
+  if not title then
+    render(posx,posy,posx+sizex,posy,colors.lightGray,colors.cyan," Untitled",colors.black,false)
+  else
+    render(posx,posy,posx+sizex,posy,colors.lightGray,colors.cyan," "..title,colors.black,false)
+  end
+  render(posx+sizex,posy,posx+sizex,posy,colors.lightGray,colors.cyan,"x",colors.red,false)
+  render(posx,posy+1,posx+sizex,posy+sizey+1,windowColor,colors.cyan,"",colors.black,false)
+  render(posx+sizex-1,posy+sizey+1,posx+sizex,posy+sizey,windowColor,colors.cyan,".:",colors.black,false)
+  if content then
+    local contentFunction = assert(content)
+    contentFunction()
+  end
+end
+function center(optionalText)
+  if optionalText then
+    local w, h = term.getSize()
+    centerPoint = w / 2 - (string.len(optionalText) / 2)
+    return centerPoint, h / 2
+  else
+    local w, h = term.getSize()
+    return w / 2, h / 2
+  end
+end
+function dl(url, file)
+      fdl = http.get(url)
+      f = fs.open(file,"w")
+      f.write(fdl.readAll())
+      f.close()
+end
+local function wPrint(wx,wy,width, string, color)
+  if not color then
+    color = colors.gray
+  end
+  local stringChars = {}
+  local count = 0
+  local finalString = ""
+  local increment = 0
+  log(tostring(wx.."&"..wy.."width"..width))
+  for i = 1, string.len(string) do
+    local c = string:sub(i,i)
+
+    table.insert(stringChars, c)
+    if count >= width then
+      table.insert(stringChars,"\n")
+      count = 1
+    end
+    count = count + 1
+    -- do something with c
+  end
+  local x = wx
+  local y = wy
+  for k,v in ipairs(stringChars) do
+    if v == "\n" then
+      y = y + 1
+      x = wx
+      increment = increment + 1
+    end
+    if x > wx+width then
+      y = y + 1
+      x = wx
+      increment = increment + 1
+    end
+    if v ~= "\n" then
+      term.setCursorPos(x,y)
+      term.setTextColor(color)
+      write(v)
+      x = x + 1
+
+    end
+
+  end
+  return increment
+end
+function printWithinBounds(wx,wy,width, string, optCol)
+  if not optCol then optCol = colors.white end
+  return wPrint(wx, wy, width, string, optCol)
+
+end
+
+function windowAlert(width, height, alertString, useOKorYN, wcol)
+  local noButton = false
+  if useOKorYN == "noButton" then
+    noButton = true
+  end
+  -- If useOKorYN = false then use YN, else use OK.
+  --local a, incr = printWithinBounds(wx+1, wy, width-1, alertString)
+  local exitcol = colors.red
+  if wcol == exitcol then
+    exitcol = colors.black
+  end
+  if not wcol then
+    wcol = colors.green
+  end
+  if height < 5 then
+    height = 5
+  end
+  if width < 22 then
+    width = 22
+  end
+  local mx, my = term.getSize()
+  local wx = math.floor((mx/2)-(width/2))
+
+  local wy = math.floor((my/2)-(height/2))
+  log(wy..":"..height)
+  render(wx,wy, wx+width, wy+height, colors.white, colors.white, "", colors.lightGray, true)
+  render(wx, wy, wx+width, wy, wcol, colors.white, "", colors.red)
+  render(wx+width, wy, wx+width, wy, wcol, colors.white, "o", exitcol)
+
+  --local tempStr, increment = printWithinBounds(wx+1, wy,width-1, alertString)
+  wPrint(wx+1, wy+2, width-2, alertString, colors.black)
+  --render(wx+1, wy+1,wx+width-1,wy+height,colors.white, colors.cyan,tempStr, colors.black)
+  if noButton == false then
+    if useOKorYN == true then
+      render(wx+(width/2)-4, wy+height-1, wx+(width/2)+4, wy+height-1, colors.lightGray, colors.white, "   OK   ", colors.gray)
+    else
+      render(wx+(width/2)-9, wy+height-1, wx+(width/2)-2, wy+height-1, colors.lightGray, colors.white, "  Yes ", colors.gray)
+      render(wx+(width/2)+2, wy+height-1, wx+(width/2)+9, wy+height-1, colors.lightGray, colors.white, "   No  ", colors.gray)
+    end
+  end
+
+  while(true) do
+    if noButton then break end
+    local e, b, x, y = os.pullEvent() -- Get event of type click
+    -- If using OK, return nothing.
+    -- Else we return true or false
+    if e == "terminate" then
+      return false
+    end
+    --render(wx,wy,wy+width, wx+height, colors.white, colors.white, e, colors.lightGray)
+    if e == "mouse_click" then
+      if noButton == false then
+        if useOKorYN then
+          if x >= wx+(width/2)-4 and x <= wx+(width/2)+4  and y == wy+height-1 then
+            render(wx+(width/2)-4, wy+height-1, wx+(width/2)+4, wy+height-1, colors.gray, colors.white, "   OK   ", colors.lightGray)
+          end
+        else
+          if x >= wx+(width/2)-10 and x <= wx+(width/2)-2 and y == wy+height-1 then
+            render(wx+(width/2)-9, wy+height-1, wx+(width/2)-2, wy+height-1, colors.gray, colors.white, "  Yes ", colors.lightGray)
+          end
+          if x >= wx+(width/2)+2 and x <= wx+(width/2)+9 and y == wy+height-1 then
+            render(wx+(width/2)+2, wy+height-1, wx+(width/2)+9, wy+height-1, colors.gray, colors.white, "   No  ", colors.lightGray)
+          end
+        end
+      end
+
+      if x == wx+width and y == wy then
+        return false
+      end
+    elseif e == "mouse_up" then
+      if noButton == false then
+        if useOKorYN then
+          if x >= wx+(width/2)-4 and x <= wx+(width/2)+4  and y == wy+height-1 then
+            return true
+          end
+        else
+          if x >= wx+(width/2)-10 and x <= wx+(width/2)-2 and y == wy+height-1 then
+            return true
+          end
+          if x >= wx+(width/2)+2 and x <= wx+(width/2)+9 and y == wy+height-1 then
+            return false
+          end
+        end
+      end
+
+      if x == wx+width and y == wy then
+        return false
+      end
+    end
+  end
+end
+function notify(msg,content)
+  windowAlert(20,10,msg, true)
+
+  --window(3,5,25,3,"System Notification",colors.white,content)
+
+end
+log(version.." | "..alias)
