@@ -105,15 +105,15 @@ disableclock = false
 useOldFS = false
 updating = false
 productName = "Axiom UI"
-version_sub = " "
-version = "2.21"
+version_sub = " Community "
+version = "1.0"
 
 unreleased = true
 latestversion = version
 announcement = ""
 state = ""
 tasks = {kernel=false,settings_app=false,permngr=false,clock=false,filebrowser=false}
-demo = "Billon"
+
 frames_rendered = 1
 menubarColor = colors.white
 menuBarColor_Dark = colors.gray
@@ -1380,7 +1380,7 @@ function settings_draw(page)
     local vString = edition
     edge.render(1,5,mx,my,colors.white,colors.cyan,"",colors.white)
     edge.render(44,4,50,4,colors.green,colors.cyan," About ",colors.white)
-    edge.render(2,6,mx-2,6,colors.white,colors.cyan,productName.." "..version,colors.gray)
+    edge.render(2,6,mx-2,6,colors.white,colors.cyan,productName.." "..version..version_sub,colors.gray)
     edge.render(2,7,mx-2,7,colors.white,colors.cyan,"Current user: "..setting.variables.users[currentUser].displayName.." debugID: "..setting.variables.temp.debugID,colors.gray)
     if setting.variables.temp.installDate ~= nil then
       if os.day()-setting.variables.temp.installDate > 31 then
