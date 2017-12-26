@@ -1,6 +1,9 @@
 
   --Copyright 2016 Linus Ramneborg
   --All rights reserved.
+
+
+  -- NOTE: DO NOT FORGET TO CHANGE FILE EXTENSION TO .AXS
   term.redirect(term.native())
 if turtle then
   error("Axiom cannot be run on a turtle, silly.")
