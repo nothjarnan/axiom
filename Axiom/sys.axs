@@ -1,11 +1,10 @@
 shell.run("clear")
---write("CCLITE SCALE? (1-10): ")
---local scale = tonumber(read())
-
---if cclite and scale >= 1 or scale <= 10 then cclite.setScale(scale) end
---term.redirect(term.native())
-  --Copyright 2016 Linus Ramneborg
-  --All rights reserved.
+if cclite then
+  write("CCLITE SCALE? (1-10): ")
+  local scale = tonumber(read())
+  if cclite and scale >= 1 or scale <= 10 then cclite.setScale(scale) end
+  term.redirect(term.native())
+end
 
 if turtle then
   error("Axiom cannot be run on a turtle, silly.")
