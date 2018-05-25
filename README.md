@@ -1,19 +1,8 @@
 # axiom-opensource
 
-Axiom is an operating system/UI thing for ComputerCraft 1.7x.
+Axiom is an operating system/UI thing for ComputerCraft 1.7+
 
-Axiom features such amazing things as:
- - being able to run, god damn it.
- - Password protection through salted hashes.
- - Various settings
- - File browser
- - Backgrounds
- - Multiuser support
+Features Include:
+    Being able to work, unlike SOME ope
 
-What it currently lacks:
-  - Desktop icons
-  - Multitasking
-  - A proper commandline
-  
-
-Forgot to mention, this version is community driven and completely independent to the original version.
+This version is community driven and completely independent to the original version.

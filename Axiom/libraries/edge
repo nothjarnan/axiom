@@ -1,14 +1,101 @@
-
 alias="At least it works!"
-version = "Edge v3.25"
+version = "Edge v3.27"
 noLog = false
 imageDir = "Axiom/images/"
 defc = colors.white
+local ccversion = os.version()
 local easterEgg_allcaps = false
-
+local use_legacy_drawing = true
+local replicate_to_screen = true
+local logcat_to_screen = false
 debugOverlay = false
 local debugOverlayMsg = {}
+local screen = nil
+local screen_scale = 1
+local selected_scale = 3
+function printwarn(text)
+  screen.setTextColor(colors.gray)
+  screen.write("[")
+  screen.setTextColor(colors.orange)
+  screen.write("WARNING")
+  screen.setTextColor(colors.gray)
+  screen.write("]")
+  screen.setTextColor(colors.white)
+  term.redirect(screen)
+  print(" "..text)
+  term.redirect(term.native())
+  sleep(0.1)
+end
+function printerr(text)
+  screen.setTextColor(colors.gray)
+  write("[")
+  screen.setTextColor(colors.red)
+  write("ERROR")
+  screen.setTextColor(colors.gray)
+  write("]")
+  screen.setTextColor(colors.white)
+  term.redirect(screen)
+  print(" "..text)
+  term.redirect(term.native())
+  sleep(0.1)
+end
+function printout(text)
+  screen.setTextColor(colors.gray)
+  screen.write("[")
+  screen.setTextColor(colors.green)
+  screen.write("INFO")
+  screen.setTextColor(colors.gray)
+  screen.write("]")
+  screen.setTextColor(colors.white)
+  term.redirect(screen)
+  print(" "..text)
+  term.redirect(term.native())
+  sleep(0.1)
+end
+function screentest()
+
+  screen.clear()
+  screen.setCursorPos(1,1)
+  screen.write("Screen OK!")
+end
+function setScale(scale)
+  screen_scale = scale
+end
+function getScaleIndex()
+  return selected_scale
+end
+function setScaleIndex(index)
+  selected_scale = index
+end
+function getScreen()
+  return screen or nil
+end
+function setScreen(newscreen)
+  if newscreen == nil then
+    screen.setCursorPos(1,1)
+    screen.setBackgroundColor(colors.black)
+    screen.setTextColor(colors.white)
+    screen.clear()
+    screen = nil
+    return true
+  else
+    screen = newscreen
+    screen.setTextScale(screen_scale)
+    local ok, error = pcall(screentest)
+    if not ok then
+
+      return false, error
+    else
+      return true
+    end
+  end
+
+end
+function hasScreen()
+  if screen then return true else return false end
+end
 function log(string)
+
   if fs.getFreeSpace("/") < 1500 then
     noLog = true
   else
@@ -30,6 +117,11 @@ function log(string)
     logfile.writeLine("["..time.." / "..c().."]: "..string.."\n")
     logfile.flush()
     logfile.close()
+    if logcat_to_screen and screen then
+      term.redirect(screen)
+      print("["..time.." / "..c().."]: "..string.."")
+      term.redirect(term.native())
+    end
     if not string.find(string,"rendered") then
       debugOverlayMsg[#debugOverlayMsg+1] = "["..time.." / "..c().."]: "..string
     end
@@ -91,6 +183,16 @@ function ico(x,y,imgPath,defaultcolor)
   end
 end
 function image(x,y,imgPath,defaultcolor)
+  if screen and replicate_to_screen then
+    local mx, my = screen.getSize()
+    for _y=1, my, 1 do
+      for _x=1, mx, 1 do
+        screen.setCursorPos(_x,_y)
+        screen.setBackgroundColor(colors.lightBlue)
+        screen.write(" ")
+      end
+    end
+  end
   if not defaultcolor then defaultcolor = colors.white end
   llog("[draw] drew image @ "..x.." "..y..": img: "..imgPath)
   if fs.exists(imageDir..imgPath) then
@@ -105,6 +207,15 @@ function image(x,y,imgPath,defaultcolor)
   end
 end
 function aprint(string , color)
+  if not color then color = 128 end
+  if screen and replicate_to_screen then
+    if screen.isColor() then
+      screen.setTextColor(color)
+    else
+      screen.setTextColor(colors.white)
+    end
+    screen.write(string)
+  end
   if not term.isColor() then
     term.setTextColor(colors.white)
   else
@@ -126,46 +237,53 @@ function textColor(color)
 	term.setTextColor(color)
 end
 function render(x,y,sx,sy,color,defaultcolor,t,tc,shadow)
-  if string.find(t,c()) or t == "" then
 
-  else
-    if fs.getFreeSpace("/") >= 500 then
-      llog("[render] rendered @ "..x.." "..y.." "..sx.." "..sy..": shaded: "..tostring(shadow).." text: "..t)
+  if sx == x then
+    if string.len(t) > 1 then
+      sx = x + string.len(t)
+    end
+  end
+  if screen and replicate_to_screen then
+    screen.setTextScale(screen_scale)
+    if shadow == true then
+      for _y=y, sy, 1 do
+        for _x=x, sx, 1 do
+          screen.setCursorPos(_x+1,_y+1)
+          screen.setBackgroundColor(colors.gray)
+          screen.write(" ")
+        end
+      end
+    end
+    for _y=y, sy, 1 do
+      for _x=x, sx, 1 do
+        screen.setCursorPos(_x,_y)
+        screen.setBackgroundColor(color)
+        screen.write(" ")
+      end
     end
   end
   if shadow == true then
-    paintutils.drawFilledBox(x + 1,y + 1,sx + 1,sy + 1,colors.gray)
-  end
-	paintutils.drawFilledBox(x,y,sx,sy,color)
-  if easterEgg_allcaps then
-      xprint(string.upper(t),x,y,tc)
-  elseif easterEgg_allcaps == "lower" then
-      xprint(string.lower(t),x,y,tc)
-
-  else
-      xprint(t,x,y,tc)
-  end
-	setbgColor(defaultcolor)
-  defc = defaultcolor
-  --log("debugoverlay:"..tostring(debugOverlay))
-  if debugOverlay then
-    local overlayoffset = 0
-    local t_x, t_y = term.getSize()
-    paintutils.drawFilledBox(1,16-overlayoffset,t_x, t_y, colors.gray)
-    xprint(" Debug overlay",1,16-overlayoffset,colors.white)
-    if #debugOverlayMsg > 0 then
-
-      if string.len("> "..debugOverlayMsg[#debugOverlayMsg])/51 > 1 then
-        overlayoffset = math.floor(string.len("> "..debugOverlayMsg[#debugOverlayMsg])/51)
-      end
-      xprint("> "..debugOverlayMsg[#debugOverlayMsg],1,(t_y-2)-overlayoffset,colors.white)
-      if debugOverlayMsg[#debugOverlayMsg-1] ~= nil then
-
-        xprint("> "..debugOverlayMsg[#debugOverlayMsg-1],1,(t_y-1)-overlayoffset,colors.lightGray)
+    for _y=y, sy, 1 do
+      for _x=x, sx, 1 do
+        term.setCursorPos(_x+1,_y+1)
+        setbgColor(colors.gray)
+        write(" ")
       end
     end
   end
-  --render(1,16,t_x,t_y,colors.gray,colors.gray," Debug overlay",colors.white,false)
+  for _y=y, sy, 1 do
+    for _x=x, sx, 1 do
+      term.setCursorPos(_x,_y)
+      setbgColor(color)
+      write(" ")
+    end
+  end
+
+  xprint(t,x,y,tc)
+  term.setBackgroundColor(defaultcolor)
+  if screen and replicate_to_screen then
+    screen.setBackgroundColor(defaultcolor)
+  end
 end
 function box(x,y,sx,sy,color,defcolor,shadow)
   if fs.getFreeSpace("/") >= 500 then
@@ -182,6 +300,9 @@ function box(x,y,sx,sy,color,defcolor,shadow)
   defc = defcolor
 end
 function xprint(str,x,y,color)
+  if screen and replicate_to_screen then
+    screen.setCursorPos(x,y)
+  end
 	term.setCursorPos(x,y)
 	aprint(str,color)
 	--term.setCursorPos(1,1)
@@ -218,6 +339,10 @@ function dl(url, file)
       f = fs.open(file,"w")
       f.write(fdl.readAll())
       f.close()
+end
+local function wPrintv2(wx,wy,width,string,color)
+
+
 end
 local function wPrint(wx,wy,width, string, color)
   if not color then
@@ -276,6 +401,9 @@ function windowAlert(width, height, alertString, useOKorYN, wcol)
   end
   -- If useOKorYN = false then use YN, else use OK.
   --local a, incr = printWithinBounds(wx+1, wy, width-1, alertString)
+  if term.isColor == false then
+    return false
+  end
   local exitcol = colors.red
   if wcol == exitcol then
     exitcol = colors.black
@@ -345,7 +473,7 @@ function windowAlert(width, height, alertString, useOKorYN, wcol)
             return true
           end
         else
-          if x >= wx+(width/2)-10 and x <= wx+(width/2)-2 and y == wy+height-1 then
+          if   x >= wx+(width/2)-10 and x <= wx+(width/2)-2 and y == wy+height-1 then
             return true
           end
           if x >= wx+(width/2)+2 and x <= wx+(width/2)+9 and y == wy+height-1 then
@@ -360,10 +488,20 @@ function windowAlert(width, height, alertString, useOKorYN, wcol)
     end
   end
 end
+function readLine(censor)
+
+end
 function notify(msg,content)
   windowAlert(20,10,msg, true)
 
   --window(3,5,25,3,"System Notification",colors.white,content)
 
+end
+function aabb(x,y,vx,vy,ex,ey)
+  if x >= vx and x <= ex and y >= vy and y <= ey then
+    return true
+  else
+    return false
+  end
 end
 log(version.." | "..alias)
