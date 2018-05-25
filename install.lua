@@ -27,3 +27,4 @@ if read() ~= "" then
     branch = read()
 end
 shell.run("pastebin run W5ZkVYSi "..user.." axiom-opensource "..branch.." AxiomUI")
+formatFS()
