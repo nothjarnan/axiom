@@ -1,6 +1,4 @@
-
-  --Copyright 2016 Linus Ramneborg
-  --All rights reserved.
+--AxiomUI
 oldPullEvent = os.pullEvent
 os.pullEvent = os.pullEventRaw
 args = {...}

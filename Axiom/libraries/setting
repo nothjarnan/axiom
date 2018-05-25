@@ -27,7 +27,9 @@ variables = {
   },
   terminalCommands = {
     testcommand = {
-      code = [["write('hello!')"]]
+      code = [[term.setTextColor(colors.green)
+      write('This is an example custom command.\nA command manager is coming in the future.\n')
+      term.setTextColor(colors.white)]]
     },
   },
 }
@@ -44,11 +46,11 @@ function loadsettings(dir)
   end
 end
 function getVariable(a,b)
-  print("setting.getVariable(a,b) is a deprecated function! use setting.variables.<whatever variable you're looking at>.")
+  --print("setting.getVariable(a,b) is a deprecated function! use setting.variables.<whatever variable you're looking at>.")
   return "deprecated"
 end
 function setVariable(a,b,c)
-  print("setting.setVariable is a deprecated function!")
+
 end
 function getSettings()
   return variables
@@ -82,13 +84,12 @@ function addUser(username, pw, display,su)
     displayName = display,
     superuser = su,
     lastlogin = "Just now",
-    background = "AX.nfp",
+    background = "default.axg",
     allow_apis = false,
     system_skipsys_scan = false,
     system_skip_error = false,
     fexplore_startdir = "/home/",
     allow_downloads = true,
-    allow_background_change = true,
   }
 end
 if fs.exists("Axiom/settings.0") then
