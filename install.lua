@@ -17,8 +17,8 @@ if version == "CraftOS 1.5" then
   error("Axiom is not compatible with "..version.."!")
 end
 print("AxiomUI Community Edition Minimal Installer")
-print("Leave field blank for Nothy's repo. Type something for jasonthekitten (@EveryOS)'s repo"
-    
+print("Leave field blank for Nothy's repo. Type something for jasonthekitten (@EveryOS)'s repo")
+
 local user = "nothjarnan"
 local branch = "master"
 if read() ~= "" then
