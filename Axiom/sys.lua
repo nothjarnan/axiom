@@ -108,7 +108,7 @@ alerts = {
 -- For making sure the files are A-OK
 local allfiles = { -- Protected files as well
   "startup",
-  "Axiom/sys.axs",
+  "Axiom/sys.lua",
   "Axiom/images/default.axg",
   "Axiom/images/AX.nfp",
   "Axiom/images/axiom.axg",
@@ -303,115 +303,7 @@ function axiom.alert(string, alertsev)
 end
 
 function checkForUpdates()
-  local success = false
-  updated = false
-  if setting.variables.temp.autoupdate then
-    when = "always"
-  else
-    when = "never"
-  end
-
-  if not delay then
-    delay = 30
-  end
-    if version == "1.0.3" then
-      edge.windowAlert(10,10,"Checking for updates.",true)
-    end
-    setting.variables.temp.last_updatecheck = tonumber(""..os.day())
-
-    setting.variables.temp.last_update = tonumber(""..os.day())
-    writesettings()
-    if updated == false then
-      if when == "always" then
-        --axiom.alert("Checking for updates! (Mode: "..when..")",0)
-
-        if not latestversion then
-          axiom.alert("Error: Could not connect to server: http://www.nothy.se/! (FATAL)",3)
-          edge.log("Error: Could not connect to server: http://www.nothy.se/ ! (FATAL)")
-          if edge.getOverlay() then
-            edge.render(mx-9,1,mx-9,1,menubarColor,colors.cyan,"VCx",colors.green)
-          end
-        else
-          if nv ~= version and not _G.unreleased and nv ~= nil then
-            local nUpd = false
-            updated = true
-            local initialan = setting.variables.temp.enable_animations
-            setting.variables.temp.enable_animations = false
-            sleep(2.5)
-            if not edge.windowAlert(25,9,"Version "..tostring(latestversion.readAll()).." (current "..tostring(version)..") is now available for download. Install?", false) then
-              nUpd = true
-              desktop()
-            else
-              edge.windowAlert(25,9,"Installing.", "noButton")
-              _G.unreleased = false
-            end
-            setting.variables.temp.enable_animations = initialan
-            if not nUpd then
-              --edge.notify(notifContent)
-              edge.log("Update available")
-              if setting.getVariable("Axiom/settings.0","first_update") == "false" then
-                setting.setVariable("Axiom/settings.0","first_update","true")
-              end
-              if fs.exists("Axiom/backup/os/settings.0") then
-                fs.delete("Axiom/backup/os/settings.0")
-                fs.copy("Axiom/settings.0","Axiom/backup/os/settings.0")
-              else
-                fs.copy("Axiom/settings.0","Axiom/backup/os/settings.0")
-              end
-              if edge.getOverlay() then
-                edge.render(mx-9,1,mx-9,1,menubarColor,colors.cyan,"DL",colors.green)
-              end
-              download("https://www.dropbox.com/s/a7fp2jo6tgm7xsy/startup?dl=1","startup")
-              sleep(0.1)
-              if _G.unreleased == false then
-                download("https://www.dropbox.com/s/7mzhcfe53dm2rq5/sys.axs?dl=1","Axiom/sys.axs")
-              else
-                download("https://www.dropbox.com/s/5v2amjjmw08n9yz/sys-latest.axs?dl=1","Axiom/sys.axs")
-              end
-              sleep(0.1)
-              download("https://www.dropbox.com/s/9byakcx77k03yji/setting?dl=1","Axiom/libraries/setting")
-              sleep(0.1)
-              download("https://www.dropbox.com/s/a5kxzjl6122uti2/edge?dl=1","Axiom/libraries/edge")
-              sleep(0.1)
-              download("https://www.dropbox.com/s/p3kgkzhe27vr9lj/encryption?dl=1","Axiom/libraries/encryption")
-              if not fs.exists("Axiom/settings.0") then
-                axiom.alert("Settings file not found, fixing..",3)
-                download("https://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1","Axiom/settings.0")
-                sleep(0.1)
-              end
-
-              download("https://www.dropbox.com/s/t40vz4gvmyrcjv4/background.axg?dl=1","Axiom/images/default.axg")
-              download("https://www.dropbox.com/s/cjahddofwhja8og/axiom.axg?dl=1","Axiom/images/axiom.axg")
-              download("https://www.dropbox.com/s/osz72e1rnvt5opl/nature.axg?dl=1","Axiom/images/nature.axg")
-              download("https://www.dropbox.com/s/wi4n0j98d82256f/AX.nfp?dl=1","Axiom/images/AX.nfp")
-              download("https://www.dropbox.com/s/pe72iyt94jfs9tv/settings?dl=1","Axiom/programs/settings.app")
-              sleep(0.1)
-              edge.windowAlert(25,9,"Done installing.", true)
-              if edge.windowAlert(25,9,"Reboot?", false) then
-                os.reboot()
-              else
-                desktop()
-              end
-            else
-
-              if not forcing then
-                if setting.variables.users[currentUser].background == "black" then
-                  edge.render(1,1,mx,19,colors.black,colors.cyan,"",colors.black,false)
-                else
-                  edge.image(1,1,setting.variables.users[currentUser].background,colors.cyan)
-                end
-              end
-              edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
-              state = "main_gui"
-              local x_p = 4
-              --edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
-              edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
-
-            end
-          end
-        end
-      end
-    end
+  return false
 end
 function modemHandler()
   -- Handle peripheral
@@ -1059,7 +951,7 @@ function command(cmd)
         fs.delete("startup")
         fs.delete("/Axiom/libraries")
         fs.delete("/Axiom/images")
-        fs.delete("/Axiom/sys.axs")
+        fs.delete("/Axiom/sys.lua")
         fs.delete("/Axiom/settings.0")
         fs.delete("/Axiom/logging")
         fs.delete("/home")
