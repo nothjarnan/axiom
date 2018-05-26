@@ -1,53 +1,5 @@
---AxiomUI
-oldPullEvent = os.pullEvent
-os.pullEvent = os.pullEventRaw
-args = {...}
-local mx, my = term.getSize()
-function image(x,y,imgPath,defaultcolor)
-  if fs.exists("users/"..imgPath) then
-    local img = paintutils.loadImage("users/"..imgPath)
-    if img == nil then
-      error("nil image data")
-    end
-    paintutils.drawImage(img, x, y)
-    term.setBackgroundColor(defaultcolor)
-  else
-    error("No such image: "..imgPath)
-  end
-end
-
-
-api_dir = "Axiom/libraries/"
-doNotExec = false
-reason = ""
-if shell.getRunningProgram() == "ax" then
-  if fs.exists("startup") then
-    fs.delete("startup")
-  end
-  fs.copy("ax","startup")
-  fs.delete("ax")
-end
-function log(string)
-  local time = os.clock()
-  if not fs.exists("Axiom/logging/kernel-log.txt") then
-    logfile = fs.open("Axiom/logging/kernel-log.txt","w")
-    logfile.close()
-  end
-  logfile = fs.open("Axiom/logging/kernel-log.txt","a")
-  logfile.writeLine("["..time.."]: "..string.."\n")
-  logfile.close()
-end
-log("STARTUP: Attempting launch.")
-if not fs.exists("Axiom/sys.axs") and not fs.exists("Axiom/sys-pocket.axs") then
-  error("Axiom could not start")
+if fs.exists("Axiom/sys.lua") then
+  shell.run("Axiom/sys.lua")
 else
-  local runnables = {
-    "Axiom/sys.axs",
-    "Axiom/sys-pocket.axs"
-  }
-  for k,v in ipairs(runnables) do
-    if fs.exists(v) then
-      shell.run(v)
-    end
-  end
+  error("Axiom could not be started")
 end

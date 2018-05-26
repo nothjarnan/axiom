@@ -27,8 +27,9 @@ local function wget(url, file)
   data = data.readAll()
   local file_handle = fs.open(file,"w")
   file_handle.write(data)
-  file_handle.clos e()
-E selector(y,option)
+  file_handle.close()
+end
+function selector(y,option)
   term.setCursorPos(1,y)
   for k,v in ipairs(branches) do
     if k == option then
@@ -47,6 +48,12 @@ end
 print("Axiom UI CE Installer")
 print("Select a branch using arrow keys")
 local x,y = term.getCursorPos()
+if y > 17 then
+  shell.run("clear")
+  print("Axiom UI CE Installer")
+  print("Select a branch using arrow keys")
+  x,y = term.getCursorPos()
+end
 selector(y,1)
 local user = "nothjarnan"
 local branch = 1
