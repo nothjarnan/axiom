@@ -128,8 +128,8 @@ disableclock = true
 useOldFS = false
 updating = false
 _G.productName = "Axiom UI"
-_G.version_sub = " "
-_G.version = "4.0"
+_G.version_sub = " Community"
+_G.version = "1.0"
 _G.hasRootAccess = false
 _G.unreleased = false
 if _G.unreleased then
@@ -585,66 +585,8 @@ function execUpd(isTerminal)
   local out = false
   local success = false
   --setting.setVariable("Axiom/settings.0","system_last_update","Day "..os.day().." @ "..edge.c())
-  if setting then
-    setting.variables.temp.last_update = tonumber(""..os.day())
-    if isTerminal then
-      write("Last update date changed to "..tonumber(""..os.day()).."\n")
-    end
-    writesettings()
-  end
-  if isTerminal then
-    write("Initializing..\n")
-    out = true
-  end
-  if setting then
-    if setting.variables.temp.first_update == false then
-      setting.variables.temp.first_update = true
-    end
-    writesettings()
-  end
-  local https = "https"
-  if cclite then
-    https = "http"
-  end
-  if isTerminal then
-    write("Updated and backed up settings..\n")
-  end
-  if fs.exists("Axiom/backup/os/settings.0") then
-    fs.delete("Axiom/backup/os/settings.0")
-    fs.copy("Axiom/settings.0","Axiom/backup/os/settings.0")
-  else
-    fs.copy("Axiom/settings.0","Axiom/backup/os/settings.0")
-  end
-  success = download(https.."://www.dropbox.com/s/a7fp2jo6tgm7xsy/startup?dl=1","startup", out)
-  sleep(0.1)
-  if _G.unreleased == false then
-    download(https.."://www.dropbox.com/s/7mzhcfe53dm2rq5/sys.axs?dl=1","Axiom/sys.axs", out)
-  else
-    download(https.."://www.dropbox.com/s/5v2amjjmw08n9yz/sys-latest.axs?dl=1","Axiom/sys.axs", out)
-  end
-  sleep(0.1)
-  download(https.."://www.dropbox.com/s/9byakcx77k03yji/setting?dl=1","Axiom/libraries/setting", out)
-  sleep(0.1)
-  download(https.."://www.dropbox.com/s/a5kxzjl6122uti2/edge?dl=1","Axiom/libraries/edge", out)
-  sleep(0.1)
-  download(https.."://www.dropbox.com/s/p3kgkzhe27vr9lj/encryption?dl=1","Axiom/libraries/encryption", out)
-  if not fs.exists("Axiom/settings.0") then
-    download(https.."://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1","Axiom/settings.0", out)
-    sleep(0.1)
-  end
-  download(https.."://www.pastebin.com/raw/vyAZc6tJ","home/prg/luaide.app")
-  download(https.."://www.pastebin.com/raw/wJQ7jav0","Axiom/programs/pain.app")
-  download(https.."://www.dropbox.com/s/cjahddofwhja8og/axiom.axg?dl=1","Axiom/images/axiom.axg", out)
-  download(https.."://www.dropbox.com/s/t40vz4gvmyrcjv4/background.axg?dl=1","Axiom/images/default.axg", out)
-  download(https.."://www.dropbox.com/s/osz72e1rnvt5opl/nature.axg?dl=1","Axiom/images/nature.axg", out)
-  download(https.."://www.dropbox.com/s/wi4n0j98d82256f/AX.nfp?dl=1","Axiom/images/AX.nfp", out)
-  download(https.."://www.dropbox.com/s/gs6zhzsok5yzln6/axui.nfp?dl=1","Axiom/images/axui.nfp", out)
-  download(https.."://www.dropbox.com/s/nd608k6k4boeqtx/button?dl=1","Axiom/libraries/button", out)
-  download(https.."://www.dropbox.com/s/pe72iyt94jfs9tv/settings?dl=1","Axiom/programs/settings.app", out)
-  download(https.."://www.dropbox.com/s/hqdf140odxdcr2g/sysinfo?dl=1","Axiom/programs/store.app", out)
-  download(https.."://www.dropbox.com/s/3vn6wqy765v3wv1/explorer?dl=1","Axiom/programs/explorer.app", out)
-  download(https.."://www.pastebin.com/raw/P9dDhQ2m","Axiom/programs/stdgui.app", out) -- Many thanks LDDestroier
-  if not success and isTerminal then write("Update completed with errors.\n") end
+
+  if not success and isTerminal then write("Update not set up yet.\n") end
   if speakerPresent then
     speaker.playNote("harp",1, 1.5)
   end
@@ -1372,7 +1314,7 @@ function command(cmd)
   end
 end
 function desktop()
-    if currentUser == nil and not hasRootAccess or currentUser == "KERNEL" and not hasRootAccess then
+    if _G.currentUser == nil and not hasRootAccess or _G.currentUser == "KERNEL" and not hasRootAccess then
       sleep(3.5)
       term.setBackgroundColor(colors.blue)
       term.setTextColor(colors.white)
@@ -1559,13 +1501,13 @@ function desktop()
             exec = true
           end
           clickableIcons[#clickableIcons+1] = {
-            ["isfolder"] = fs.isDir("home/Desktop/"..label), -- Get whether or not the program is a folder
+            ["isfolder"] = fs.isDir("home/"..currentUser.."/Desktop/"..label), -- Get whether or not the program is a folder
             ["openable"] = exec, -- Get executable status
             ["x"] = ab+7, -- Start clickbox position x-axis
             ["y"] = cd+4, -- Start clickbox position y-axis
             ["ex"] = ab+11, -- End clickbox position x-axis
             ["ey"] = cd+6, -- End clickbox position y-axis
-            ["opens"] = "home/Desktop/"..label -- Executable location (if executable, otherwise folder)
+            ["opens"] = "home/"..currentUser.."/Desktop/"..label -- Executable location (if executable, otherwise folder)
 
           }
           ab = ab + 12
@@ -1583,14 +1525,14 @@ function desktop()
       _r = 0
 
     end
-    if fs.exists("/home/Desktop/") then
-      local desktopfiles = fs.list("/home/Desktop/")
+    if fs.exists("/home/"..currentUser.."/Desktop/") then
+      local desktopfiles = fs.list("/home/"..currentUser.."/Desktop/")
 
       for k,v in ipairs(desktopfiles) do
         if k > 12 then
           break
         end
-        if fs.isDir("home/Desktop/"..v) then
+        if fs.isDir("home/"..currentUser.."/Desktop/"..v) then
           drawIcon("FOLDER",v)
         else
           local success = false
@@ -1746,14 +1688,15 @@ function desktop()
           end
           if x >= 1 and x <= mWidth and y == 3 then
             edge.render(1,3,10,3,mCol,colors.cyan,"Updating..",colors.white,false)
-            if execUpd() then
+            local ok, file = execUpd()
+            if ok then
               edge.render(1,3,10,3,mCol,colors.cyan,"Updated!",colors.green,false)
             else
               edge.render(1,3,10,3,mCol,colors.cyan,"Error [?]",colors.red,false)
               while(true) do
                 local e,b,x,y = os.pullEvent("mouse_click")
                 if edge.aabb(x,y,1,3,mWidth,3) then
-                  edge.windowAlert(20,10,"Some files could not be downloaded. You can find more info in Axiom/logging/system.log.",true)
+                  edge.windowAlert(20,10,"Some files could not be downloaded. File: "..file,true)
                   break
                 else
                   break
@@ -1938,10 +1881,6 @@ function ftsRender(step,usr,pw,l,adduser)
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. OK ",colors.lightGray)
         sleep(1)
         local mx = term.getSize()
-        edge.render(1,b-1,mx,b-1,colors.white,colors.cyan,"",colors.lightGray)
-        local fmsg = "Fetching additional files..                    "
-        edge.render(1,b-1,1,b-1,colors.white,colors.cyan,fmsg,colors.lightGray)
-        execUpd()
       end
       os.reboot()
     end
