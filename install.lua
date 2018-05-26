@@ -1,17 +1,32 @@
 local function formatFS()
+  if fs.exists("AxiomUI") then
     for k, v in pairs(fs.list("AxiomUI")) do
         fs.move("AxiomUI/"..v, v)
     end
-    fs.makeDir("home/Desktop")
-    fs.makeDir("home/Documents")
-    fs.makeDir("home/User-Programs")
-    fs.makeDir("firstboot")
-    fs.makeDir("users/apis")
-    fs.makeDir("users/program-files")
-    fs.makeDir("Axiom/logging")
+    mkdir("home/Desktop")
+    mkdir("home/Documents")
+    mkdir("home/User-Programs")
+    mkdir("firstboot")
+    mkdir("users/apis")
+    mkdir("users/program-files")
+    mkdir("Axiom/logging")
     fs.delete("AxiomUI")
+  else
+    error("formatFS failed")
+  end
 end
+local function mkdir(dir)
+  if not fs.exists(dir) then fs.makeDir(dir) end
+end
+local function wget(url, file)
+  local data = http.get(url)
+  data = data.readAll()
+  local file_handle = fs.open(file,"w")
+  file_handle.write(data)
+  data.close()
+  file_handle.close()
 
+end
 local version = os.version()
 if version == "CraftOS 1.5" then
   error("Axiom is not compatible with "..version.."!")
@@ -26,5 +41,6 @@ if read() ~= "" then
     print("Select branch")
     branch = read()
 end
-shell.run("pastebin run W5ZkVYSi "..user.." axiom-opensource "..branch.." AxiomUI")
+wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
+shell.run("gitget "..user.." axiom-opensource "..branch.." AxiomUI")
 formatFS()
