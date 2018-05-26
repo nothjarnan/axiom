@@ -2374,11 +2374,15 @@ function log(string)
   local time = os.clock()
   if not fs.exists("Axiom/log.txt") then
     logfile = fs.open("Axiom/log.txt","w")
-    logfile.close()
+    if logfile ~= nil then
+      logfile.close()
+    end
   end
   logfile = fs.open("Axiom/log.txt","a")
-  logfile.writeLine("["..time.."]: "..string.."\n")
-  logfile.close()
+  if logfile ~= nil then
+    logfile.writeLine("["..time.."]: "..string.."\n")
+    logfile.close()
+  end
 end
 if tArgs[1] == "force" then
   forcing = true
