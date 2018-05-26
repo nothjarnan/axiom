@@ -1,29 +1,26 @@
 local function formatFS()
+  local function mkdir(dir)
+    if not fs.exists(dir) then fs.makeDir(dir) end
+  end
   if fs.exists("AxiomUI") then
     for k, v in pairs(fs.list("AxiomUI")) do
+      if not fs.exists(v) then
         fs.move("AxiomUI/"..v, v)
+        print("AxiomUI/"..v.." -> "..v)
+      else
+        print(v.." already exists.")
+      end
     end
-    mkdir("home/Desktop")
-    mkdir("home/Documents")
-    mkdir("home/User-Programs")
-    mkdir("firstboot")
-    mkdir("users/apis")
-    mkdir("users/program-files")
-    mkdir("Axiom/logging")
     fs.delete("AxiomUI")
   else
     error("formatFS failed")
   end
-end
-local function mkdir(dir)
-  if not fs.exists(dir) then fs.makeDir(dir) end
 end
 local function wget(url, file)
   local data = http.get(url)
   data = data.readAll()
   local file_handle = fs.open(file,"w")
   file_handle.write(data)
-  data.close()
   file_handle.close()
 
 end
@@ -42,5 +39,5 @@ if read() ~= "" then
     branch = read()
 end
 wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
-shell.run("gitget "..user.." axiom-opensource "..branch.." AxiomUI")
+shell.run(".gitget "..user.." axiom-opensource "..branch.." AxiomUI")
 formatFS()
