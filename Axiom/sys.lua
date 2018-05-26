@@ -1702,9 +1702,9 @@ function ftsRender(step,usr,pw,l,adduser)
   if not adduser then adduser = false end
   local a,b = term.getSize()
   if step == 1 then
-    local olicense = http.get("http://www.pastebin.com/raw/RYKHrp1c")
+    local olicense = "Axiom UI CE\n  Open Source software, you can freely modify to your desires.\n  If you want to make some permanent changes to Axiom UI CE, \n  please make a pull request in axiom-opensource."
     if olicense then
-      edge.render(3,5,3,5,colors.white,colors.cyan,olicense.readAll(),colors.lightGray)
+      edge.render(3,5,3,5,colors.white,colors.cyan,olicense,colors.lightGray)
     else
       edge.render(3,5,3,5,colors.white,colors.cyan,"Unable to fetch license! :(",colors.lightGray)
     end
