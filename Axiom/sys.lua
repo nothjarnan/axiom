@@ -1226,6 +1226,8 @@ function desktop()
       if setting.variables.users[_G.currentUser].background == "black" then
         edge.render(1,1,mx,19,colors.black,colors.cyan,"",colors.black,false)
       else
+        term.setBackgroundColor(colors.black) --helps make transparent backgrounds less glitchesque looking
+        term.clear()
         edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
       end
     end
