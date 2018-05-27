@@ -1235,10 +1235,18 @@ local STDdownloadPrompt = function(item)
 	end
 	local savepath
 	if isAxiom then
-		if std.storeURLs[itname].catagory == 8 then --if an API
-			savepath = fs.combine("/home/APIs",itname)
+		if std.channel == "STD-Media" then
+			if (std.storeURLs[itname].catagory == 2) or (std.storeURLs[itname].catagory == 3) then --if nfp or nft
+				savepath = fs.combine("Axiom/images",itname)
+			else
+				savepath = fs.combine("home/".._G.currentUser,itname)
+			end
 		else
-			savepath = fs.combine("/Axiom/programs",itname)..".app"
+			if std.storeURLs[itname].catagory == 8 then --if an API
+				savepath = fs.combine("/home/APIs",itname)
+			else
+				savepath = fs.combine("/Axiom/programs",itname)..".app"
+			end
 		end
 	else
 		bow()
