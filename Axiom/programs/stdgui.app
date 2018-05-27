@@ -6,8 +6,6 @@
 
 local tsv = term.current().setVisible --comment out if you are debugging
 
-local isBeta = false --changes the update URL
-
 if not http then --why, you...
 	return false, printError("HTTP must be enabled to use STD. Contact an administrator for assistance.")
 else
@@ -17,7 +15,7 @@ else
 end
 local scr_x, scr_y = term.getSize()
 
-local doDisplayTitle = false
+local doDisplayTitle = true
 local relativePath = false
 local doColorize = true
 
@@ -886,7 +884,7 @@ local displayTitle = function()
 	paintutils.drawImage(title,-1,1)
 	setDefaultColors()
 	term.setCursorPos(4,16)
-	term.write("STD-GUI "..(isBeta and "Beta" or "Stable"))
+	term.write("STD-GUI ")
 	sleep(0)
 	local evt
 	repeat
@@ -1188,12 +1186,12 @@ local tArg = {...}
 if tArg[1] == "help" then
 	return displayHelp(true)
 elseif tArg[1] == "upgrade" then
-	local updateURL = isBeta and "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app" or "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app"
+	local updateURL = "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app"
 	local res, outcome = getFile(shell.getRunningProgram(),updateURL)
 	if not res then
 		error(outcome)
 	else
-		print("Updated STD-GUI to latest "..(isBeta and "beta." or "stable.").." ("..outcome.." bytes)")
+		print("Updated STD-GUI to latest version".." ("..outcome.." bytes)")
 		return
 	end
 end
@@ -1599,7 +1597,7 @@ local doEverything = function() --do I have to do EVERYTHING?
 				pleaseWait()
 				std.getSTDList(std.prevChannel)
 			elseif (evt[2] == keys.f12) and (not isSimSoft) then
-				local updateURL = isBeta and "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app or "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app"
+				local updateURL = "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app"
 				getFile(shell.getRunningProgram(),updateURL)
 				local flashes = {
 					colors.black,
