@@ -1,12 +1,5 @@
-term.clear()
-term.setCursorPos(1,1)
-if cclite then
-  write("It seems that you're using CCLite. What scale do you want? (1-10): ")
-  local scale = tonumber(read())
-  if cclite and scale >= 1 or scale <= 10 then cclite.setScale(scale) end
-  term.redirect(term.native())
-end
 
+shell.run("clear")
 if turtle then
   error("Axiom cannot be run on a turtle, silly.")
 end
@@ -127,8 +120,8 @@ disableclock = true
 useOldFS = false
 updating = false
 _G.productName = "Axiom UI"
-_G.version_sub = " Community"
-_G.version = "1.1"
+_G.version_sub = ""
+_G.version = "5.0"
 _G.hasRootAccess = false
 _G.unreleased = false
 if _G.unreleased then

@@ -84,7 +84,7 @@ function addUser(username, pw, display,su)
     displayName = display,
     superuser = su,
     lastlogin = "Just now",
-    background = "default.axg",
+    background = "default.nfp",
     allow_apis = false,
     system_skipsys_scan = false,
     system_skip_error = false,
