@@ -15,7 +15,7 @@ else
 end
 local scr_x, scr_y = term.getSize()
 
-local doDisplayTitle = true
+local doDisplayTitle = false
 local relativePath = false
 local doColorize = true
 
@@ -1220,7 +1220,7 @@ local cleanExit = function()
 	if isSimSoft or isAxiom then
 		term.setCursorBlink(false)
 	end
-	cprint(out,scr_y/2)
+--	cprint(out,scr_y/2)
 	term.setCursorPos(1,scr_y)
 	sleep(0)
 	return true, "This shouldn't be an error."
