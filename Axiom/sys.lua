@@ -1,6 +1,7 @@
-shell.run("clear")
+term.clear()
+term.setCursorPos(1,1)
 if cclite then
-  write("CCLITE SCALE? (1-10): ")
+  write("It seems that you're using CCLite. What scale do you want? (1-10): ")
   local scale = tonumber(read())
   if cclite and scale >= 1 or scale <= 10 then cclite.setScale(scale) end
   term.redirect(term.native())
@@ -2552,7 +2553,7 @@ if fs.exists("firstBoot") then
     end
   else
     if not ok and err then
-      printout(productName.." has run into a problem and has to shut down.")
+      printout(productName.." has run into a problem and had to shut down.")
       printerr(err)
       if cclite then
         cclite.screenshot()
@@ -2571,7 +2572,7 @@ else
       os.shutdown()
     end
   else
-    printout(productName.." has run into a problem and has to shut down.")
+    printout(productName.." has run into a problem and had to shut down.")
     printerr(err)
     if cclite then
       cclite.screenshot()
