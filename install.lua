@@ -18,6 +18,11 @@ local function formatFS()
       end
     end
     fs.delete("AxiomUI")
+    print("Delete extra files?")
+    if read() == "y" then
+      fs.delete("install.lua")
+      fs.delete("README.md")
+    end
   else
     error("formatFS failed")
   end
