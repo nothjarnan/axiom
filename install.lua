@@ -85,4 +85,10 @@ h.write(textutils.serialize({
 }))
 h.close()
 
+local c = textutils.unserialize(loadURL("https://raw.githubusercontent.com/"..fr.."/"..br.."/version.cfg"))
+if c.uponUpdate[version] then
+  c.uponUpdate[version](true)
+end
+  
+
 os.reboot()
