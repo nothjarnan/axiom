@@ -28,7 +28,7 @@ if type(std) ~= "table" then std = {} end
 
 local overrideNoOS = false --prevent SimSoft functions, even if it's installed
 local isSimSoft = false --special integration into SimSoft!
-local isAxiom = false --special integration into Axiom!
+local isAxiom = true --special integration into Axiom!
 std.channel = "STD"
 std.prevChannel = std.channel
 
@@ -145,12 +145,12 @@ for k,v in pairs(std.channelURLs) do
 end
 
 std.stdList = "."..std.channel:lower().."_list"
-
-if (fs.isDir("SimSoft/Data") and fs.isDir("SimSoft/SappS")) and (not overrideNoOS) then --checks if SimSoft is installed
-	isSimSoft = true
-elseif (fs.isDir("Axiom") and fs.exists("Axiom/sys.axs")) and (not overrideNoOS) then --checks if Axiom is installed
-	isAxiom = true
-end
+--I'm not in fucking SimSoft, look at the fucking URL you bungy fucking twatnose shitcunt
+--if (fs.isDir("SimSoft/Data") and fs.isDir("SimSoft/SappS")) and (not overrideNoOS) then --checks if SimSoft is installed
+--	isSimSoft = true
+--elseif (fs.isDir("Axiom") and fs.exists("Axiom/sys.axs")) and (not overrideNoOS) then --checks if Axiom is installed
+--	isAxiom = true
+--end
 
 local cprint = function(txt,y)
 	local cX,cY = term.getCursorPos()
@@ -1663,7 +1663,7 @@ local errorHandler = function()
 		term.setTextColor(term.isColor() and colors.red or colors.gray)
 		print(message or "".."\n")
 		term.setTextColor(colors.black)
-		print(" Please contact LDDestroier/EldidiStroyrr on either the ComputerCraft forums, or through other means.")
+		print(" Please contact LDDestroier on either the ComputerCraft forums, or through Discord. (@LDDestroier#2901)")
 		sleep(0.5)
 		print("\nPush a key.")
 		os.pullEvent("key")
