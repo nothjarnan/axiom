@@ -481,7 +481,7 @@ function execUpd(isTerminal)
     speaker.playNote("harp",1, 1.5)
   end
   sleep(0.1)
-  return success
+  return success,"Update system not finished for Community version. Use gitget to update."
 end
 function login_clock()
   local mx, my = term.getSize()
