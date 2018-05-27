@@ -892,6 +892,16 @@ function command(cmd)
   term.setBackgroundColor(colors.black)
 
   cmdTable = {}
+  cmdArgs = ""
+  if #cmdTable > 1 then
+    local c = 1
+    for k,v in ipairs(cmdTable) do
+      if k ~= 1 then
+        cmdArgs = cmdArgs.." "..v
+      end
+    end
+
+  end
   for i in string.gmatch(cmd,"%S+") do
     cmdTable[#cmdTable+1] = tostring(i)
   end
@@ -1196,11 +1206,8 @@ function command(cmd)
     end
   end
   if fs.exists(cmdTable[1]) then
-    local fstr = ""
-    for k,v in ipairs(cmdTable) do
-      fstr = fstr..v
-    end
-    shell.run(fstr)
+    local fstr = cmdTable[1]
+    shell.run(fstr.." "..cmdArgs)
   end
 end
 function desktop()
