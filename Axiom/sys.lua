@@ -127,7 +127,7 @@ useOldFS = false
 updating = false
 _G.productName = "Axiom UI"
 _G.version_sub = " Community"
-_G.version = "1.0"
+_G.version = "1.1"
 _G.hasRootAccess = false
 _G.unreleased = false
 if _G.unreleased then
