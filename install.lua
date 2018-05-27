@@ -1,20 +1,17 @@
-local branches = {
-  "master",
-  "experimental"
-}
-
 local function loadURL(url)
   local h = http.get(url)
-  local rtn = loadstring(h:readAll())
+  local rtn = h:readAll()
   h:close()
-  return rtn()
+  return rtn
 end
 
 local function dispMenu(m)
-  term.clear(colors.cyan)
+  term.setBackgroundColor(colors.cyan)
+  term.clear()
   term.setCursorPos(1, 1)
+  term.setBackgroundColor(colors.orange)
   for k, v in pairs(m) do
-    term.clearLine(colors.orange)
+    term.clearLine()
     print(v)
   end
   while true do
@@ -26,9 +23,6 @@ end
 term.clear(colors.cyan)
 term.setCursorPos(1, 1)
 
-print("Loading deps...")
-local env = {}
-setmetatable(env, {__index = _G})
 local jsonp = {
   decode = function(url)
     local str = loadURL(url)
@@ -39,8 +33,8 @@ local jsonp = {
 
 
 print("Finding forks...")
-local forks = {"nothjarnan/axiom-opensource"}
-local forklist = jsonp.decode("https://api.github.com/repos/nothjarnan/axiom-opensource/forks")
+local forks = {"nothjarnan/axiom"}
+local forklist = jsonp.decode("https://api.github.com/repos/nothjarnan/axiom/forks")
 for k, v in pairs(forklist) do
   table.insert(forks, string.sub(v.url, 30, #v.url))
 end
@@ -63,9 +57,9 @@ term.setCursorPos(1, 1)
 print("Finding versions...")
 local vers = {}
 local verlist = jsonp.decode(flist.."?recursive=1")
-for k, v in pairs(verlist) do
-  if not string.match(v.name, "/") then
-    table.insert(vers, v.name)
+for k, v in pairs(verlist.tree) do
+  if (not string.match(v.path, "/")) and (v.type == "tree") then
+    table.insert(vers, v.path)
   end
 end
 
@@ -74,10 +68,10 @@ local version = dispMenu(vers)
 term.clear(colors.cyan)
 term.setCursorPos(1, 1)
 print("INSTALLING...")
-for k, v in pairs(verlist) do
-  if v.type == "blob" and v.name:find(version.."/") then
-    local filecontent = loadURL("raw.githubusercontent.com/"..fr.."/"..br.."/"..v.name)
-    local h = fs.open(string.sub(v.name, v.name:find("/")+1, #v.name), "w")
+for k, v in pairs(verlist.tree) do
+  if v.type == "blob" and v.path:find(version.."/") then
+    local filecontent = loadURL("https://raw.githubusercontent.com/"..fr.."/"..br.."/"..v.path)
+    local h = fs.open(string.sub(v.path, v.path:find("/")+1, #v.path), "w")
     h.write(filecontent)
     h.close()
   end
