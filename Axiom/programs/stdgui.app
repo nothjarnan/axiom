@@ -1279,7 +1279,7 @@ local STDdownloadPrompt = function(item)
 		else
 			if isAxiom then
 				if std.storeURLs[itname].catagory ~= 8 then --no need for an icon for an api, wouldn't you say
-					local file = fs.open(fs.combine("home/Desktop",itname)..".lnk", "w")
+					local file = fs.open( fs.combine("home/".._G.currentUser.."/Desktop",itname)..".lnk" , "w")
 					file.write(savepath)
 					file.close()
 				end
