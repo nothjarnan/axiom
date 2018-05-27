@@ -3,87 +3,92 @@ local branches = {
   "experimental"
 }
 
+local function loadURL(url)
+  local h = http.get(url)
+  local rtn = loadstring(h:readAll())
+  h:close()
+  return rtn()
+end
 
-local function formatFS()
-  local function mkdir(dir)
-    if not fs.exists(dir) then fs.makeDir(dir) end
+local function dispMenu(m)
+  term.clear(colors.cyan)
+  term.setCursorPos(1, 1)
+  for k, v in pairs(m) do
+    term.clearLine(colors.orange)
+    print(v)
   end
-  if fs.exists("AxiomUI") then
-    for k, v in pairs(fs.list("AxiomUI")) do
-      if not fs.exists(v) then
-        fs.move("AxiomUI/"..v, v)
-        print("AxiomUI/"..v.." -> "..v)
-      else
-        print("AxiomUI/"..v.." -x>")
-      end
-    end
-    fs.delete("AxiomUI")
-    print("Delete extra files?")
-    if read() == "y" then
-      fs.delete("install.lua")
-      fs.delete("README.md")
-    end
-  else
-    error("formatFS failed")
+  while true do
+    local e = {os.pullEvent("mouse_click")}
+    if e[2] == 1 and m[e[4]] then return m[e[4]] end
   end
 end
-local function wget(url, file)
-  local data = http.get(url)
-  data = data.readAll()
-  local file_handle = fs.open(file,"w")
-  file_handle.write(data)
-  file_handle.close()
+
+term.clear(colors.cyan)
+term.setCursorPos(1, 1)
+
+print("Loading deps...")
+local env = {}
+setmetatable(env, {__index = _G})
+local jsonp = {
+  decode = function(url)
+    local str = loadURL(url)
+    local s = str:gsub("\"([^\"]*)\"%s*:%s*", "%1 = "):gsub("%[", "{"):gsub("]", "}"):gsub("null", "nil")
+    return textutils.unserialize(s)
+  end
+}
+
+
+print("Finding forks...")
+local forks = {"nothjarnan/axiom-opensource"}
+local forklist = jsonp.decode("https://api.github.com/repos/nothjarnan/axiom-opensource/forks")
+for k, v in pairs(forklist) do
+  table.insert(forks, string.sub(v.url, 30, #v.url))
 end
-function selector(y,option)
-  term.setCursorPos(1,y)
-  for k,v in ipairs(branches) do
-    if k == option then
-      write(v.. " <-")
-      term.setCursorPos(1,y+k)
-    else
-      write(v.. "   ")
-      term.setCursorPos(1,y+k)
-    end
+local fr = dispMenu(forks)
+local fork = "https://api.github.com/repos/"..fr
+
+term.clear(colors.cyan)
+term.setCursorPos(1, 1)
+print("Finding branches...")
+local branches = {}
+local branchlist = jsonp.decode(fork.."/branches")
+for k, v in pairs(branchlist) do
+  table.insert(branches, v.name)
+end
+local br = dispMenu(branches)
+local flist = fork.."/git/trees/"..br
+
+term.clear(colors.cyan)
+term.setCursorPos(1, 1)
+print("Finding versions...")
+local vers = {}
+local verlist = jsonp.decode(flist.."?recursive=1")
+for k, v in pairs(verlist) do
+  if not string.match(v.name, "/") then
+    table.insert(vers, v.name)
   end
 end
-local version = os.version()
-if version == "CraftOS 1.5" then
-  error("Axiom is not compatible with "..version.."!")
-end
-print("Axiom UI CE Installer")
-print("Select a branch using arrow keys")
-local x,y = term.getCursorPos()
-if y > 17 then
-  shell.run("clear")
-  print("Axiom UI CE Installer")
-  print("Select a branch using arrow keys")
-  x,y = term.getCursorPos()
-end
-selector(y,1)
-local user = "nothjarnan"
-local branch = 1
-while(true) do
-  local e,k,h = os.pullEvent( "key" )
-  if k == keys.up then
-    if branch > 1 then
-      branch = branch - 1
-      selector(y,branch)
-    end
-  end
-  if k == keys.down then
-    if branch < #branches then
-      branch = branch + 1
-      selector(y,branch)
-    end
-  end
-  if k == keys.enter then
-    branch = branches[branch]
-    print("Branch selected: "..branch)
-    print("Starting installation")
-    break
+
+local version = dispMenu(vers)
+
+term.clear(colors.cyan)
+term.setCursorPos(1, 1)
+print("INSTALLING...")
+for k, v in pairs(verlist) do
+  if v.type == "blob" and v.name:find(version.."/") then
+    local filecontent = loadURL("raw.githubusercontent.com/"..fr.."/"..br.."/"..v.name)
+    local h = fs.open(string.sub(v.name, v.name:find("/")+1, #v.name), "w")
+    h.write(filecontent)
+    h.close()
   end
 end
-wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
-shell.run(".gitget "..user.." axiom-opensource "..branch.." AxiomUI")
-formatFS()
-print("Installation completed!")
+
+local h = fs.open("Axiom/version.0", "w")
+h.write(textutils.serialize({
+  branch = br,
+  ver = version,
+  fork = fr
+}))
+h.close()
+
+os.reboot()
