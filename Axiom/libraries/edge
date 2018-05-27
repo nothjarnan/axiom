@@ -13,6 +13,71 @@ local debugOverlayMsg = {}
 local screen = nil
 local screen_scale = 1
 local selected_scale = 3
+local nft = {}
+nft.loadImageData = function(image, background) --string image
+	image = image:lower()
+	local output = {{},{},{}} --char, text, back
+	local y = 1
+	local text, back = " ", background or " "
+	local doSkip, c1, c2 = false
+	for i = 1, #image do
+		if doSkip then
+			doSkip = false
+		else
+			output[1][y] = output[1][y] or ""
+			output[2][y] = output[2][y] or ""
+			output[3][y] = output[3][y] or ""
+			c1, c2 = image:sub(i,i), image:sub(i+1,i+1)
+			if c1 == tchar then
+				text = c2
+				doSkip = true
+			elseif c1 == bchar then
+				back = c2
+				doSkip = true
+			elseif c1 == "\n" then
+				y = y + 1
+				text, back = " ", background or " "
+			else
+				output[1][y] = output[1][y]..c1
+				output[2][y] = output[2][y]..text
+				output[3][y] = output[3][y]..back
+			end
+		end
+	end
+	return output
+end
+nft.loadImage = function(path, background)
+	local file = fs.open(path,"r")
+	local output = loadImageData(file.readAll(), background)
+	file.close()
+	return output
+end
+nft.drawImage = function(image, x, y)
+	local cx, cy = term.getCursorPos()
+	local c, t, b
+	for iy = 1, #image[1] do
+		for ix = 1, #image[1][iy] do
+			c, t, b = image[1][iy]:sub(ix,ix), image[2][iy]:sub(ix,ix), image[3][iy]:sub(ix,ix)
+			if (b ~= " ") or (c ~= " ") then
+				term.setCursorPos(x+(ix-1),y+(iy-1))
+				term.blit(c, t, b)
+			end
+		end
+	end
+	term.setCursorPos(cx,cy)
+end
+
+local imageType = function(path)
+	local f = fs.open(path,"r")
+	local cont = f.readAll()
+	f.close()
+	if cont:find("\30") and cont:find("\31") then
+		return "nft"
+	else
+		return "nfp" --only two important standards, basically
+	end
+end
+
 function printwarn(text)
   screen.setTextColor(colors.gray)
   screen.write("[")
@@ -172,12 +237,18 @@ end
 function ico(x,y,imgPath,defaultcolor)
   llog("[draw] drew image @ "..x.." "..y..": img: "..imgPath)
   if fs.exists(imageDir..imgPath) then
-    local img = paintutils.loadImage(imageDir..imgPath)
-    if img == nil then
-      error("nil image data")
+    local chk = imageType(imageDir..imgPath)
+    if chk == "nfp" then
+      local img = paintutils.loadImage(imageDir..imgPath)
+      if img == nil then
+        error("nil image data")
+      end
+      paintutils.drawImage(img, x, y)
+      term.setBackgroundColor(defaultcolor)
+    elseif chk == "nft" then
+      local img = nft.loadImage(imageDir..imgPath)
+      nft.drawImage(img, x, y)
     end
-    paintutils.drawImage(img, x, y)
-    term.setBackgroundColor(defaultcolor)
   else
     log("[error] No such image: "..imageDir..imgPath)
   end
@@ -196,12 +267,18 @@ function image(x,y,imgPath,defaultcolor)
   if not defaultcolor then defaultcolor = colors.white end
   llog("[draw] drew image @ "..x.." "..y..": img: "..imgPath)
   if fs.exists(imageDir..imgPath) then
-    local img = paintutils.loadImage(imageDir..imgPath)
-    if img == nil then
-      error("nil image data")
+    local chk = imageType(imageDir..imgPath)
+    if chk == "nfp" then
+      local img = paintutils.loadImage(imageDir..imgPath)
+      if img == nil then
+        error("nil image data")
+      end
+      paintutils.drawImage(img, x, y)
+      term.setBackgroundColor(defaultcolor)
+    elseif chk == "nft" then
+      local img = nft.loadImage(imageDir..imgPath)
+      nft.drawImage(img, x, y)
     end
-    paintutils.drawImage(img, x, y)
-    term.setBackgroundColor(defaultcolor)
   else
     log("[error] No such image: "..imageDir..imgPath)
   end
