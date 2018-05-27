@@ -14,6 +14,7 @@ local screen = nil
 local screen_scale = 1
 local selected_scale = 3
 local nft = {}
+local tchar, bchar = string.char(31), string.char(30)
 nft.loadImageData = function(image, background) --string image
 	image = image:lower()
 	local output = {{},{},{}} --char, text, back
@@ -48,7 +49,7 @@ nft.loadImageData = function(image, background) --string image
 end
 nft.loadImage = function(path, background)
 	local file = fs.open(path,"r")
-	local output = loadImageData(file.readAll(), background)
+	local output = nft.loadImageData(file.readAll(), background)
 	file.close()
 	return output
 end
