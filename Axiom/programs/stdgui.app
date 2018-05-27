@@ -1,10 +1,7 @@
 --[[
 	STD Graphical User Interface! (STD-GUI)!
 	Made by LDDestroier/EldidiStroyrr (same guy)
-
-	pastebin get P9dDhQ2m stdgui
-	std PB P9dDhQ2m stdgui
-	std ld stdgui stdgui
+	Modified to be used in Axiom, specifically!
 --]]
 
 local tsv = term.current().setVisible --comment out if you are debugging
@@ -1191,7 +1188,7 @@ local tArg = {...}
 if tArg[1] == "help" then
 	return displayHelp(true)
 elseif tArg[1] == "upgrade" then
-	local updateURL = isBeta and "http://pastebin.com/raw/uMZ23APu" or "http://pastebin.com/raw/P9dDhQ2m"
+	local updateURL = isBeta and "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app" or "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app"
 	local res, outcome = getFile(shell.getRunningProgram(),updateURL)
 	if not res then
 		error(outcome)
@@ -1602,7 +1599,7 @@ local doEverything = function() --do I have to do EVERYTHING?
 				pleaseWait()
 				std.getSTDList(std.prevChannel)
 			elseif (evt[2] == keys.f12) and (not isSimSoft) then
-				local updateURL = isBeta and "http://pastebin.com/raw/uMZ23APu" or "http://pastebin.com/raw/P9dDhQ2m"
+				local updateURL = isBeta and "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app or "https://github.com/nothjarnan/axiom/raw/master/Axiom/programs/stdgui.app"
 				getFile(shell.getRunningProgram(),updateURL)
 				local flashes = {
 					colors.black,
