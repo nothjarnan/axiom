@@ -1,5 +1,5 @@
-shell.run("clear")
 
+shell.run("clear")
 if turtle then
   error("Axiom cannot be run on a turtle, silly.")
 end
@@ -2553,7 +2553,7 @@ if fs.exists("firstBoot") then
     end
   else
     if not ok and err then
-      printout(productName.." has run into a problem and has to shut down.")
+      printout(productName.." has run into a problem and had to shut down.")
       printerr(err)
       if cclite then
         cclite.screenshot()
@@ -2572,7 +2572,7 @@ else
       os.shutdown()
     end
   else
-    printout(productName.." has run into a problem and has to shut down.")
+    printout(productName.." has run into a problem and had to shut down.")
     printerr(err)
     if cclite then
       cclite.screenshot()
