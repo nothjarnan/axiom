@@ -1,9 +1,9 @@
 {
+  update = {
+    user = "nothjarnan",
+    branch = "experimental",
+  },
   temp = {
-    update = {
-      user = "nothjarnan",
-      branch = "experimental",
-    },
     currentUser = nil,
     last_update = "Never",
     last_updatecheck = "Never",
