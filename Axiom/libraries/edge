@@ -542,12 +542,13 @@ end
 if replicate_to_string then
   local myterm = {}
   for k, v in pairs(term) do
-    myterm[k] = function(...)
+local meth = k
+    myterm[meth] = function(...)
         if screen and screen[k] then
-	    screen.setTextScale(text_scale)
-            screen[k](...)
+        	screen.setTextScale(text_scale)
+            screen[meth](...)
         end
-        return v(...)
+        return term.native()[meth](...)
     end
   end
   myterm.isColor = function()
