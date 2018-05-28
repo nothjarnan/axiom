@@ -263,7 +263,7 @@ function errorHandler(err)
     fs.makeDir("/safeStart")
   end
 
-  shell.run("clear")
+  term.clear()
   print("Well, this is embarrassing.")
   print("Looks like Axiom crashed. Here's some useful information to provide the debugging monkey team:")
   print(err)
@@ -997,7 +997,7 @@ function command(cmd)
     if edge then
       edge.render(1,2,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
     else
-      shell.run("clear")
+      term.clear()
     end
     term.setCursorPos(1,2)
   end
@@ -1619,7 +1619,7 @@ function desktop()
 
           end
           if x >= 1 and x <= mWidth and y == 7 then
-            shell.run("clear")
+            term.clear()
             state = "loginscreen"
             if setting.variables.temp.restore_legacy_login then
               login_gui()
@@ -1651,19 +1651,19 @@ function desktop()
           end
           if x >= 1 and x <= mWidth and y == 9 then
             tasks.clock = false
-            shell.run("clear")
+            term.clear()
             cprint("A X I O M",9)
             cprint(". . . . .",10)
             sleep(0.2)
-            shell.run("clear")
+            term.clear()
             cprint("  X I O  ",9)
             cprint("  . . .  ",10)
             sleep(0.2)
-            shell.run("clear")
+            term.clear()
             cprint("    I    ",9)
             cprint("    .    ",10)
             sleep(0.2)
-            shell.run("clear")
+            term.clear()
             cprint("         ",9)
             cprint("         ",10)
             sleep(1)
@@ -1816,7 +1816,7 @@ function firstTimeSetupNew(adduser)
       return false
     end
     if x >= a-string.len("Next >> ") and x <= a and y == 2 then
-      if step == 2 then
+      if step == 2 and #username >= 1 then
         setting.setVariable("Axiom/settings.0","username",encryption.sha256(username.."QxLUF1bgIAdeQX"))
       end
       if step == 3 then
@@ -1837,7 +1837,7 @@ function firstTimeSetupNew(adduser)
       term.setBackgroundColor(colors.lightGray)
       term.setCursorPos(15,8)
       username = read()
-      while(string.len(username) < 3) do
+      while(string.len(username) < 1) do
         edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
         username = read()
       end
@@ -1979,7 +1979,7 @@ function bootanimation()
     term.setTextColor(colors.white)
   end
   --sleep(10)
-  shell.run("clear")
+  term.clear()
 
   latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
 
@@ -2408,7 +2408,7 @@ if fs.exists("safeStart") then
   end
   safe = false
   term.setBackgroundColor(colors.black)
-  shell.run("clear")
+  term.clear()
   term.setTextColor(colors.white)
   --paintutils.drawLine(1,my/2,mx,my/2,colors.blue)
   term.setBackgroundColor(colors.blue)
