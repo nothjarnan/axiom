@@ -1,5 +1,10 @@
 
-shell.run("clear")
+term.setBackgroundColor(colors.black)
+term.clear()
+term.setCursorPos(1,1)
+
+local scr_x, scr_y = term.getSize() --initial screen size
+
 if turtle then
   error("Axiom cannot be run on a turtle, silly.")
 end
@@ -281,8 +286,8 @@ function axiom.alert(string, alertsev)
   end
   if alertsev == 3 then
     usedprefix = "[syserror]"
-    edge.render(1,3,51,5,colors.white,colors.cyan," Critical alert",colors.black)
-    edge.render(1,4,51,4,colors.white,colors.cyan,string,colors.black,false)
+    edge.render(1,3,scr_x,5,colors.white,colors.cyan," Critical alert",colors.black)
+    edge.render(1,4,scr_x,4,colors.white,colors.cyan,string,colors.black,false)
   end
   edge.log("Alert: "..usedprefix..":"..string)
   edge.notify(usedprefix..":"..string)
@@ -853,7 +858,7 @@ function terminal(dir)
   end
   sleep(0.5)
   if edge then
-    edge.render(1,1,51,19,colors.black,colors.black,"",colors.white,false)
+    edge.render(1,1,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
   end
   term.setCursorPos(1,1)
   write("Axiom Terminal "..terminalVersion.."\n")
@@ -986,7 +991,7 @@ function command(cmd)
   end
   if cmdTable[1] == "clear" then
     if edge then
-      edge.render(1,2,51,19,colors.black,colors.black,"",colors.white,false)
+      edge.render(1,2,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
     else
       shell.run("clear")
     end
@@ -1224,7 +1229,7 @@ function desktop()
     -- end
     if not forcing then
       if setting.variables.users[_G.currentUser].background == "black" then
-        edge.render(1,1,mx,19,colors.black,colors.cyan,"",colors.black,false)
+        edge.render(1,1,mx,scr_y,colors.black,colors.cyan,"",colors.black,false)
       else
         edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
       end
@@ -1232,7 +1237,7 @@ function desktop()
     edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
     state = "main_gui"
     local x_p = 4
-    --edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
+    --edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
     edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
 
 
@@ -1658,7 +1663,7 @@ function desktop()
             sleep(1)
             if setting.variables.temp.first_update == false then
               setting.variables.temp.first_update = true
-              edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
+              edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
               edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
               edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
               edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
@@ -2123,7 +2128,7 @@ function bootanimation()
   sleep(1)
   local c = 0
   while c ~= 1 do
-    --edge.render(1,1,51,20,colors.orange,colors.white,"test")
+    --edge.render(1,1,scr_x,20,colors.orange,colors.white,"test")
     term.setTextColor(colors.black)
     edge.cprint(productName,10)
     sleep(0.1)
