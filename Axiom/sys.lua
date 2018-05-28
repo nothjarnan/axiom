@@ -483,7 +483,7 @@ function execUpd(isTerminal)
   --return success,"Update system not finished for Community version. Use gitget to update."
   local out = true
   local success = true
-  shell.run("/.gitget "..setting.variables.update.user.." axiom-opensource "..setting.variables.update.branch.." /Axiom")
+  shell.run("/.gitget "..setting.variables.update.user.." axiom-opensource "..setting.variables.update.branch.." /")
   return success, "Updated with gitget."
 end
 function login_clock()
