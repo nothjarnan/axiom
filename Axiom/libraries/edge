@@ -543,8 +543,8 @@ if replicate_to_string then
   local myterm = {}
   for k, v in pairs(term) do
     myterm[k] = function(...)
-    	screen.setTextScale(text_scale)
         if screen and screen[k] then
+	    screen.setTextScale(text_scale)
             screen[k](...)
         end
         return v(...)
