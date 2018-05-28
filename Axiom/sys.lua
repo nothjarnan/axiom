@@ -471,16 +471,20 @@ function download(url, file, logOutput)
 
 end
 function execUpd(isTerminal)
-  local out = false
-  local success = false
+  --local out = false
+  --local success = false
   --setting.setVariable("Axiom/settings.0","system_last_update","Day "..os.day().." @ "..edge.c())
 
-  if not success and isTerminal then write("Update not set up yet.\n") end
-  if speakerPresent then
-    speaker.playNote("harp",1, 1.5)
-  end
-  sleep(0.1)
-  return success,"Update system not finished for Community version. Use gitget to update."
+  --if not success and isTerminal then write("Update not set up yet.\n") end
+  --if speakerPresent then
+  --  speaker.playNote("harp",1, 1.5)
+  --end
+  --sleep(0.1)
+  --return success,"Update system not finished for Community version. Use gitget to update."
+  local out = true
+  local success = true
+  shell.run("/.gitget "..setting.variables.update.user.." axiom-opensource "..setting.variables.update.branch.." /Axiom")
+  return success, "Updated with gitget."
 end
 function login_clock()
   local mx, my = term.getSize()
