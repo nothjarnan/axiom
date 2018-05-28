@@ -551,7 +551,11 @@ if replicate_to_string then
     end
   end
   myterm.isColor = function()
-    return term.native().isColor() and screen.isColor()
+    if screen then
+      return term.native().isColor() and screen.isColor()
+    else
+      return term.native().isColor()
+    end
   end
   myterm.isColour = myterm.isColor
   term.redirect(myterm)
