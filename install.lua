@@ -11,6 +11,10 @@ local function dispMenu(m)
   term.clear()
   term.setCursorPos(1, 1)
   term.setBackgroundColor(colors.orange)
+  local l, h = term.getSize()
+  while m[h-1] do
+    m[h-1] = nil
+  end
   for k, v in pairs(m) do
     term.clearLine()
     print(v)
