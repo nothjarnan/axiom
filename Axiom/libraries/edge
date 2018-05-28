@@ -1,5 +1,5 @@
 alias="At least it works!"
-version = "Edge v3.27"
+version = "Edge v3.28"
 noLog = false
 imageDir = "Axiom/images/"
 defc = colors.white
@@ -146,6 +146,7 @@ function setScreen(newscreen)
   else
     screen = newscreen
     screen.setTextScale(screen_scale)
+    repToScreen()
     local ok, error = pcall(screentest)
     if not ok then
 
@@ -254,16 +255,6 @@ function ico(x,y,imgPath,defaultcolor)
   end
 end
 function image(x,y,imgPath,defaultcolor)
-  if screen and replicate_to_screen then
-    local mx, my = screen.getSize()
-    for _y=1, my, 1 do
-      for _x=1, mx, 1 do
-        screen.setCursorPos(_x,_y)
-        screen.setBackgroundColor(colors.lightBlue)
-        screen.write(" ")
-      end
-    end
-  end
   if not defaultcolor then defaultcolor = colors.white end
   llog("[draw] drew image @ "..x.." "..y..": img: "..imgPath)
   if fs.exists(imageDir..imgPath) then
@@ -285,14 +276,6 @@ function image(x,y,imgPath,defaultcolor)
 end
 function aprint(string , color)
   if not color then color = 128 end
-  if screen and replicate_to_screen then
-    if screen.isColor() then
-      screen.setTextColor(color)
-    else
-      screen.setTextColor(colors.white)
-    end
-    screen.write(string)
-  end
   if not term.isColor() then
     term.setTextColor(colors.white)
   else
@@ -320,25 +303,6 @@ function render(x,y,sx,sy,color,defaultcolor,t,tc,shadow)
       sx = x + string.len(t)
     end
   end
-  if screen and replicate_to_screen then
-    screen.setTextScale(screen_scale)
-    if shadow == true then
-      for _y=y, sy, 1 do
-        for _x=x, sx, 1 do
-          screen.setCursorPos(_x+1,_y+1)
-          screen.setBackgroundColor(colors.gray)
-          screen.write(" ")
-        end
-      end
-    end
-    for _y=y, sy, 1 do
-      for _x=x, sx, 1 do
-        screen.setCursorPos(_x,_y)
-        screen.setBackgroundColor(color)
-        screen.write(" ")
-      end
-    end
-  end
   if shadow == true then
     for _y=y, sy, 1 do
       for _x=x, sx, 1 do
@@ -358,9 +322,6 @@ function render(x,y,sx,sy,color,defaultcolor,t,tc,shadow)
 
   xprint(t,x,y,tc)
   term.setBackgroundColor(defaultcolor)
-  if screen and replicate_to_screen then
-    screen.setBackgroundColor(defaultcolor)
-  end
 end
 function box(x,y,sx,sy,color,defcolor,shadow)
   if fs.getFreeSpace("/") >= 500 then
@@ -377,9 +338,6 @@ function box(x,y,sx,sy,color,defcolor,shadow)
   defc = defcolor
 end
 function xprint(str,x,y,color)
-  if screen and replicate_to_screen then
-    screen.setCursorPos(x,y)
-  end
 	term.setCursorPos(x,y)
 	aprint(str,color)
 	--term.setCursorPos(1,1)
@@ -580,5 +538,28 @@ function aabb(x,y,vx,vy,ex,ey)
   else
     return false
   end
+end
+if replicate_to_string then
+  local myterm = {}
+  local oterm = term.current()
+  for k, v in pairs(term) do
+    local meth = k
+    myterm[meth] = function(...)
+        if screen and screen[k] then
+            screen.setTextScale(text_scale)
+            screen[meth](...)
+        end
+        return oterm[meth](...)
+    end
+  end
+  myterm.isColor = function()
+    if screen then
+      return oterm.isColor() and screen.isColor()
+    else
+      return oterm.isColor()
+    end
+  end
+  myterm.isColour = myterm.isColor
+  term.redirect(myterm)
 end
 log(version.." | "..alias)
