@@ -1825,7 +1825,7 @@ function firstTimeSetupNew(adduser)
       if licensed == true then
         setting.setVariable("Axiom/settings.0","licensed","true")
       end
-      if step >= 1 and licensed == true then
+      if (step >= 1) and licensed and (#username >= 1)  then
         step = step + 1
       end
     end
