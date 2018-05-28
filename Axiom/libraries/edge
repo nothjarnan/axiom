@@ -16,7 +16,6 @@ local selected_scale = 3
 local nft = {}
 local tchar, bchar = string.char(31), string.char(30)
 nft.loadImageData = function(image, background) --string image
-	image = image:lower()
 	local output = {{},{},{}} --char, text, back
 	local y = 1
 	local text, back = " ", background or " "
