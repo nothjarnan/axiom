@@ -541,21 +541,22 @@ function aabb(x,y,vx,vy,ex,ey)
 end
 if replicate_to_string then
   local myterm = {}
+  local oterm = term.current()
   for k, v in pairs(term) do
-local meth = k
+    local meth = k
     myterm[meth] = function(...)
         if screen and screen[k] then
-        	screen.setTextScale(text_scale)
+            screen.setTextScale(text_scale)
             screen[meth](...)
         end
-        return term.native()[meth](...)
+        return oterm[meth](...)
     end
   end
   myterm.isColor = function()
     if screen then
-      return term.native().isColor() and screen.isColor()
+      return oterm.isColor() and screen.isColor()
     else
-      return term.native().isColor()
+      return oterm.isColor()
     end
   end
   myterm.isColour = myterm.isColor
