@@ -14,7 +14,7 @@ end
 _G.apiErrors = {}
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
-_G.version_sub = "CE"
+_G.version_sub = "latest"
 _G.version = "1.3"
 _G.hasRootAccess = false
 _G.unreleased = false
