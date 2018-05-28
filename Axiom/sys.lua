@@ -108,10 +108,10 @@ alerts = {
 local allfiles = { -- Protected files as well
   "startup",
   "Axiom/sys.lua",
-  "Axiom/images/default.axg",
+  "Axiom/images/default.nfp",
   "Axiom/images/AX.nfp",
-  "Axiom/images/axiom.axg",
-  "Axiom/images/nature.axg",
+  "Axiom/images/axiom.nfp",
+  "Axiom/images/nature.nfp",
   "Axiom/libraries/setting",
   "Axiom/libraries/edge",
   "Axiom/libraries/encryption",
@@ -2528,6 +2528,10 @@ if os.version() ~= "CraftOS 1.7" then
   end
   printwarn("running on unsupported CraftOS version, may be unstable")
   sleep(1)
+end
+if fs.exists("Axiom/settings.bak") == true and fs.exists("Axiom/settings.0") == false then
+  fs.copy("Axiom/settings.bak","Axiom/settings.0")
+  printout("Settings file has been copied from backup.")
 end
 if not fs.exists("Axiom/settings.0") then
   term.setTextColor(colors.white)
