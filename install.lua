@@ -6,14 +6,15 @@ local function loadURL(url)
   return rtn
 end
 
-local function dispMenu(m)
+local function dispMenu(m, header)
   term.setBackgroundColor(colors.black)
   term.clear()
   term.setCursorPos(1, 1)
   term.setBackgroundColor(colors.gray)
+  local hs = (header and print(header)) or 0
   local l, h = term.getSize()
-  while m[h-1] do
-    m[h-1] = nil
+  while m[h-hs-1] do
+    m[h-hs-1] = nil
   end
   for k, v in pairs(m) do
     term.clearLine()
@@ -21,7 +22,7 @@ local function dispMenu(m)
   end
   while true do
     local e = {os.pullEvent("mouse_click")}
-    if e[2] == 1 and m[e[4]] then return m[e[4]] end
+    if e[2] == 1 and m[e[4]-hs] then return m[e[4]-hs] end
   end
 end
 
@@ -43,7 +44,7 @@ local forklist = jsonp.decode("https://api.github.com/repos/nothjarnan/axiom/for
 for k, v in pairs(forklist) do
   table.insert(forks, string.sub(v.url, 30, #v.url))
 end
-local fr = dispMenu(forks)
+local fr = dispMenu(forks, "Please select a fork")
 local fork = "https://api.github.com/repos/"..fr
 
 term.clear(colors.black)
@@ -54,7 +55,7 @@ local branchlist = jsonp.decode(fork.."/branches")
 for k, v in pairs(branchlist) do
   table.insert(branches, v.name)
 end
-local br = dispMenu(branches)
+local br = dispMenu(branches, "Please select a branch")
 local flist = fork.."/git/trees/"..br
 
 term.clear(colors.black)
@@ -78,13 +79,9 @@ for k, v in pairs(verlist.tree) do
 end
 
 local h = fs.open("Axiom/version.0", "w")
-h.write(textutils.serialize({
-  branch = br,
-  fork = fr
-}))
+h.write(textutils.serialize({branch = br, fork = fr, ver = loadURL("https://raw.githubusercontent.com/"..fr.."/"..br.."/CurVersion")}))
 h.close()
 
 textutils.unserialize("function(isInstalling) "..loadURL("https://raw.githubusercontent.com/"..fr.."/"..br.."/onUpdate.lua").." end")(true)
-  
-
+ 
 os.reboot()
