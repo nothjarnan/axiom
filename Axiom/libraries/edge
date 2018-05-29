@@ -14,6 +14,7 @@ local screen = nil
 local screen_scale = 1
 local selected_scale = 3
 local nft = {}
+if replicate_to_screen then logcat_to_screen = false end
 nft.loadImageData = function(image, background) --string image
 	image = image:lower()
 	local output = {{},{},{}} --char, text, back
