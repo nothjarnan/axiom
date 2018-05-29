@@ -85,10 +85,11 @@ function printwarn(text)
   screen.write("WARNING")
   screen.setTextColor(colors.gray)
   screen.write("]")
+  local oterm = term.current()
   screen.setTextColor(colors.white)
   term.redirect(screen)
   print(" "..text)
-  term.redirect(term.native())
+  term.redirect(oterm)
   sleep(0.1)
 end
 function printerr(text)
@@ -99,9 +100,11 @@ function printerr(text)
   screen.setTextColor(colors.gray)
   write("]")
   screen.setTextColor(colors.white)
+  local oterm = term.current()
+  screen.setTextColor(colors.white)
   term.redirect(screen)
   print(" "..text)
-  term.redirect(term.native())
+  term.redirect(oterm)
   sleep(0.1)
 end
 function printout(text)
@@ -112,9 +115,10 @@ function printout(text)
   screen.setTextColor(colors.gray)
   screen.write("]")
   screen.setTextColor(colors.white)
+  local oterm = term.current()
   term.redirect(screen)
   print(" "..text)
-  term.redirect(term.native())
+  term.redirect(oterm)
   sleep(0.1)
 end
 function screentest()
@@ -146,7 +150,6 @@ function setScreen(newscreen)
   else
     screen = newscreen
     screen.setTextScale(screen_scale)
-    repToScreen()
     local ok, error = pcall(screentest)
     if not ok then
 
@@ -184,9 +187,10 @@ function log(string)
     logfile.flush()
     logfile.close()
     if logcat_to_screen and screen then
+	  local oterm = term.current()
       term.redirect(screen)
       print("["..time.." / "..c().."]: "..string.."")
-      term.redirect(term.native())
+      term.redirect(oterm)
     end
     if not string.find(string,"rendered") then
       debugOverlayMsg[#debugOverlayMsg+1] = "["..time.." / "..c().."]: "..string
@@ -539,14 +543,14 @@ function aabb(x,y,vx,vy,ex,ey)
     return false
   end
 end
-if replicate_to_string then
+if true then
   local myterm = {}
   local oterm = term.current()
-  for k, v in pairs(term) do
+  for k, v in pairs(oterm) do
     local meth = k
     myterm[meth] = function(...)
         if screen and screen[k] then
-            screen.setTextScale(text_scale)
+            screen.setTextScale(text_scale or 1)
             screen[meth](...)
         end
         return oterm[meth](...)
