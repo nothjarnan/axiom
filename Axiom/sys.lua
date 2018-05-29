@@ -59,7 +59,6 @@ end
 local files = "home/"
 local previousDir = files
 local drawers = {}
-local booting = false
 local invalidInstallation = false
 local file = fs.list(files)
 -- alert severeties =
@@ -1651,7 +1650,6 @@ function initialize()
     dangerousStatus = true
     invalidInstallation = true
   end
-  booting = false
   if setting.variables.temp.restore_legacy_login then
     login_gui()
   else
@@ -1665,7 +1663,6 @@ function cprint( text, y )
   write( text )
 end
 function bootanimation()
-  booting = true
   if not term.isColor() then
     printerr("No color support detected, quitting..")
     sleep(2)
@@ -1709,16 +1706,11 @@ function bootanimation()
   os.loadAPI("Axiom/libraries/setting")
   os.loadAPI("Axiom/libraries/encryption")
   if not edge then os.reboot() end
-  if _G.unreleased then
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  else
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  end
+  term.setBackgroundColor(colors.black)
+  term.setTextColor(colors.white)
   shell.run("clear")
 
-  latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
+  --latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
 
   local mx, my = term.getSize()
 
@@ -1781,14 +1773,14 @@ function bootanimation()
   if not setting then
     error("Axiom did not load Settings API properly.")
   end
-  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
-  sleep(0.1)
+  do
+    local colMap = {colors.black, colors.gray, colors.lightGray, bgcol}
+    for k, v in ipairs(colMap) do
+      term.setTextColor(colMap)
+      edge.render(1,1,mx, my, v, colors.white, "", colors.black)
+      sleep(1/#colMap)
+    end
+  end
 
   if not setting.variables.temp.system_skipsys_scan then
     if fs.exists("Axiom/log.txt") then
@@ -1839,7 +1831,8 @@ function bootanimation()
       end
     end
   end
-  do
+  
+    do
     local colMap = {bgcol, colors.lightGray, colors.gray, colors.black}
     for k, v in ipairs(colMap) do
       term.setTextColor(colMap)
@@ -1847,6 +1840,7 @@ function bootanimation()
       sleep(1/#colMap)
     end
   end
+  
   term.setCursorPos(1,1)
   initialize()
 end
@@ -1885,7 +1879,7 @@ function safeBoot(force)
 
   term.setBackgroundColor(colors.black)
   term.setTextColor(colors.white)
-  local libs = {"button", "edge", "encryption", "button"}
+  local libs = {"setting", "edge", "encryption", "button"}
   for k, v in pairs(libs) do
     os.loadAPI("Axiom/libraries/"..v)
     printout("Loaded "..v)
