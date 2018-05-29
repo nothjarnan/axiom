@@ -24,7 +24,9 @@ local function dispMenu(m, header)
   while true do
     local e = {os.pullEvent("key")}
     if e[2] == keys.enter then return sel end
-    if e[2] == keys.down and sel < #m then
+    if e[2] == keys.down and sel < #m then sel = sel+1 end
+    if e[2] == keys.up and sel > 0 then sel = sel-1 end
+    reshow()
   end
 end
 
