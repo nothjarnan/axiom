@@ -7,7 +7,6 @@ local function loadURL(url)
 end
 
 local function dispMenu(m, header)
-  term.clear()
   term.setCursorPos(1, 1)
   local hs = (header and print(header)) or 0
   local l, h = term.getSize()
@@ -16,17 +15,19 @@ local function dispMenu(m, header)
   end
   local sel = 1
   local function reshow()
+    term.clear()
+    print(header)
     for k, v in pairs(m) do
       term.clearLine()
       print(v, (sel == k and "<-") or "")
     end
   end
   while true do
+    reshow()
     local e = {os.pullEvent("key")}
     if e[2] == keys.enter then return sel end
     if e[2] == keys.down and sel < #m then sel = sel+1 end
     if e[2] == keys.up and sel > 0 then sel = sel-1 end
-    reshow()
   end
 end
 
