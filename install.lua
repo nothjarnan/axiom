@@ -7,10 +7,10 @@ local function loadURL(url)
 end
 
 local function dispMenu(m)
-  term.setBackgroundColor(colors.cyan)
+  term.setBackgroundColor(colors.black)
   term.clear()
   term.setCursorPos(1, 1)
-  term.setBackgroundColor(colors.orange)
+  term.setBackgroundColor(colors.gray)
   local l, h = term.getSize()
   while m[h-1] do
     m[h-1] = nil
@@ -25,7 +25,7 @@ local function dispMenu(m)
   end
 end
 
-term.clear(colors.cyan)
+term.clear(colors.black)
 term.setCursorPos(1, 1)
 
 local jsonp = {
@@ -46,7 +46,7 @@ end
 local fr = dispMenu(forks)
 local fork = "https://api.github.com/repos/"..fr
 
-term.clear(colors.cyan)
+term.clear(colors.black)
 term.setCursorPos(1, 1)
 print("Finding branches...")
 local branches = {}
@@ -57,7 +57,7 @@ end
 local br = dispMenu(branches)
 local flist = fork.."/git/trees/"..br
 
-term.clear(colors.cyan)
+term.clear(colors.black)
 term.setCursorPos(1, 1)
 print("Discovering files...")
 local verlist = jsonp.decode(flist.."?recursive=1")
