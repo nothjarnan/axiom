@@ -1,3 +1,4 @@
+local tArgs = {...}
 
 term.setBackgroundColor(colors.black)
 term.clear()
@@ -8,70 +9,39 @@ local scr_x, scr_y = term.getSize() --initial screen size
 if turtle then
   error("Axiom cannot be run on a turtle, silly.")
 end
---local ip = http.get("http://ipecho.net/plain")
-local ip_processed = nil
-if not ip_processed then
-  ip_processed = "Unable to determine"
-end
-local hasRednet = false
-local rednetDist = 999
-local sides = {"front","back","left","right","top","bottom"}
-local detectedSide = nil
-local modem = nil
-local dangerousStatus = false
-_G.apiErrors = {
 
-}
+--Globals
+_G.apiErrors = {}
+_G.currentUser = "KERNEL"
+_G.productName = "Axiom UI"
+_G.version_sub = "latest"
+_G.version = "5.1"
+_G.hasRootAccess = false
+_G.unreleased = false
+_G.latestversion = version
 
-local dismissed = false
-local remoteChannels = {}
-local remoteSystemInfo = {}
-local speakerSide = nil
-local speakerPresent = false
-local speaker = nil
-local monitor = nil
-local remoteInfo = {
-  systemID = os.getComputerID(),
-  sharingUpdates = true,
-  sharingFiles = true,
-  fileDirectory = "/home/",
-}
-for k,v in ipairs(sides) do
-  if peripheral.isPresent(v) then
-    if peripheral.getType(v) == "speaker" then
-      speakerSide = v
-      speakerPresent = true
-      speaker = peripheral.wrap(v)
-      speaker.playNote("harp",1, 1)
-      break
-    end
-    if peripheral.getType(v) == "monitor" then
-      monitor = peripheral.wrap(v)
-    end
-  end
-
-end
-if detectedSide ~= nil then
-  hasRednet = true
-  modem = peripheral.wrap(detectedSide)
-  for i=0,7, 1 do
-    modem.open(i)
-    modem.transmit(i,1, "axfs")
-  end
-
-end
-local tArgs = {...}
---oldPullEvent = os.pullEvent
+--Overrides
 os.pullEvent = os.pullEventRaw
-if pocket then
-  if fs.exists("Axiom/sys-pocket.axs") then
-    fs.delete("startup")
-    shell.run("Axiom/sys-pocket.axs")
+
+--Locals
+local dangerousStatus = false
+local peripherals = {
+  modem = peripheral.find("modem"),
+  speaker = peripheral.find("speaker"),
+  screen = peripheral.find("screen")
+}
+if peripherals.speaker then
+  peripherals.speaker.playNote("harp", 1, 1)
+end
+if peripherals.modem then
+  for i=0, 7, 1 do
+    peripherals.modem.open(i)
+    peripherals.modem.transmit(i, 1, "axfs")
   end
 end
 
 local mx, my = term.getSize()
-fixNeeded = false
+local fixNeeded = false
 local fileselect = false
 local force_logcat = false
 local terminalActive = false
@@ -86,12 +56,9 @@ if not term.isColor() then
   dircolor = colors.lightGray
   restColor = colors.white
 end
---se
---setting.set( "shell.allow_disk_startup", false)
 local files = "home/"
 local previousDir = files
 local drawers = {}
-local booting = false
 local invalidInstallation = false
 local file = fs.list(files)
 -- alert severeties =
@@ -102,8 +69,6 @@ local file = fs.list(files)
   3 = system error
 
 ]]
-alerts = {
-}
 -- For making sure the files are A-OK
 local allfiles = { -- Protected files as well
   "startup",
@@ -119,78 +84,19 @@ local allfiles = { -- Protected files as well
   "Axiom/libraries/button",
 }
 
-events = true
-_G.currentUser = "KERNEL"
-disableclock = true
-useOldFS = false
 updating = false
-_G.productName = "Axiom UI"
-_G.version_sub = ""
-_G.version = "5.0"
-_G.hasRootAccess = false
-_G.unreleased = false
-if _G.unreleased then
-  _G.version = _G.version.." nightly"
-end
-_G.latestversion = version
 announcement = ""
 state = ""
-tasks = {kernel=false,settings_app=false,permngr=false,clock=false,filebrowser=false}
 demo = "Copper"
 frames_rendered = 1
 menubarColor = colors.white
 menuBarColor_Dark = colors.gray
-nightmode = false
-when = "always"
-delay = 20
-if _G.unreleased == true then
-  allow_background_change = true
-else
-  allow_background_change = true
-end
-if _G.unreleased == true then
-  edition = "AXu"
-else
-  edition = "AX"
-end
 
 local forcing = false
 local editing = false
 local theme_topbar = colors.green -- green
 local theme_ui = colors.lime --lime
 x, y = term.getSize()
-buttons = {}
-buttonapi = {
-    add = function(x1, y1, x2, y2, name)
-        buttons[#buttons+1] = {x1, y1, x2, y2, name}
-    end,
-    check = function()
-        _, _, x, y = os.pullEvent("mouse_click")
-        sleep()
-        for i = 1, #buttons do
-            if x >= buttons[i][1] and y >= buttons[i][2] and x <= buttons[i][3] and y <= buttons[i][4] then
-                return buttons[i][5]
-            end
-        end
-    end,
-    clear =  function()
-      for i = 1, #buttons do
-        buttons[i] = nil
-      end
-    end
-}
-text = {
-    format = function(str, x0, y0)
-        repeat
-            y0 = y0+1
-            term.setCursorPos(x0, y0)
-            p = string.sub(str, 0, x-2)
-            term.write(p)
-            str = string.sub(str, x-1, -1)
-        until string.len(str) == 0
-        return term.getCursorPos()
-    end
-}
 --local settings_tips = {"Unreleased"}
 -- New print functions:
 function printwarn(text)
@@ -292,105 +198,19 @@ function axiom.alert(string, alertsev)
   edge.log("Alert: "..usedprefix..":"..string)
   edge.notify(usedprefix..":"..string)
   local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(usedprefix..":"..string)))
-  alerts[#alerts+1] = {
-    severity = alertsev,
-    prefix = usedprefix,
-    text = string,
-  }
 end
 
 function checkForUpdates()
   return false
 end
-function modemHandler()
-  -- Handle peripheral
-  while(true) do
-    local event, side = os.pullEvent("peripheral")
-    edge.windowAlert(25,10,"New peripheral attached on side "..side.. " of type "..peripheral.getType(side).."!", true, colors.green)
-    sleep(4)
-  end
-end
-function keyStrokeHandler()
-  local keystrokes = {
-    0,
-  }
-  while(true) do
-    local event, key, isHeld = os.pullEvent("key")
-
-    if #keystrokes > 150 then
-      keystrokes = {}
-    end
-    if keys.getName(key) == "f8" and isHeld then
-      -- Super secret hidden menu stuff yes
-      edge.windowAlert(25,10,"no",false,colors.orange)
-
-    end
-    table.insert(keystrokes, key)
-
-    if #keystrokes >= 2 then
-      --print(keystrokes[#keystrokes-2], keystrokes[#keystrokes-1], keystrokes[#keystrokes], isHeld)
-      if keystrokes[#keystrokes-1] == 42 and keystrokes[#keystrokes] == 32 and isHeld then
-        if _G.currentUser ~= nil then
-          if fs.exists("Axiom/programs/store.app") and invalidInstallation == false then
-
-            shell.run("Axiom/programs/store.app")
-          end
-        end
-      end
-      if keystrokes[#keystrokes-1] == 42 and keystrokes[#keystrokes] == 20 and isHeld then
-        terminal("/")
-
-      end
-      if keystrokes[#keystrokes-1] == 42 and keystrokes[#keystrokes] == 33 and isHeld then
-        if fs.exists("Axiom/programs/explorer.app") and invalidInstallation == false then
-          shell.run("Axiom/programs/explorer.app")
-        end
-        --filebrowser("/")
-
-      end
-      if keystrokes[#keystrokes-2] == 42 and keystrokes[#keystrokes] == 60 then
-        write("NYI")
-      end
-    end
-    if #keystrokes >= 3 then
-      if keystrokes[#keystrokes-2] == 29 and keystrokes[#keystrokes-1] == 42 and keystrokes[#keystrokes] == 22 then
-        updating = true
-        execUpd()
-        updating = false
-      end
-    end
-  end
-  axiom.alert("keyStrokeHandler killed",3)
-end
-function clock()
-
-end
-function notifHandler()
-
-  -- This handles notifications
-
-end
 function noapidl(url, file)
-  --edge.xprint("Downloading "..file.."..",2,18,colors.white)
-  --edge.render(1,18,1,18,colors.cyan,colors.cyan,"Downloading "..file.."..",colors.white)
-
-    --if not args[1] == "silent" and args[1] == nil then
-    --print("Opening file "..file)
       fdl = http.get(url)
       f = fs.open(file,"w")
       f.write(fdl.readAll())
       f.close()
-      --edge.xprint(" Done",1+string.len("Downloading "..file..".."),18,colors.white)
-      --edge.render(2+string.len("Downloading "..file..".."),18,2+string.len("Downloading "..file.."..")+3,18,colors.cyan,colors.cyan,"Done ",colors.white)
-      sleep(1)
-      --edge.xprint("                                                  ",1,18,colors.white)
-
-    --print("Written to file "..file)
-
 end
 function writesettings()
   local vars = setting.variables
-  --print(textutils.serialise(vars))
   local s = textutils.serialise(vars)
   local fh = fs.open("Axiom/settings.0","w")
   fh.write(s)
@@ -401,21 +221,17 @@ function download(url, file, logOutput)
   if logOutput then
     write("Downloading "..file..".. ")
   end
-  --edge.xprint("Downloading "..file.."..",2,18,colors.white)
-  --edge.render(1,18,1,18,colors.cyan,colors.cyan,"Downloading "..file.."..",colors.white)
   edge.log("Downloading from "..url..", saving to "..file)
   if fs.getFreeSpace("/") <= 1024 then
-    --edge.render(1,18,1,18,colors.cyan,colors.cyan,"Warning: Low space on disk!",colors.orange)
     edge.xprint("Warning: Low space on disk! "..fs.getFreeSpace("/") / 1024 .."kb",1,18,colors.orange)
   end
   if not http then
-    if speakerPresent then
-      speaker.playNote("harp",1, 1)
-      speaker.playNote("harp",1, 1)
-      speaker.playNote("harp",1, 1)
+    if peripherals.speaker then
+      for i=1, 3 do
+        peripherals.speaker.playNote("harp",1, 1)
+      end
     end
     edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
-    --edge.render(17,8,34,8,colors.white,colors.cyan,"Welcome to Axiom!",colors.black,false)
     edge.render(17,9,34,9,colors.white,colors.cyan," (!) Fatal error",colors.red,false)
     edge.render(16,10,34,10,colors.white,colors.cyan,"HTTP_DISABLED",colors.orange,false)
     return false
@@ -455,10 +271,6 @@ function download(url, file, logOutput)
         term.setTextColor(colors.white)
       end
       return true
-      --edge.xprint(" Done",1+string.len("Downloading "..file..".."),18,colors.white)
-      --edge.render(2+string.len("Downloading "..file..".."),18,2+string.len("Downloading "..file.."..")+3,18,colors.cyan,colors.cyan,"Done ",colors.white)
-      --sleep(1)
-      --edge.xprint("                                                  ",1,18,colors.white)
     else
       if logOutput then
         term.setTextColor(colors.red)
@@ -476,8 +288,8 @@ function execUpd(isTerminal)
   --setting.setVariable("Axiom/settings.0","system_last_update","Day "..os.day().." @ "..edge.c())
 
   if not success and isTerminal then write("Update not set up yet.\n") end
-  if speakerPresent then
-    speaker.playNote("harp",1, 1.5)
+  if peripherals.speaker then
+    peripherals.speaker.playNote("harp",1, 1.5)
   end
   sleep(0.1)
   return success,"Update system not finished for Community version. Use gitget to update."
@@ -702,7 +514,6 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
   usr = ""
   pass = ""
   _G.currentUser = "KERNEL"
-  tasks.clock = false
   edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
   edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
 
@@ -717,14 +528,14 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
       local event, button, x, y = os.pullEvent("mouse_click")
       if event == "terminate" then
         edge.log("Termination event caught!")
-        if hasRednet then
-          rednet.close(detectedSide)
+        if peripherals.modem then
+          peripherals.modem.closeAll()
         end
         os.shutdown()
       end
       if x == 18 and y == 7 then
-        if hasRednet then
-          rednet.close(detectedSide)
+        if peripherals.modem then
+          peripherals.modem.closeAll()
         end
         os.shutdown()
       end
@@ -775,12 +586,11 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
                 edge.render(20,11,30,11,colors.lightGray,colors.cyan,"Password",colors.gray)
                 edge.render(32,9,32,11,colors.lightGray,colors.cyan,"", colors.gray)
                 edge.render(32,10,32,10,colors.lightGray,colors.cyan,">", colors.white)
-                if speakerPresent then
-                  speaker.playNote("harp",1, 1.8)
-                  sleep(.1)
-                  speaker.playNote("harp",1, 1.8)
-                  sleep(.1)
-                  speaker.playNote("harp",1, 1.8)
+                if peripherals.speaker then
+                  for i=1, 3 do
+                    peripherals.speaker.playNote("harp",1, 1.8)
+                    sleep(.1)
+                  end
                 end
                 break
               else
@@ -810,8 +620,8 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
             end
           end
           if x >= 1 and x <= 10 and y == 3 then
-            if hasRednet then
-              rednet.close(detectedSide)
+            if peripherals.modem then
+              peripherals.modem.closeAll()
             end
             os.shutdown()
           end
@@ -847,7 +657,6 @@ function terminal(dir)
 
   terminalVersion = version
   local termunfucked = false
-  tasks.clock = false
 
   terminalActive = true
   workingDir = ""
@@ -878,18 +687,10 @@ function terminal(dir)
     command(input,curDir)
     termunfucked = true
   end
-  tasks.clock = true
 end
 function command(cmd)
 
   term.setBackgroundColor(colors.black)
-  term.setBackgroundColor(colors.black)
-  term.setBackgroundColor(colors.black)
-  term.setBackgroundColor(colors.black)
-  term.setBackgroundColor(colors.black)
-  term.setBackgroundColor(colors.black)
-  term.setBackgroundColor(colors.black)
-
   cmdTable = {}
   cmdArgs = ""
   if #cmdTable > 1 then
@@ -998,10 +799,10 @@ function command(cmd)
     term.setCursorPos(1,2)
   end
   if cmdTable[1] == "reboot" then
-    if speakerPresent then
-      speaker.playNote("harp",1, 1)
-      speaker.playNote("harp",1, .75)
-      speaker.playNote("harp",1, .5)
+    if peripherals.speaker then
+      for i=1, 3 do
+        peripherals.speaker.playNote("harp", 1, 1-(i-1)*.25)
+      end
     end
     os.reboot()
   end
@@ -1098,8 +899,8 @@ function command(cmd)
     end
   end
   if cmdTable[1] == "shutdown" then
-    if hasRednet then
-      rednet.close(detectedSide)
+    if peripherals.modem then
+      peripherals.modem.closeAll()
     end
     os.shutdown()
   end
@@ -1211,26 +1012,15 @@ function command(cmd)
 end
 function desktop()
     terminalActive = false
-    if nightmode == true then
-      menubarColor = colors.white
-    else
-      menubarColor = colors.white
-    end
     if forcing then
       menubarColor = colors.orange
     end
-    -- if state ~= "main_gui" and setting.variables.temp.enable_animations then
-    --   edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
-    --   sleep(0.1)
-    --   edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
-    --   sleep(0.1)
-    --   edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
-    --   sleep(0.1)
-    -- end
     if not forcing then
       if setting.variables.users[_G.currentUser].background == "black" then
         edge.render(1,1,mx,scr_y,colors.black,colors.cyan,"",colors.black,false)
       else
+        term.setBackgroundColor(colors.black) --helps make transparent backgrounds less glitchesque looking
+        term.clear()
         edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
       end
     end
@@ -1250,9 +1040,6 @@ function desktop()
     --local desktopFiles = fs.list("home/Desktop/")
     local offset = 0
     local width = 7
-    if button then
-      buttonapi.clear()
-    end
     local function stt(str)
       if not str then str = "No string or nil!" end
       local t={}
@@ -1416,9 +1203,7 @@ function desktop()
         else
           local success = false
           local ext = string.sub(v,string.len(v)-3)
-          --edge.log("program ext: "..ext)
           for b,c in pairs(icons) do
-            --edge.log(tostring(v..":"..c.extension))
             if ext == c.extension then
               local label = string.gsub(v,ext,"")
               drawIcon(c.extension,v)
@@ -1433,44 +1218,18 @@ function desktop()
 
       end
     end
-    -- for k,v in pairs(clickableIcons) do
-    --   edge.render(v.x, v.y, v.ex, v.ey, colors.red, colors.cyan,tostring(k), colors.black)
-    -- end
-    -- for k,v in ipairs(desktopFiles) do
-    --   if string.len(v) > 6 then
-    --     substring = string.sub(v,7)
-    --     filename = string.gsub(v,substring,"..")
-    --     --axiom.alert(filename)
-    --   else
-    --     filename = v
-    --   end
-    --   if fs.isDir("home/Desktop/"..v) then
-    --     edge.render(2+(offset),3,9+(offset),7,colors.green,colors.cyan,"",colors.white,false)
-    --     edge.render(2+(offset),9,9+(offset),9,colors.white,colors.cyan,filename,colors.gray,false)
-    --   else
-    --     edge.render(2+(offset),3,9+(offset),7,colors.cyan,colors.cyan,"",colors.white,false)
-    --     edge.render(2+(offset),9,9+(offset),9,colors.white,colors.cyan,filename,colors.gray,false)
-    --   end
-    --   offset = (width + 2) * k
-    -- end
 
     while(true) do
 
       local event, button, x, y = os.pullEvent("mouse_click")
-      if nightmode == true then
-        menubarColor = colors.white
-      else
-        menubarColor = colors.white
-      end
       if forcing then
         menubarColor = colors.orange
       end
       x_p = 4
 
       if event == "terminate" then
-        --error("Main process was terminated.")
-        if speakerPresent then
-          speaker.playNote("harp",1, 1.5)
+        if peripherals.speaker then
+          peripherals.speaker.playNote("harp",1, 1.5)
 
         end
         if not hasRootAccess then
@@ -1494,7 +1253,6 @@ function desktop()
 
       end
       for k,v in ipairs(clickableIcons) do
-        --edge.render(v.x, v.y, v.ex, v.ey, colors.red, colors.cyan,tostring(k), colors.black)
         if x >= v.x and x <= v.ex and y >= v.y and y <= v.ey and button == 1 then
           -- Do stuff
           local ext = string.sub(v.opens,string.len(v.opens)-3)
@@ -1585,7 +1343,6 @@ function desktop()
             end
           end
           if x >= 1 and x <= mWidth and y == 4 then
-            --next.newTask("Axiom/Store/settings")
             if fs.exists("Axiom/programs/settings.app") and invalidInstallation == false then
               shell.run("Axiom/programs/settings.app")
               if os.version == "CraftOS 1.8" then
@@ -1644,7 +1401,6 @@ function desktop()
             desktop()
           end
           if x >= 1 and x <= mWidth and y == 9 then
-            tasks.clock = false
             shell.run("clear")
             cprint("A X I O M",9)
             cprint(". . . . .",10)
@@ -1669,14 +1425,14 @@ function desktop()
               edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
               execUpd()
               writesettings()
-              if hasRednet then
-                rednet.close(detectedSide)
+              if peripherals.modem then
+                peripherals.modem.closeAll()
               end
               os.shutdown()
             end
             writesettings()
-            if hasRednet then
-              rednet.close(detectedSide)
+            if peripherals.modem then
+              peripherals.modem.closeAll()
             end
             os.shutdown()
           end
@@ -1768,8 +1524,6 @@ function ftsRender(step,usr,pw,l,adduser)
 end
 function firstTimeSetupNew(adduser)
   if not adduser then adduser = false end
-  tasks.clock = false
-  disableclock = true
   local a,b = term.getSize()
   local password = "nopass"
   local username = ""
@@ -1787,7 +1541,6 @@ function firstTimeSetupNew(adduser)
   edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
   ftsRender(step)
   while(true) do
-    --edge.render(a-string.len("Next >> "),2,a,2,colors.lime,colors.cyan,"Next >> ",colors.white)
     if step == 1 then
       if licensed then
         edge.render(a-string.len("Next >> "),2,a,2,colors.lime,colors.cyan,"Next >>",colors.white)
@@ -1861,8 +1614,6 @@ function firstTimeSetupNew(adduser)
   end
 end
 function initialize()
-
-  --setting.loadsettings("Axiom/settings.0")
   if not fs.exists("Axiom/settings.0") then
     axiom.alert("FATAL ERROR, SETTINGS FILE NOT FOUND.",3)
     return false, "axiom/settings.0 could not be found."
@@ -1872,7 +1623,6 @@ function initialize()
 
     setting.variables.temp.installDate = os.day()
     setting.variables.temp.systemID = os.getComputerID()
-      --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
     writesettings()
     firstTimeSetupNew()
   else
@@ -1900,14 +1650,11 @@ function initialize()
     dangerousStatus = true
     invalidInstallation = true
   end
-  booting = false
-  --login_gui()
   if setting.variables.temp.restore_legacy_login then
     login_gui()
   else
     parallel.waitForAll(login_gui_unreleased,login_clock)
   end
-  --parallel.waitForAll(login_gui_unreleased,notifHandler,taskHandler,eventHandler)
 end
 function cprint( text, y )
   local x = term.getSize()
@@ -1916,7 +1663,6 @@ function cprint( text, y )
   write( text )
 end
 function bootanimation()
-  booting = true
   if not term.isColor() then
     printerr("No color support detected, quitting..")
     sleep(2)
@@ -1947,13 +1693,10 @@ function bootanimation()
   if shell.getRunningProgram() == "startup" then
     error("Invalid session: cannot be run as startup")
   end
-  --print("edge")
   os.loadAPI("Axiom/libraries/edge")
   if not _G.unreleased then edge.noLog = true end
-  --print("setting")
-  if monitor then
-    --printout("Connecting to monitor...")
-    local ok, err = edge.setScreen(monitor)
+  if peripherals.monitor then
+    local ok, err = edge.setScreen(peripherals.monitor)
     if ok then
       printout("Monitor connected successfully")
     else
@@ -1961,21 +1704,13 @@ function bootanimation()
     end
   end
   os.loadAPI("Axiom/libraries/setting")
-  --print("encryption")
   os.loadAPI("Axiom/libraries/encryption")
-  --print("loaded apis")
   if not edge then os.reboot() end
-  if _G.unreleased then
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  else
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  end
-  --sleep(10)
+  term.setBackgroundColor(colors.black)
+  term.setTextColor(colors.white)
   shell.run("clear")
 
-  latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
+  --latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
 
   local mx, my = term.getSize()
 
@@ -2019,15 +1754,12 @@ function bootanimation()
           if not apil then
             os.unloadAPI(apil)
             c = c - 1
-            --if err then print(err) sleep(3) end
             table.insert(apiErrors, api.." could not load")
           end
         else
           table.insert(apiErrors, api.." not loaded. (access denied)")
           c = c - 1
         end
-        --sleep(0.2)
-        --sleep(3)
       end
       table.insert(apiErrors, "Loaded "..c.." API(s)")
       edge.log("Loaded custom apis.")
@@ -2041,19 +1773,15 @@ function bootanimation()
   if not setting then
     error("Axiom did not load Settings API properly.")
   end
-  if not next then
-    error("Axiom did not find Next API, which doesn't affect this OS what so ever since it's obsolete. Rendering this snippet of code absolutely useless.")
+  do
+    local colMap = {colors.black, colors.gray, colors.lightGray, bgcol}
+    for k, v in ipairs(colMap) do
+      term.setTextColor(colMap)
+      edge.render(1,1,mx, my, v, colors.white, "", colors.black)
+      sleep(1/#colMap)
+    end
   end
-  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
-  sleep(0.1)
 
-  --log("settings "..tostring(sysSettings))
   if not setting.variables.temp.system_skipsys_scan then
     if fs.exists("Axiom/log.txt") then
       if fs.getSize("Axiom/log.txt") >= 12000 then
@@ -2067,7 +1795,6 @@ function bootanimation()
     for _, file in ipairs(fileList) do
       if file == "rom" then
         log("SYSTEM: CraftOS System file detected '"..file.."'. Ignoring")
-        --edge.render(midx - string.len("Disallowed file detected, removing") / 2,8,48,8,colors.white,colors.cyan,"Disallowed file detected, removing",colors.black)
       else
         if fs.isDir(file) then
           log("SYSTEM: Verified folder "..file.."/ and it's contents")
@@ -2086,81 +1813,34 @@ function bootanimation()
         end
         x, y = term.getSize()
         midx = x / 2
-        --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2,8,48,8,colors.white,colors.cyan,"File "..loaded.." of "..toLoad.." verified.",colors.black)
-        loaded = loaded + 1
-        --sleep(0.1)
-      end
+        loaded = loaded + 1      end
 
-      --print("Loaded: os/libraries/"..file)
     end
   end
 
-  --sleep(0.2)
-  -- cprint("  X I O  ",my/2)
-  -- cprint("  . . .  ",(my/2)+1)
-  -- sleep(0.2)
-  -- cprint("    I    ",my/2)
-  -- cprint("    .    ",(my/2)+1)
-  -- sleep(0.2)
-  -- cprint("         ",my/2)
-  -- cprint("         ",(my/2)+1)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.black)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.gray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.lightGray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.white)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.lightGray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.gray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.black)
-  edge.cprint(productName,10)
-  sleep(1)
-  local c = 0
-  while c ~= 1 do
-    --edge.render(1,1,scr_x,20,colors.orange,colors.white,"test")
-    term.setTextColor(colors.black)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.gray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.lightGray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.white)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.lightGray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.gray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.black)
-    edge.cprint(productName,10)
-    sleep(1)
-    c= c + 1
+  term.setCursorPos(1, 1)
+  term.setBackgroundColor(colors.white)
+  term.clear()
+  do --TODO: special animation if pallete is available
+    local colMap = {colors.black, colors.gray, colors.lightGray, colors.white, colors.lightGray, colors.gray, colors.black}
+    for i=1, 2 do
+      for k, v in ipairs(colMap) do
+        term.setTextColor(colMap)
+        edge.cprint(dat.productName.." "..dat.sub_version)
+        sleep(1/#colMap)
+      end
+    end
   end
-  --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Started! "))) -- Excessive? Probably.
-  edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
-  sleep(0.1)
+  
+    do
+    local colMap = {bgcol, colors.lightGray, colors.gray, colors.black}
+    for k, v in ipairs(colMap) do
+      term.setTextColor(colMap)
+      edge.render(1,1,mx, my, v, colors.white, "", colors.black)
+      sleep(1/#colMap)
+    end
+  end
+  
   term.setCursorPos(1,1)
   initialize()
 end
@@ -2197,47 +1877,27 @@ function safeBoot(force)
     end
   end
 
-  tasks.kernel = true
   term.setBackgroundColor(colors.black)
   term.setTextColor(colors.white)
-  os.loadAPI("Axiom/libraries/edge")
-  if not _G.unreleased then edge.noLog = true end
-  printout("LOADED: Edge")
-  if monitor then
-    printout("Connecting to monitor...")
-    local ok, err = edge.setScreen(monitor)
+  local libs = {"setting", "edge", "encryption", "button"}
+  for k, v in pairs(libs) do
+    os.loadAPI("Axiom/libraries/"..v)
+    printout("Loaded "..v)
+  end
+  edge.noLog = true
+  if peripherals.monitor then
+    printout("Binding monitor...")
+    local ok, err = edge.setScreen(peripherals.monitor)
     if ok then
-      printout("Monitor connected successfully")
+      printout("Monitor successfully binded")
     else
       printerr("Monitor not present or disconnected")
       printerr("Returned: "..tostring(err))
     end
   end
 
-
-  os.loadAPI("Axiom/libraries/setting")
-
-  --files = setting.variables.users[_G.currentUser].fexplore_startdir
-  printout("LOADED: settings")
-  os.loadAPI("Axiom/libraries/encryption")
-  printout("LOADED: encryption")
-
-  --cprint("A X I O M",9)
-
-  printout("Determining latest version.")
-  latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
-  if latestversion.readAll() == nil or latestversion.readAll() == "" then
-    printwarn("Error determining version.")
-    latestversion = version
-  else
-    printout(latestversion.readAll())
-  end
-  sleep(1)
   if not edge then
     error("AXIOM-EdgeNotLoaded")
-  end
-  if not next then
-    error("AXIOM-NextNotLoaded")
   end
   if setting.getVariable("Axiom/settings.0","system_skipsys_scan") == "false" then
     if fs.exists("Axiom/log.txt") then
@@ -2251,7 +1911,6 @@ function safeBoot(force)
     for _, file in ipairs(fileList) do
       if file == "rom" then
         log("SYSTEM: CraftOS System file detected '"..file.."'. Ignoring")
-        --edge.render(midx - string.len("Disallowed file detected, removing") / 2,8,48,8,colors.white,colors.cyan,"Disallowed file detected, removing",colors.black)
       else
         if fs.isDir(file) then
           printout("SYSTEM: Verified folder "..file.."/ and it's contents")
@@ -2260,12 +1919,9 @@ function safeBoot(force)
         end
         x, y = term.getSize()
         midx = x / 2
-        --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2,8,48,8,colors.white,colors.cyan,"File "..loaded.." of "..toLoad.." verified.",colors.black)
         loaded = loaded + 1
         sleep(0.1)
       end
-
-      --print("Loaded: os/libraries/"..file)
     end
   end
   if setting.variables.users["KERNEL"].allow_apis == true then
@@ -2308,7 +1964,6 @@ function safeBoot(force)
           if not apil then
             os.unloadAPI(apil)
             c = c - 1
-            --if err then print(err) sleep(3) end
             table.insert(apiErrors, api.." could not load")
             printerror(api.." could not load")
           else
@@ -2319,8 +1974,6 @@ function safeBoot(force)
           printerr(api.." not loaded (access denied)")
           c = c - 1
         end
-        --sleep(0.2)
-        --sleep(3)
       end
       table.insert(apiErrors, "Loaded "..c.." API(s)")
       printout("Loaded custom apis.")
@@ -2384,8 +2037,6 @@ end
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 printout("SYSTEM: Starting services..")
-tasks.kernel = true
-tasks.permngr = true
 if fs.exists("safeStart") then
   if fs.exists("limbo") then
     hasRootAccess = true
@@ -2404,7 +2055,6 @@ if fs.exists("safeStart") then
   term.setBackgroundColor(colors.black)
   shell.run("clear")
   term.setTextColor(colors.white)
-  --paintutils.drawLine(1,my/2,mx,my/2,colors.blue)
   term.setBackgroundColor(colors.blue)
   term.setCursorPos(1,1)
   print("[AXIOM BOOT MANAGER]")
@@ -2419,41 +2069,13 @@ if fs.exists("safeStart") then
   print("")
   while(true) do
     local event, button, x, y = os.pullEvent("mouse_click")
-    if x == 2 and y == 4 then
-      safe = true
-      craftos = false
-      term.setCursorPos(1,4)
-      print("[+] Last known good configuration")
-      print("    (Overrides your settings)")
-      print("[ ] Normal start + cleared logs")
-      print("")
-      print("[ ] Terminal")
-      print("")
-      print("[Boot]")
-    end
-    if x == 2 and y == 6 then
-      safe = false
-      craftos = false
-      term.setCursorPos(1,4)
-      print("[ ] Last known good configuration")
-      print("    (Overrides your settings)")
-      print("[+] Normal start + cleared logs")
-      print("")
-      print("[ ] Terminal")
-      print("")
-      print("[Boot]")
-    end
-    if x == 2 and y == 8 then
-      safe = false
-      craftos = true
-      term.setCursorPos(1,4)
-      print("[ ] Last known good configuration")
-      print("    (Overrides your settings)")
-      print("[ ] Normal start + cleared logs")
-      print("")
-      print("[+] Terminal")
-      print("")
-      print("[Run] ")
+    if  x == 2 and y<=7 and y>=3 then
+      for i=3, 7, 2 do
+        term.setCursorPos(2, i)
+        term.write(" ")
+      end
+      term.setCursorPos(2, y)
+      term.write("x")
     end
     if x >= 1 and x <= 5 and y == 10 then
       if safe == false and craftos == false then
@@ -2472,8 +2094,8 @@ if fs.exists("safeStart") then
           end
           terminal("/")
           print("Goodbye!")
-          if hasRednet then
-            rednet.close(detectedSide)
+          if peripherals.modem then
+            peripherals.modem.closeAll()
           end
           os.shutdown()
         else
@@ -2487,12 +2109,6 @@ if fs.exists("safeStart") then
   end
 end
 
-
---sleep(1)
---print("Total space:"..totalused + fs.getFreeSpace("/"))
---print("Space used:"..totalused)
---print("Free space:"..fs.getFreeSpace("/"))
---sleep(5)
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 if fs.exists("bios.lua") and fs.exists("ccbox.lua") then
@@ -2511,10 +2127,10 @@ if force_logcat or _G.unreleased then
     errorMessager(err)
   end
 end
+
 if os.version() ~= "CraftOS 1.7" then
   if os.version() == "CraftOS 1.5" then
     printerr("please update ComputerCraft.")
-
   end
   if os.version() == "CraftOS 1.8" then
     printwarn("Settings is known not to work properly in CC 1.80.")
