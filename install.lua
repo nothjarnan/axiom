@@ -11,7 +11,8 @@ local branch = 1
 -- Branches
 local branches = {
   "master",
-  "experimental"
+  "experimental",
+  "hotfix",
 }
 
 for k,v in ipairs(tArgs) do
