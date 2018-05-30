@@ -51,16 +51,13 @@ if version == "CraftOS 1.5" then
   error("Axiom is not compatible with "..version.."!")
 end
 print("AxiomUI Github Superfast(tm) Installer")
-local branches = {
-  "master",
-  "experimental"
-}
 
 print("Select a branch:")
 
-
 local user = "nothjarnan"
 local branch = 1
+local x,y = term.getCursorPos()
+selector(y,branch)
 while(true) do
   local e,k,h = os.pullEvent( "key" )
   if k == keys.up then
