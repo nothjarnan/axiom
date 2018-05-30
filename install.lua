@@ -55,26 +55,9 @@ local branches = {
   "master",
   "experimental"
 }
-local continue = false
+
 print("Select a branch:")
-for k,v in ipairs(branches) do
-  print("["..k.."] "..v)
-end
-while(true) do
-  local e,k,h = os.pullEvent("key")
-  if k > 2 and k < 11 and not continue then
-    if k-1 < #branches then
-      print(branch[k-1].. " was selected.")
-      print("continue?")
-    end
-  end
-  if continue then
-    if k == 28 then
-      continue = true
-      break
-    end
-  end
-end
+
 
 local user = "nothjarnan"
 local branch = 1
