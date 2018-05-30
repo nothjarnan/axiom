@@ -1676,8 +1676,8 @@ function ftsRender(step,usr,pw,l,adduser)
       setting.addUser(usr,encryption.sha256(pw.."QxLUF1bgIAdeQX"),usr,true)
     end
     setting.variables.temp.first_start = false
-    sleep(3)
     setting.writesettings()
+    sleep(1)
     if not adduser then
       if not fs.exists("home/"..usr.."/Desktop/files.lnk") then
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 1/3",colors.lightGray)
@@ -1696,6 +1696,7 @@ function ftsRender(step,usr,pw,l,adduser)
         sleep(1)
         local mx = term.getSize()
       end
+      setting.writesettings()
       os.reboot()
     end
     return true
@@ -1807,6 +1808,7 @@ function initialize()
 
     setting.variables.temp.installDate = os.day()
     setting.variables.temp.systemID = os.getComputerID()
+    setting.variables.temp.first_start = false
       --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
     setting.writesettings()
     firstTimeSetupNew()
