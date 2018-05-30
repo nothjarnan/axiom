@@ -246,14 +246,7 @@ end
 function checkForUpdates()
   return false
 end
-function modemHandler()
-  -- Handle peripheral
-  while(true) do
-    local event, side = os.pullEvent("peripheral")
-    edge.windowAlert(25,10,"New peripheral attached on side "..side.. " of type "..peripheral.getType(side).."!", true, colors.green)
-    sleep(4)
-  end
-end
+
 function keyStrokeHandler()
   local keystrokes = {
     0,

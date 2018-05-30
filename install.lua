@@ -1,7 +1,33 @@
+local tArgs= {...}
+-- Installer properties
+local delete_files = false
+local skip_branch_select = false
+local reboot = false
+
+local user = "nothjarnan"
+local branch = 1
+
+-- Branches
 local branches = {
   "master",
   "experimental"
 }
+
+for k,v in ipairs(tArgs) do
+  if v == "-r" then
+    reboot = true
+  end
+  if v == "-d" then
+    delete_files = true
+  end
+  for a,b in ipairs(branches) do
+    if v == b then
+      branch = a
+      skip_branch_select = true
+      break
+    end
+  end
+end
 
 
 local function formatFS()
@@ -18,20 +44,30 @@ local function formatFS()
       end
     end
     fs.delete("AxiomUI")
-    print("Press and hold Y to delete unused files.")
-    while(true) do
-      local event, key, isHeld = os.pullEvent("key")
-      if isHeld then
-        if key == keys.y then
-          write("Deleting files.. ")
-          fs.delete("install.lua")
-          fs.delete("README.md")
-          print("OK")
-          break
-        else
-          break
+    -- Ask for user confirmation unless specified
+    if not delete_files then
+      print("Press and hold Y to delete unused files. Press and hold any other key to exit")
+      while(true) do
+        local event, key, isHeld = os.pullEvent("key")
+        if isHeld then
+          if key == keys.y then
+            write("Deleting files.. ")
+            fs.delete("install.lua")
+            fs.delete("README.md")
+            sleep(.25)
+            print("OK")
+            break
+          else
+            break
+          end
         end
       end
+    else
+      write("Deleting files.. ")
+      fs.delete("install.lua")
+      fs.delete("README.md")
+      sleep(.25)
+      print("OK")
     end
   else
     error("formatFS failed")
@@ -61,40 +97,40 @@ if version == "CraftOS 1.5" then
   error("Axiom is not compatible with "..version.."!")
 end
 print("AxiomUI Github Superfast(tm) Installer")
-
-print("Select a branch:")
-
-local user = "nothjarnan"
-local branch = 1
-local x,y = term.getCursorPos()
-if y > 18 then
-  shell.run("clear")
+if not skip_branch_select then
   print("Select a branch:")
-  x,y = term.getCursorPos()
-end
-selector(y,branch)
-while(true) do
-  local e,k,h = os.pullEvent( "key" )
-  if k == keys.up then
-    if branch > 1 then
-      branch = branch - 1
-      selector(y,branch)
-    end
+
+  local x,y = term.getCursorPos()
+  if y > 18 then
+    shell.run("clear")
+    print("Select a branch:")
+    x,y = term.getCursorPos()
   end
-  if k == keys.down then
-    if branch < #branches then
-      branch = branch + 1
-      selector(y,branch)
+  selector(y,branch)
+  while(true) do
+    local e,k,h = os.pullEvent( "key" )
+    if k == keys.up then
+      if branch > 1 then
+        branch = branch - 1
+        selector(y,branch)
+      end
     end
-  end
-  if k == keys.enter then
-    branch = branches[branch]
-    print("Branch selected: "..branch)
-    print("Starting installation")
-    break
+    if k == keys.down then
+      if branch < #branches then
+        branch = branch + 1
+        selector(y,branch)
+      end
+    end
+    if k == keys.enter then
+      branch = branches[branch]
+      print("Branch selected: "..branch)
+      print("Starting installation")
+      break
+    end
   end
 end
 wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
 shell.run(".gitget "..user.." axiom-opensource "..branch.." AxiomUI")
 formatFS()
 print("Installation completed.")
+if reboot then os.reboot() end
