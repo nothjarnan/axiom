@@ -1,7 +1,7 @@
 {
   update = {
     user = "nothjarnan",
-    branch = "master",
+    branch = "experimental",
   },
   temp = {
     currentUser = nil,

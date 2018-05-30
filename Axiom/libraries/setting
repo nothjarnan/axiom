@@ -1,5 +1,5 @@
 -- Settings 2.0 by nothy
--- (C) Linus Ramneborg 2017
+-- (C) Linus Ramneborg 2018
 local tutils = textutils
 variables = {
   temp = {

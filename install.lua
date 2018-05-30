@@ -50,16 +50,15 @@ local version = os.version()
 if version == "CraftOS 1.5" then
   error("Axiom is not compatible with "..version.."!")
 end
-print("Axiom UI CE Installer")
-print("Select a branch using arrow keys")
-local x,y = term.getCursorPos()
-if y > 17 then
-  shell.run("clear")
-  print("Axiom UI CE Installer")
-  print("Select a branch using arrow keys")
-  x,y = term.getCursorPos()
-end
-selector(y,1)
+print("AxiomUI Github Superfast(tm) Installer")
+local branches = {
+  "master",
+  "experimental"
+}
+
+print("Select a branch:")
+
+
 local user = "nothjarnan"
 local branch = 1
 while(true) do
@@ -86,4 +85,4 @@ end
 wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
 shell.run(".gitget "..user.." axiom-opensource "..branch.." AxiomUI")
 formatFS()
-print("Installation completed!")
+print("Installation completed.")
