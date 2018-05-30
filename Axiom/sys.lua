@@ -115,7 +115,7 @@ local allfiles = { -- Protected files as well
   "Axiom/libraries/setting",
   "Axiom/libraries/edge",
   "Axiom/libraries/encryption",
-  "Axiom/settings.0",
+  "Axiom/settings.bak",
   "Axiom/libraries/button",
 }
 
@@ -329,7 +329,7 @@ function writesettings()
   local vars = setting.variables
   --print(textutils.serialise(vars))
   local s = textutils.serialise(vars)
-  local fh = fs.open("Axiom/settings.0","w")
+  local fh = fs.open("Axiom/settings.bak","w")
   fh.write(s)
   fh.close()
 end
@@ -410,7 +410,7 @@ end
 function execUpd(isTerminal)
   --local out = false
   --local success = false
-  --setting.setVariable("Axiom/settings.0","system_last_update","Day "..os.day().." @ "..edge.c())
+  --setting.setVariable("Axiom/settings.bak","system_last_update","Day "..os.day().." @ "..edge.c())
 
   --if not success and isTerminal then write("Update not set up yet.\n") end
   --if speakerPresent then
@@ -776,7 +776,7 @@ function terminal(dir)
   if _G.currentUser == "GUEST" then return false end
   state = "terminal"
   if not setting then
-    os.loadAPI("Axiom/libraries/setting")
+    os.loadAPI("Axiom/libraries/setting ")
   end
   if not term.isColor() then
     errorcolor = colors.lightGray
@@ -900,7 +900,7 @@ function command(cmd)
         fs.delete("/Axiom/libraries")
         fs.delete("/Axiom/images")
         fs.delete("/Axiom/sys.lua")
-        fs.delete("/Axiom/settings.0")
+        fs.delete("/Axiom/settings.bak")
         fs.delete("/Axiom/logging")
         fs.delete("/home")
         fs.delete("/users")
@@ -1532,7 +1532,7 @@ function desktop()
             if fs.exists("Axiom/programs/settings.app") and invalidInstallation == false then
               shell.run("Axiom/programs/settings.app")
               if os.version == "CraftOS 1.8" then
-                setting.loadsettings("Axiom/settings.0")
+                setting.loadsettings("Axiom/settings.bak")
               end
               desktop()
             else
@@ -1754,13 +1754,13 @@ function firstTimeSetupNew(adduser)
     end
     if x >= a-string.len("Next >> ") and x <= a and y == 2 then
       if step == 2 and #username >= 1 then
-        setting.setVariable("Axiom/settings.0","username",encryption.sha256(username.."QxLUF1bgIAdeQX"))
+        setting.setVariable("Axiom/settings.bak","username",encryption.sha256(username.."QxLUF1bgIAdeQX"))
       end
       if step == 3 then
-        setting.setVariable("Axiom/settings.0","password",encryption.sha256(password.."QxLUF1bgIAdeQX"))
+        setting.setVariable("Axiom/settings.bak","password",encryption.sha256(password.."QxLUF1bgIAdeQX"))
       end
       if licensed == true then
-        setting.setVariable("Axiom/settings.0","licensed","true")
+        setting.setVariable("Axiom/settings.bak","licensed","true")
       end
       if (step >= 1) and licensed and ((#username >= 1) or (step ~= 2))  then
         step = step + 1
@@ -1805,10 +1805,10 @@ function firstTimeSetupNew(adduser)
 end
 function initialize()
 
-  --setting.loadsettings("Axiom/settings.0")
-  if not fs.exists("Axiom/settings.0") then
+  setting.loadsettings("Axiom/settings.bak")
+  if not fs.exists("Axiom/settings.bak") then
     axiom.alert("FATAL ERROR, SETTINGS FILE NOT FOUND.",3)
-    return false, "axiom/settings.0 could not be found."
+    return false, "axiom/settings.bak could not be found."
   end
 
   if setting.variables.temp.first_start == true or setting.variables.temp.first_start == nil  then
@@ -1892,7 +1892,7 @@ function bootanimation()
   end
   --print("edge")
   os.loadAPI("Axiom/libraries/edge")
-  if not _G.unreleased then edge.noLog = true end
+
   --print("setting")
   if monitor then
     --printout("Connecting to monitor...")
@@ -2182,7 +2182,7 @@ function safeBoot(force)
   if not next then
     error("AXIOM-NextNotLoaded")
   end
-  if setting.getVariable("Axiom/settings.0","system_skipsys_scan") == "false" then
+  if setting.getVariable("Axiom/settings.bak","system_skipsys_scan") == "false" then
     if fs.exists("Axiom/log.txt") then
       if fs.getSize("Axiom/log.txt") >= 12000 then
         fs.delete("Axiom/log.txt")
@@ -2281,8 +2281,8 @@ function safeBoot(force)
     username = read()
     write("password:")
     password = read("*")
-    if encryption.sha256(username.."QxLUF1bgIAdeQX") == setting.getVariable("Axiom/settings.0","username") then
-      if encryption.sha256(password.."QxLUF1bgIAdeQX") == setting.getVariable("Axiom/settings.0","password") then
+    if encryption.sha256(username.."QxLUF1bgIAdeQX") == setting.getVariable("Axiom/settings.bak","username") then
+      if encryption.sha256(password.."QxLUF1bgIAdeQX") == setting.getVariable("Axiom/settings.bak","password") then
           local ok, err = pcall(desktop)
           if not ok then
             printerr("Fatal error: "..err)
@@ -2400,9 +2400,9 @@ if fs.exists("safeStart") then
     end
     if x >= 1 and x <= 5 and y == 10 then
       if safe == false and craftos == false then
-        if fs.exists("Axiom/settings.0") and fs.exists("Axiom/backup/os/settings.0") then
-          fs.delete("Axiom/settings.0")
-          fs.move("Axiom/backup/os/settings.0","Axiom/settings.0")
+        if fs.exists("Axiom/settings.bak") and fs.exists("Axiom/backup/os/settings.bak") then
+          fs.delete("Axiom/settings.bak")
+          fs.move("Axiom/backup/os/settings.bak","Axiom/settings.bak")
         end
         fs.delete("safeStart")
         bootanimation()
@@ -2466,26 +2466,26 @@ if os.version() ~= "CraftOS 1.7" then
   printwarn("running on unsupported CraftOS version, may be unstable")
   sleep(1)
 end
-if fs.exists("Axiom/settings.bak") == true and fs.exists("Axiom/settings.0") == false then
-  fs.copy("Axiom/settings.bak","Axiom/settings.0")
+if fs.exists("Axiom/settings.bak") == true and fs.exists("Axiom/settings.bak") == false then
+  fs.copy("Axiom/settings.bak","Axiom/settings.bak")
   printout("Settings file has been copied from backup.")
 end
-if not fs.exists("Axiom/settings.0") then
+if not fs.exists("Axiom/settings.bak") then
   term.setTextColor(colors.white)
   term.setBackgroundColor(colors.black)
-  if fs.exists("Axiom/backup/os/settings.0") then
-    fs.copy("Axiom/backup/os/settings.0","Axiom/settings.0")
+  if fs.exists("Axiom/backup/os/settings.bak") then
+    fs.copy("Axiom/backup/os/settings.bak","Axiom/settings.bak")
     printout("Restored settings from backup.")
   else
     printerr("Settings file is missing or corrupt. System will reboot when repair is finished.")
-    noapidl("https://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1","Axiom/settings.0")
+    noapidl("https://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1","Axiom/settings.bak")
     printout("Repair finished. Rebooting into first time setup.")
     sleep(5)
     os.reboot()
   end
 end
-if fs.exists("Axiom/settings") == true and fs.exists("Axiom/settings.0") == false then
-  fs.copy("Axiom/settings","Axiom/settings.0")
+if fs.exists("Axiom/settings") == true and fs.exists("Axiom/settings.bak") == false then
+  fs.copy("Axiom/settings","Axiom/settings.bak")
   fs.delete("Axiom/settings")
   printout("Settings file has been updated to support "..version)
   sleep(1)
