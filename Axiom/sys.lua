@@ -1676,22 +1676,29 @@ function ftsRender(step,usr,pw,l,adduser)
       setting.addUser(usr,encryption.sha256(pw.."QxLUF1bgIAdeQX"),usr,true)
     end
     setting.variables.temp.first_start = false
+    fs.makeDir("Axiom/.fs")
     setting.writesettings()
     sleep(1)
     if not adduser then
       if not fs.exists("home/"..usr.."/Desktop/files.lnk") then
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 1/3",colors.lightGray)
         local fh = fs.open("home/"..usr.."/Desktop/files.lnk","w")
-        fh.write("Axiom/programs/explorer.app")
-        fh.close()
+        if fh then
+          fh.write("Axiom/programs/explorer.app")
+          fh.close()
+        end
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 2/3",colors.lightGray)
         local fh2 = fs.open("home/"..usr.."/Desktop/settings.lnk","w")
-        fh2.write("Axiom/programs/settings.app")
-        fh2.close()
+        if fh2 then
+          fh2.write("Axiom/programs/settings.app")
+          fh2.close()
+        end
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 3/3",colors.lightGray)
         local fh2 = fs.open("home/"..usr.."/Desktop/store.lnk","w")
-        fh2.write("Axiom/programs/stdgui.app")
-        fh2.close()
+        if fh2 then
+          fh2.write("Axiom/programs/stdgui.app")
+          fh2.close()
+        end
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. OK ",colors.lightGray)
         sleep(1)
         local mx = term.getSize()
@@ -1804,11 +1811,12 @@ function initialize()
     return false, "axiom/settings.bak could not be found."
   end
 
-  if setting.variables.temp.first_start == true or setting.variables.temp.first_start == nil  then
+  if not fs.exists("Axiom/.fs") then
 
     setting.variables.temp.installDate = os.day()
     setting.variables.temp.systemID = os.getComputerID()
     setting.variables.temp.first_start = false
+    fs.makeDir("Axiom/.fs")
       --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
     setting.writesettings()
     firstTimeSetupNew()
