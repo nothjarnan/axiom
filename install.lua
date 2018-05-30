@@ -18,10 +18,20 @@ local function formatFS()
       end
     end
     fs.delete("AxiomUI")
-    print("Delete extra files?")
-    if read() == "y" then
-      fs.delete("install.lua")
-      fs.delete("README.md")
+    print("Press and hold Y to delete unused files.")
+    while(true) do
+      local event, key, isHeld = os.pullEvent("key")
+      if isHeld then
+        if key == keys.y then
+          write("Deleting files.. ")
+          fs.delete("install.lua")
+          fs.delete("README.md")
+          print("OK")
+          break
+        else
+          break
+        end
+      end
     end
   else
     error("formatFS failed")
