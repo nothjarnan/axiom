@@ -3,6 +3,7 @@ local tArgs= {...}
 local delete_files = false
 local skip_branch_select = false
 local reboot = false
+local format = false
 
 local user = "nothjarnan"
 local branch = 1
@@ -14,6 +15,9 @@ local branches = {
 }
 
 for k,v in ipairs(tArgs) do
+  if v == "-f" then
+    format = true
+  end
   if v == "-r" then
     reboot = true
   end
@@ -24,11 +28,40 @@ for k,v in ipairs(tArgs) do
     if v == b then
       branch = a
       skip_branch_select = true
+      print("Selected branch "..b)
       break
     end
   end
 end
-
+if format then
+  term.setTextColor(colors.red)
+  print("WARNING")
+  term.setTextColor(colors.white)
+  print("Formatting your system *WILL* remove *EVERY* file from your computer, CONTINUE? (hold Y)")
+  while(true) do
+    local event, key, isHeld = os.pullEvent("key")
+    if isHeld then
+      if key == keys.y then
+        print("Formatting.. ")
+        local files = fs.list("/")
+        for k,v in ipairs(files) do
+          if v ~= "rom" and v ~= shell.getRunningProgram() then
+            print("-"..v)
+            fs.delete(v)
+            sleep(.1)
+            -- Wait a tiny bit to actually make it look like it's working.
+            -- This is actually a scientifically proven thing, people are more trustworthy of things that 'look' like
+            -- It's doing something, rather than something that actually does something. That's how ransomware works!
+          end
+        end
+        print("Format complete")
+        break
+      else
+        break
+      end
+    end
+  end
+end
 
 local function formatFS()
   local function mkdir(dir)
@@ -75,10 +108,14 @@ local function formatFS()
 end
 local function wget(url, file)
   local data = http.get(url)
-  data = data.readAll()
-  local file_handle = fs.open(file,"w")
-  file_handle.write(data)
-  file_handle.close()
+  if data ~= nil then
+    data = data.readAll()
+    local file_handle = fs.open(file,"w")
+    file_handle.write(data)
+    file_handle.close()
+  else
+    error("Could not download "..file..", quitting..")
+  end
 end
 function selector(y,option)
   term.setCursorPos(1,y)
