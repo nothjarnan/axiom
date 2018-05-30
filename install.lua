@@ -57,6 +57,11 @@ print("Select a branch:")
 local user = "nothjarnan"
 local branch = 1
 local x,y = term.getCursorPos()
+if y > 18 then
+  shell.run("clear")
+  print("Select a branch:")
+  x,y = term.getCursorPos()
+end
 selector(y,branch)
 while(true) do
   local e,k,h = os.pullEvent( "key" )
