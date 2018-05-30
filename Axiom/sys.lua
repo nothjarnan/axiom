@@ -325,14 +325,6 @@ function noapidl(url, file)
     --print("Written to file "..file)
 
 end
-function writesettings()
-  local vars = setting.variables
-  --print(textutils.serialise(vars))
-  local s = textutils.serialise(vars)
-  local fh = fs.open("Axiom/settings.bak","w")
-  fh.write(s)
-  fh.close()
-end
 function download(url, file, logOutput)
 
   if logOutput then
@@ -1569,10 +1561,10 @@ function desktop()
               setting.variables.temp.first_update = true
               edge.windowAlert(25,10,productName.." is downloading additional files, please wait.","noButton",colors.lightBlue)
               execUpd()
-              writesettings()
+              setting.writesettings()
               os.reboot()
             end
-            writesettings()
+            setting.writesettings()
             sleep(0.5)
             os.reboot()
           end
@@ -1611,13 +1603,13 @@ function desktop()
               edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
               edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
               execUpd()
-              writesettings()
+              setting.writesettings()
               if hasRednet then
                 rednet.close(detectedSide)
               end
               os.shutdown()
             end
-            writesettings()
+            setting.writesettings()
             if hasRednet then
               rednet.close(detectedSide)
             end
@@ -1816,7 +1808,7 @@ function initialize()
     setting.variables.temp.installDate = os.day()
     setting.variables.temp.systemID = os.getComputerID()
       --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
-    writesettings()
+    setting.writesettings()
     firstTimeSetupNew()
   else
     edge.log("User already has account")
@@ -1830,7 +1822,7 @@ function initialize()
     end
     if setting.variables.temp.debugID == 0 and dUser ~= nil then
       setting.variables.temp.debugID = "user-"..dUser..""..math.random(0,9)..math.random(0,9)..math.random(0,9)..math.random(0,9)
-      writesettings()
+      setting.writesettings()
     end
   end
   if setting.variables.temp.systemID == 0 or setting.variables.temp.systemID == nil  then
@@ -1977,7 +1969,7 @@ function bootanimation()
     end
 
   end
-  writesettings()
+  setting.writesettings()
   if not edge then
     error("Axiom did not load Edge properly.")
   end
