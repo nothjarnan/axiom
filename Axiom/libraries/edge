@@ -543,7 +543,7 @@ function aabb(x,y,vx,vy,ex,ey)
     return false
   end
 end
-if true then
+if replicate_to_screen then
   local myterm = {}
   local oterm = term.current()
   for k, v in pairs(oterm) do
