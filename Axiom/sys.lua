@@ -1685,7 +1685,7 @@ function ftsRender(step,usr,pw,l,adduser)
     end
     setting.variables.temp.first_start = false
     sleep(3)
-    writesettings()
+    setting.writesettings()
     if not adduser then
       if not fs.exists("home/"..usr.."/Desktop/files.lnk") then
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 1/3",colors.lightGray)
