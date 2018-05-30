@@ -92,9 +92,6 @@ function addUser(username, pw, display,su)
     allow_downloads = true,
   }
 end
-if fs.exists("Axiom/settings.0") then
-  loadsettings("Axiom/settings.0")
-elseif fs.exists("Axiom/settings.bak") then
-  fs.copy("Axiom/settings.bak","Axiom/settings.0")
-  loadsettings("Axiom/settings.0")
+if fs.exists("Axiom/settings.bak") then
+  loadsettings("Axiom/settings.bak")
 end
