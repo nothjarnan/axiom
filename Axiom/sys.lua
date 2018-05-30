@@ -120,10 +120,13 @@ local allfiles = { -- Protected files as well
 }
 
 events = true
-_G.currentUser = "KERNEL"
 disableclock = true
 useOldFS = false
 updating = false
+
+-- GLOBALS
+
+_G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
 _G.version_sub = ""
 _G.version = "5.0"
@@ -133,6 +136,9 @@ if _G.unreleased then
   _G.version = _G.version.." nightly"
 end
 _G.latestversion = version
+
+-- CC 1.78 GLOBALS
+
 announcement = ""
 state = ""
 tasks = {kernel=false,settings_app=false,permngr=false,clock=false,filebrowser=false}
@@ -148,49 +154,14 @@ if _G.unreleased == true then
 else
   allow_background_change = true
 end
-if _G.unreleased == true then
-  edition = "AXu"
-else
-  edition = "AX"
-end
 
+-- LOCALS
 local forcing = false
 local editing = false
 local theme_topbar = colors.green -- green
 local theme_ui = colors.lime --lime
-x, y = term.getSize()
-buttons = {}
-buttonapi = {
-    add = function(x1, y1, x2, y2, name)
-        buttons[#buttons+1] = {x1, y1, x2, y2, name}
-    end,
-    check = function()
-        _, _, x, y = os.pullEvent("mouse_click")
-        sleep()
-        for i = 1, #buttons do
-            if x >= buttons[i][1] and y >= buttons[i][2] and x <= buttons[i][3] and y <= buttons[i][4] then
-                return buttons[i][5]
-            end
-        end
-    end,
-    clear =  function()
-      for i = 1, #buttons do
-        buttons[i] = nil
-      end
-    end
-}
-text = {
-    format = function(str, x0, y0)
-        repeat
-            y0 = y0+1
-            term.setCursorPos(x0, y0)
-            p = string.sub(str, 0, x-2)
-            term.write(p)
-            str = string.sub(str, x-1, -1)
-        until string.len(str) == 0
-        return term.getCursorPos()
-    end
-}
+local term_x, term_y = term.getSize()
+
 --local settings_tips = {"Unreleased"}
 -- New print functions:
 function printwarn(text)
@@ -210,6 +181,7 @@ function printwarn(text)
   sleep(0.1)
 end
 function printerr(text)
+  -- Make sure that if a monitor is connected, we print error to monitor as well.
   if edge then
     if edge.hasScreen() then
       edge.printerr(text)
@@ -223,9 +195,9 @@ function printerr(text)
   write("]")
   term.setTextColor(colors.white)
   print(" "..text)
-  sleep(0.1)
 end
 function printout(text)
+  -- Make sure that if a monitor is connected, we print output to monitor as well.
   if edge then
     if edge.hasScreen() then
       edge.printout(text)
@@ -239,7 +211,6 @@ function printout(text)
   write("]")
   term.setTextColor(colors.white)
   print(" "..text)
-  sleep(0.1)
 end
 
 --
@@ -271,45 +242,11 @@ function errorHandler(err)
   print(_G.currentUser)
   print("If you're not quite sure what to do with this, just screenshot it.")
 end
-axiom = {}
-function axiom.alert(string, alertsev)
-  local usedprefix = "[log]"
-  if alertsev == nil then alertsev = 0 end
-  if alertsev == 0 then
-    usedprefix = "[log]"
-  end
-  if alertsev == 1 then
-    usedprefix = "[warn]"
-  end
-  if alertsev == 2 then
-    usedprefix = "[error]"
-  end
-  if alertsev == 3 then
-    usedprefix = "[syserror]"
-    edge.render(1,3,scr_x,5,colors.white,colors.cyan," Critical alert",colors.black)
-    edge.render(1,4,scr_x,4,colors.white,colors.cyan,string,colors.black,false)
-  end
-  edge.log("Alert: "..usedprefix..":"..string)
-  edge.notify(usedprefix..":"..string)
-  local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(usedprefix..":"..string)))
-  alerts[#alerts+1] = {
-    severity = alertsev,
-    prefix = usedprefix,
-    text = string,
-  }
-end
 
 function checkForUpdates()
   return false
 end
-function modemHandler()
-  -- Handle peripheral
-  while(true) do
-    local event, side = os.pullEvent("peripheral")
-    edge.windowAlert(25,10,"New peripheral attached on side "..side.. " of type "..peripheral.getType(side).."!", true, colors.green)
-    sleep(4)
-  end
-end
+
 function keyStrokeHandler()
   local keystrokes = {
     0,
