@@ -924,7 +924,7 @@ local renderStoreItem = function(obj) --now being experimented on...
 				if not bruffer[y] then break end
 				extraLines = extraLines + printf(bruffer[y])
 			end
-			
+
 			term.setCursorPos(1,scr_y)
 			if term.isColor() then
 				term.setTextColor(palate.item.closetxt)
@@ -1490,7 +1490,7 @@ local doEverything = function() --do I have to do EVERYTHING?
 							if isSimSoft then
 								SimSoftDownloadPrompt(yposes[y])
 							elseif isAxiom then
-								STDdownloadPrompt(yposes[y]) --axiom only changes the 
+								STDdownloadPrompt(yposes[y]) --axiom only changes the
 							end
 							--break
 						end

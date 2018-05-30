@@ -108,10 +108,10 @@ alerts = {
 local allfiles = { -- Protected files as well
   "startup",
   "Axiom/sys.lua",
-  "Axiom/images/default.axg",
+  "Axiom/images/default.nfp",
   "Axiom/images/AX.nfp",
-  "Axiom/images/axiom.axg",
-  "Axiom/images/nature.axg",
+  "Axiom/images/axiom.nfp",
+  "Axiom/images/nature.nfp",
   "Axiom/libraries/setting",
   "Axiom/libraries/edge",
   "Axiom/libraries/encryption",
@@ -263,7 +263,7 @@ function errorHandler(err)
     fs.makeDir("/safeStart")
   end
 
-  shell.run("clear")
+  term.clear()
   print("Well, this is embarrassing.")
   print("Looks like Axiom crashed. Here's some useful information to provide the debugging monkey team:")
   print(err)
@@ -471,16 +471,20 @@ function download(url, file, logOutput)
 
 end
 function execUpd(isTerminal)
-  local out = false
-  local success = false
+  --local out = false
+  --local success = false
   --setting.setVariable("Axiom/settings.0","system_last_update","Day "..os.day().." @ "..edge.c())
 
-  if not success and isTerminal then write("Update not set up yet.\n") end
-  if speakerPresent then
-    speaker.playNote("harp",1, 1.5)
-  end
-  sleep(0.1)
-  return success,"Update system not finished for Community version. Use gitget to update."
+  --if not success and isTerminal then write("Update not set up yet.\n") end
+  --if speakerPresent then
+  --  speaker.playNote("harp",1, 1.5)
+  --end
+  --sleep(0.1)
+  --return success,"Update system not finished for Community version. Use gitget to update."
+  local out = true
+  local success = true
+  shell.run("/.gitget "..setting.variables.update.user.." axiom-opensource "..setting.variables.update.branch.." /")
+  return success, "Updated with gitget."
 end
 function login_clock()
   local mx, my = term.getSize()
@@ -993,7 +997,7 @@ function command(cmd)
     if edge then
       edge.render(1,2,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
     else
-      shell.run("clear")
+      term.clear()
     end
     term.setCursorPos(1,2)
   end
@@ -1231,6 +1235,8 @@ function desktop()
       if setting.variables.users[_G.currentUser].background == "black" then
         edge.render(1,1,mx,scr_y,colors.black,colors.cyan,"",colors.black,false)
       else
+        term.setBackgroundColor(colors.black) --helps make transparent backgrounds less glitchesque looking
+        term.clear()
         edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
       end
     end
@@ -1613,7 +1619,7 @@ function desktop()
 
           end
           if x >= 1 and x <= mWidth and y == 7 then
-            shell.run("clear")
+            term.clear()
             state = "loginscreen"
             if setting.variables.temp.restore_legacy_login then
               login_gui()
@@ -1645,19 +1651,19 @@ function desktop()
           end
           if x >= 1 and x <= mWidth and y == 9 then
             tasks.clock = false
-            shell.run("clear")
+            term.clear()
             cprint("A X I O M",9)
             cprint(". . . . .",10)
             sleep(0.2)
-            shell.run("clear")
+            term.clear()
             cprint("  X I O  ",9)
             cprint("  . . .  ",10)
             sleep(0.2)
-            shell.run("clear")
+            term.clear()
             cprint("    I    ",9)
             cprint("    .    ",10)
             sleep(0.2)
-            shell.run("clear")
+            term.clear()
             cprint("         ",9)
             cprint("         ",10)
             sleep(1)
@@ -1810,7 +1816,7 @@ function firstTimeSetupNew(adduser)
       return false
     end
     if x >= a-string.len("Next >> ") and x <= a and y == 2 then
-      if step == 2 then
+      if step == 2 and #username >= 1 then
         setting.setVariable("Axiom/settings.0","username",encryption.sha256(username.."QxLUF1bgIAdeQX"))
       end
       if step == 3 then
@@ -1819,7 +1825,7 @@ function firstTimeSetupNew(adduser)
       if licensed == true then
         setting.setVariable("Axiom/settings.0","licensed","true")
       end
-      if step >= 1 and licensed == true then
+      if (step >= 1) and licensed and ((#username >= 1) or (step ~= 2))  then
         step = step + 1
       end
     end
@@ -1831,7 +1837,7 @@ function firstTimeSetupNew(adduser)
       term.setBackgroundColor(colors.lightGray)
       term.setCursorPos(15,8)
       username = read()
-      while(string.len(username) < 3) do
+      while(string.len(username) < 1) do
         edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
         username = read()
       end
@@ -1973,7 +1979,7 @@ function bootanimation()
     term.setTextColor(colors.white)
   end
   --sleep(10)
-  shell.run("clear")
+  term.clear()
 
   latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
 
@@ -2402,7 +2408,7 @@ if fs.exists("safeStart") then
   end
   safe = false
   term.setBackgroundColor(colors.black)
-  shell.run("clear")
+  term.clear()
   term.setTextColor(colors.white)
   --paintutils.drawLine(1,my/2,mx,my/2,colors.blue)
   term.setBackgroundColor(colors.blue)
@@ -2522,6 +2528,10 @@ if os.version() ~= "CraftOS 1.7" then
   end
   printwarn("running on unsupported CraftOS version, may be unstable")
   sleep(1)
+end
+if fs.exists("Axiom/settings.bak") == true and fs.exists("Axiom/settings.0") == false then
+  fs.copy("Axiom/settings.bak","Axiom/settings.0")
+  printout("Settings file has been copied from backup.")
 end
 if not fs.exists("Axiom/settings.0") then
   term.setTextColor(colors.white)
