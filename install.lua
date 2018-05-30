@@ -1,3 +1,9 @@
+local branches = {
+  "master",
+  "experimental"
+}
+
+
 local function formatFS()
   local function mkdir(dir)
     if not fs.exists(dir) then fs.makeDir(dir) end
@@ -8,10 +14,15 @@ local function formatFS()
         fs.move("AxiomUI/"..v, v)
         print("AxiomUI/"..v.." -> "..v)
       else
-        print(v.." already exists.")
+        print("AxiomUI/"..v.." -x>")
       end
     end
     fs.delete("AxiomUI")
+    print("Delete extra files?")
+    if read() == "y" then
+      fs.delete("install.lua")
+      fs.delete("README.md")
+    end
   else
     error("formatFS failed")
   end
@@ -22,13 +33,24 @@ local function wget(url, file)
   local file_handle = fs.open(file,"w")
   file_handle.write(data)
   file_handle.close()
-
+end
+function selector(y,option)
+  term.setCursorPos(1,y)
+  for k,v in ipairs(branches) do
+    if k == option then
+      write(v.. " <-")
+      term.setCursorPos(1,y+k)
+    else
+      write(v.. "   ")
+      term.setCursorPos(1,y+k)
+    end
+  end
 end
 local version = os.version()
 if version == "CraftOS 1.5" then
   error("Axiom is not compatible with "..version.."!")
 end
-print("AxiomUI Community Edition Minimal Installer")
+print("AxiomUI Github Superfast(tm) Installer")
 local branches = {
   "master",
   "experimental"
@@ -55,11 +77,27 @@ while(true) do
 end
 
 local user = "nothjarnan"
-local branch = "master"
-if read() ~= "" then
-    user = "jasonthekitten"
-    print("Select branch")
-    branch = read()
+local branch = 1
+while(true) do
+  local e,k,h = os.pullEvent( "key" )
+  if k == keys.up then
+    if branch > 1 then
+      branch = branch - 1
+      selector(y,branch)
+    end
+  end
+  if k == keys.down then
+    if branch < #branches then
+      branch = branch + 1
+      selector(y,branch)
+    end
+  end
+  if k == keys.enter then
+    branch = branches[branch]
+    print("Branch selected: "..branch)
+    print("Starting installation")
+    break
+  end
 end
 wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
 shell.run(".gitget "..user.." axiom-opensource "..branch.." AxiomUI")

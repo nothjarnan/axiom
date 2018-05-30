@@ -1,10 +1,9 @@
-shell.run("clear")
-if cclite then
-  write("CCLITE SCALE? (1-10): ")
-  local scale = tonumber(read())
-  if cclite and scale >= 1 or scale <= 10 then cclite.setScale(scale) end
-  term.redirect(term.native())
-end
+
+term.setBackgroundColor(colors.black)
+term.clear()
+term.setCursorPos(1,1)
+
+local scr_x, scr_y = term.getSize() --initial screen size
 
 if turtle then
   error("Axiom cannot be run on a turtle, silly.")
@@ -108,7 +107,7 @@ alerts = {
 -- For making sure the files are A-OK
 local allfiles = { -- Protected files as well
   "startup",
-  "Axiom/sys.axs",
+  "Axiom/sys.lua",
   "Axiom/images/default.axg",
   "Axiom/images/AX.nfp",
   "Axiom/images/axiom.axg",
@@ -119,17 +118,15 @@ local allfiles = { -- Protected files as well
   "Axiom/settings.0",
   "Axiom/libraries/button",
 }
-bannedHashes = {
-  "b4c38037365dd3183a485d18429363f371dcc1e5b0b4b71061c353537f51c1ed",
-}
+
 events = true
 _G.currentUser = "KERNEL"
 disableclock = true
 useOldFS = false
 updating = false
 _G.productName = "Axiom UI"
-_G.version_sub = " Community"
-_G.version = "1.0"
+_G.version_sub = ""
+_G.version = "5.0"
 _G.hasRootAccess = false
 _G.unreleased = false
 if _G.unreleased then
@@ -252,7 +249,7 @@ function errorMessager(errmsg)
   if ok then
       local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Version: "..productName.." "..version.." <br> dev: "..tostring(_G.unreleased).."<br> IsColor:"..tostring(term.isColor()).."<br> Last updated: Day "..tostring(setting.variables.temp.last_update))))
   end
-  if currentUser ~= "KERNEL" then
+  if _G.currentUser ~= "KERNEL" then
     if state == "desktop" then
       desktop()
     else
@@ -271,7 +268,7 @@ function errorHandler(err)
   print("Looks like Axiom crashed. Here's some useful information to provide the debugging monkey team:")
   print(err)
   print(productName.." "..version.." "..version_sub)
-  print(currentUser)
+  print(_G.currentUser)
   print("If you're not quite sure what to do with this, just screenshot it.")
 end
 axiom = {}
@@ -289,8 +286,8 @@ function axiom.alert(string, alertsev)
   end
   if alertsev == 3 then
     usedprefix = "[syserror]"
-    edge.render(1,3,51,5,colors.white,colors.cyan," Critical alert",colors.black)
-    edge.render(1,4,51,4,colors.white,colors.cyan,string,colors.black,false)
+    edge.render(1,3,scr_x,5,colors.white,colors.cyan," Critical alert",colors.black)
+    edge.render(1,4,scr_x,4,colors.white,colors.cyan,string,colors.black,false)
   end
   edge.log("Alert: "..usedprefix..":"..string)
   edge.notify(usedprefix..":"..string)
@@ -303,115 +300,7 @@ function axiom.alert(string, alertsev)
 end
 
 function checkForUpdates()
-  local success = false
-  updated = false
-  if setting.variables.temp.autoupdate then
-    when = "always"
-  else
-    when = "never"
-  end
-
-  if not delay then
-    delay = 30
-  end
-    if version == "1.0.3" then
-      edge.windowAlert(10,10,"Checking for updates.",true)
-    end
-    setting.variables.temp.last_updatecheck = tonumber(""..os.day())
-
-    setting.variables.temp.last_update = tonumber(""..os.day())
-    writesettings()
-    if updated == false then
-      if when == "always" then
-        --axiom.alert("Checking for updates! (Mode: "..when..")",0)
-
-        if not latestversion then
-          axiom.alert("Error: Could not connect to server: http://www.nothy.se/! (FATAL)",3)
-          edge.log("Error: Could not connect to server: http://www.nothy.se/ ! (FATAL)")
-          if edge.getOverlay() then
-            edge.render(mx-9,1,mx-9,1,menubarColor,colors.cyan,"VCx",colors.green)
-          end
-        else
-          if nv ~= version and not _G.unreleased and nv ~= nil then
-            local nUpd = false
-            updated = true
-            local initialan = setting.variables.temp.enable_animations
-            setting.variables.temp.enable_animations = false
-            sleep(2.5)
-            if not edge.windowAlert(25,9,"Version "..tostring(latestversion.readAll()).." (current "..tostring(version)..") is now available for download. Install?", false) then
-              nUpd = true
-              desktop()
-            else
-              edge.windowAlert(25,9,"Installing.", "noButton")
-              _G.unreleased = false
-            end
-            setting.variables.temp.enable_animations = initialan
-            if not nUpd then
-              --edge.notify(notifContent)
-              edge.log("Update available")
-              if setting.getVariable("Axiom/settings.0","first_update") == "false" then
-                setting.setVariable("Axiom/settings.0","first_update","true")
-              end
-              if fs.exists("Axiom/backup/os/settings.0") then
-                fs.delete("Axiom/backup/os/settings.0")
-                fs.copy("Axiom/settings.0","Axiom/backup/os/settings.0")
-              else
-                fs.copy("Axiom/settings.0","Axiom/backup/os/settings.0")
-              end
-              if edge.getOverlay() then
-                edge.render(mx-9,1,mx-9,1,menubarColor,colors.cyan,"DL",colors.green)
-              end
-              download("https://www.dropbox.com/s/a7fp2jo6tgm7xsy/startup?dl=1","startup")
-              sleep(0.1)
-              if _G.unreleased == false then
-                download("https://www.dropbox.com/s/7mzhcfe53dm2rq5/sys.axs?dl=1","Axiom/sys.axs")
-              else
-                download("https://www.dropbox.com/s/5v2amjjmw08n9yz/sys-latest.axs?dl=1","Axiom/sys.axs")
-              end
-              sleep(0.1)
-              download("https://www.dropbox.com/s/9byakcx77k03yji/setting?dl=1","Axiom/libraries/setting")
-              sleep(0.1)
-              download("https://www.dropbox.com/s/a5kxzjl6122uti2/edge?dl=1","Axiom/libraries/edge")
-              sleep(0.1)
-              download("https://www.dropbox.com/s/p3kgkzhe27vr9lj/encryption?dl=1","Axiom/libraries/encryption")
-              if not fs.exists("Axiom/settings.0") then
-                axiom.alert("Settings file not found, fixing..",3)
-                download("https://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1","Axiom/settings.0")
-                sleep(0.1)
-              end
-
-              download("https://www.dropbox.com/s/t40vz4gvmyrcjv4/background.axg?dl=1","Axiom/images/default.axg")
-              download("https://www.dropbox.com/s/cjahddofwhja8og/axiom.axg?dl=1","Axiom/images/axiom.axg")
-              download("https://www.dropbox.com/s/osz72e1rnvt5opl/nature.axg?dl=1","Axiom/images/nature.axg")
-              download("https://www.dropbox.com/s/wi4n0j98d82256f/AX.nfp?dl=1","Axiom/images/AX.nfp")
-              download("https://www.dropbox.com/s/pe72iyt94jfs9tv/settings?dl=1","Axiom/programs/settings.app")
-              sleep(0.1)
-              edge.windowAlert(25,9,"Done installing.", true)
-              if edge.windowAlert(25,9,"Reboot?", false) then
-                os.reboot()
-              else
-                desktop()
-              end
-            else
-
-              if not forcing then
-                if setting.variables.users[currentUser].background == "black" then
-                  edge.render(1,1,mx,19,colors.black,colors.cyan,"",colors.black,false)
-                else
-                  edge.image(1,1,setting.variables.users[currentUser].background,colors.cyan)
-                end
-              end
-              edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
-              state = "main_gui"
-              local x_p = 4
-              --edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
-              edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
-
-            end
-          end
-        end
-      end
-    end
+  return false
 end
 function modemHandler()
   -- Handle peripheral
@@ -441,7 +330,7 @@ function keyStrokeHandler()
     if #keystrokes >= 2 then
       --print(keystrokes[#keystrokes-2], keystrokes[#keystrokes-1], keystrokes[#keystrokes], isHeld)
       if keystrokes[#keystrokes-1] == 42 and keystrokes[#keystrokes] == 32 and isHeld then
-        if currentUser ~= nil then
+        if _G.currentUser ~= nil then
           if fs.exists("Axiom/programs/store.app") and invalidInstallation == false then
 
             shell.run("Axiom/programs/store.app")
@@ -546,7 +435,7 @@ function download(url, file, logOutput)
     end
     --if not args[1] == "silent" and args[1] == nil then
     --print("Opening file "..file)
-    if setting.variables.users[currentUser].allow_downloads or setting.variables.users[currentUser].allow_downloads == nil  then
+    if setting.variables.users[_G.currentUser].allow_downloads or setting.variables.users[_G.currentUser].allow_downloads == nil  then
       fdl = http.get(url)
       if not fdl then
         if logOutput then
@@ -591,7 +480,7 @@ function execUpd(isTerminal)
     speaker.playNote("harp",1, 1.5)
   end
   sleep(0.1)
-  return success
+  return success,"Update system not finished for Community version. Use gitget to update."
 end
 function login_clock()
   local mx, my = term.getSize()
@@ -618,7 +507,7 @@ function login_gui_unreleased()
   }
   local tstep = 0
   for k,v in pairs(users) do
-    if k ~= "KERNEL" and k ~= "GUEST" and currentUser == "KERNEL" then currentUser = k end
+    if k ~= "KERNEL" and k ~= "GUEST" and _G.currentUser == "KERNEL" then _G.currentUser = k end
     if k ~= "KERNEL" then
       if k ~= "GUEST" then
         userButtons[k] = {
@@ -640,7 +529,7 @@ function login_gui_unreleased()
   end
   -- if #users < 2 then
   --   -- Completely skip if there's only one registered user with no password.
-  --   if users[currentUser].password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
+  --   if users[_G.currentUser].password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
   --     state = desktop()
   --     desktop()
   --   end
@@ -650,15 +539,15 @@ function login_gui_unreleased()
   local redraw = false
   edge.render(1,1,mx,my, colors.lightBlue,colors.lightBlue,"")
   edge.render(3,2,3,2,colors.lightBlue,colors.lightBlue,"o*",colors.white)
-  if setting.variables.users[currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
+  if setting.variables.users[_G.currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
     edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue," Password..", colors.gray, false)
   else
     edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightBlue, colors.lightBlue,"", colors.gray, false)
     edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue,"   Login", colors.gray, false)
   end
   term.setTextColor(colors.white)
-  if currentUser == nil then currentUser = "KERNEL" end
-  edge.cprint(tostring(userButtons[currentUser].display),7)
+  if _G.currentUser == nil then _G.currentUser = "KERNEL" end
+  edge.cprint(tostring(userButtons[_G.currentUser].display),7)
   edge.render(3,my-2,3,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
   while(true) do
     if redraw then
@@ -666,14 +555,14 @@ function login_gui_unreleased()
       menu = false
       edge.render(1,1,mx,my, colors.lightBlue,colors.lightBlue,"")
       edge.render(3,2,3,2,colors.lightBlue,colors.lightBlue,"=",colors.white)
-      if setting.variables.users[currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
+      if setting.variables.users[_G.currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
         edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue," Password..", colors.gray, false)
       else
         edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightBlue, colors.lightBlue,"", colors.gray, false)
         edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue,"   Login", colors.gray, false)
       end
       term.setTextColor(colors.white)
-      edge.cprint(userButtons[currentUser].display,7)
+      edge.cprint(userButtons[_G.currentUser].display,7)
       edge.render(3,my-2,3,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
       redraw = false
 
@@ -688,14 +577,14 @@ function login_gui_unreleased()
       end
 
       if x >= (mx/2)-8 and x <= (mx/2)+8 and y == 9 then
-        if setting.variables.users[currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
+        if setting.variables.users[_G.currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
           edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue,"", colors.gray, false)
           term.setTextColor(colors.gray)
           term.setBackgroundColor(colors.lightGray)
           state = "login_gui-w"
           local pw = encryption.sha256(read("*").."QxLUF1bgIAdeQX")
           state = "login_gui"
-          if setting.variables.users[currentUser].password == pw and attempt <= 3  then
+          if setting.variables.users[_G.currentUser].password == pw and attempt <= 3  then
             state = "desktop"
             desktop()
           else
@@ -748,8 +637,8 @@ function login_gui_unreleased()
         for k,v in pairs(userButtons) do
           --print(tostring(edge.aabb(x,y,v.x,v.y,v.ex,v.ey)))
           if edge.aabb(x,y,v.x,v.y,v.ex,v.ey) then
-            currentUser = k
-            --if setting.variables.users[currentUser].password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
+            _G.currentUser = k
+            --if setting.variables.users[_G.currentUser].password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
               redraw = true
             --end
             edge.render(v.x, v.y , v.ex, v.ey, colors.lightGray, colors.black, "" , colors.black)
@@ -757,7 +646,7 @@ function login_gui_unreleased()
             edge.xprint(tostring(v.display),v.x+1,v.y+1,colors.white)
             term.setTextColor(colors.white)
             term.setBackgroundColor(colors.lightBlue)
-            edge.cprint(currentUser,7)
+            edge.cprint(_G.currentUser,7)
             break
           end
         end
@@ -812,9 +701,9 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
   state = "login_gui"
   usr = ""
   pass = ""
-  currentUser = "KERNEL"
+  _G.currentUser = "KERNEL"
   tasks.clock = false
-  edge.image(1,1,setting.variables.users[currentUser].background,colors.cyan)
+  edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
   edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
 
   edge.render(18,7,33,12,colors.white,colors.cyan," Login", colors.black)
@@ -845,7 +734,7 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
         term.setTextColor(colors.black)
         term.setBackgroundColor(colors.lightGray)
         usr = io.read()
-        currentUser = usr
+        _G.currentUser = usr
       end
       if x >= 20 and x <= 30 and y == 11 then
         edge.render(20,11,30,11,colors.lightGray,colors.cyan,"",colors.gray)
@@ -861,12 +750,12 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
             edge.log("usr "..usr.." k "..k)
             if v.password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
 
-              currentUser = k
+              _G.currentUser = k
               parallel.waitForAll(desktop,checkForUpdates) --NOTE: DO NOT FUCKING CHANGE THIS YA TWATS
               break
             end
             if pass == v.password then
-              currentUser = k
+              _G.currentUser = k
               parallel.waitForAll(desktop,checkForUpdates) --NOTE: DO NOT FUCKING CHANGE THIS YA TWATS
               break
             else
@@ -943,7 +832,7 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
   end
 
 function terminal(dir)
-  if currentUser == "GUEST" then return false end
+  if _G.currentUser == "GUEST" then return false end
   state = "terminal"
   if not setting then
     os.loadAPI("Axiom/libraries/setting")
@@ -963,13 +852,13 @@ function terminal(dir)
   terminalActive = true
   workingDir = ""
   local curDir = dir..workingDir
-  curUser = currentUser
+  curUser = _G.currentUser
   if curUser == nil then
     curUser = "KERNEL"
   end
   sleep(0.5)
   if edge then
-    edge.render(1,1,51,19,colors.black,colors.black,"",colors.white,false)
+    edge.render(1,1,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
   end
   term.setCursorPos(1,1)
   write("Axiom Terminal "..terminalVersion.."\n")
@@ -1002,6 +891,16 @@ function command(cmd)
   term.setBackgroundColor(colors.black)
 
   cmdTable = {}
+  cmdArgs = ""
+  if #cmdTable > 1 then
+    local c = 1
+    for k,v in ipairs(cmdTable) do
+      if k ~= 1 then
+        cmdArgs = cmdArgs.." "..v
+      end
+    end
+
+  end
   for i in string.gmatch(cmd,"%S+") do
     cmdTable[#cmdTable+1] = tostring(i)
   end
@@ -1041,7 +940,7 @@ function command(cmd)
     end
 
   end
-  if cmdTable[1] == "axRecover" and setting.variables.users[currentUser].superuser or cmdTable[1] == "axRecover"  and hasRootAccess then
+  if cmdTable[1] == "axRecover" and setting.variables.users[_G.currentUser].superuser or cmdTable[1] == "axRecover"  and hasRootAccess then
     write("Recovery mode! Rebooting in 3 seconds. \n")
     sleep(1)
     write("Recovery mode! Rebooting in 2 seconds. \n")
@@ -1053,13 +952,13 @@ function command(cmd)
     os.reboot()
   end
   if cmdTable[1] == "uninstall" then
-    if setting.variables.users[currentUser].superuser or hasRootAccess then
+    if setting.variables.users[_G.currentUser].superuser or hasRootAccess then
       if edge.windowAlert(22, 9, "Are you sure?",false, colors.orange) then
         write("Uninstalling. \n")
         fs.delete("startup")
         fs.delete("/Axiom/libraries")
         fs.delete("/Axiom/images")
-        fs.delete("/Axiom/sys.axs")
+        fs.delete("/Axiom/sys.lua")
         fs.delete("/Axiom/settings.0")
         fs.delete("/Axiom/logging")
         fs.delete("/home")
@@ -1092,7 +991,7 @@ function command(cmd)
   end
   if cmdTable[1] == "clear" then
     if edge then
-      edge.render(1,2,51,19,colors.black,colors.black,"",colors.white,false)
+      edge.render(1,2,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
     else
       shell.run("clear")
     end
@@ -1110,7 +1009,7 @@ function command(cmd)
     error("Crashing")
   end
   if cmdTable[1] == "users" then
-    if setting.variables.users[currentUser].superuser or hasRootAccess then
+    if setting.variables.users[_G.currentUser].superuser or hasRootAccess then
       local c = 0
       for k,v in pairs(setting.variables.users) do
         write(c..": "..tostring(k).."\n")
@@ -1144,14 +1043,14 @@ function command(cmd)
       if setting.variables.users[cmdTable[2]] ~= nil then
         local bruteforced = false
         if cmdTable[4] == "bruteforce" and cmdTable[5] == "recovery" and hasRootAccess == true then
-          currentUser = cmdTable[2]
+          _G.currentUser = cmdTable[2]
           curUser = cmdTable[2]
           sleep(2.5)
           write("Brute forced into "..curUser.."\n")
           bruteforced = true
         end
         if encryption.sha256(cmdTable[3].."QxLUF1bgIAdeQX") == setting.variables.users[cmdTable[2]].password then
-          currentUser = cmdTable[2]
+          _G.currentUser = cmdTable[2]
           curUser = cmdTable[2]
         else
           if not bruteforced then
@@ -1253,7 +1152,7 @@ function command(cmd)
     end
   end
   if cmdTable[1] == "su" then
-    if setting.variables.users[currentUser].superuser or hasRootAccess then
+    if setting.variables.users[_G.currentUser].superuser or hasRootAccess then
       write("You are su! \n")
     else
       write("You are not su! \n")
@@ -1306,31 +1205,11 @@ function command(cmd)
     end
   end
   if fs.exists(cmdTable[1]) then
-    local fstr = ""
-    for k,v in ipairs(cmdTable) do
-      fstr = fstr..v
-    end
-    shell.run(fstr)
+    local fstr = cmdTable[1]
+    shell.run(fstr.." "..cmdArgs)
   end
 end
 function desktop()
-    if _G.currentUser == nil and not hasRootAccess or _G.currentUser == "KERNEL" and not hasRootAccess then
-      sleep(3.5)
-      term.setBackgroundColor(colors.blue)
-      term.setTextColor(colors.white)
-      shell.run("clear")
-      print(" ")
-      print(":/")
-      print("Oh noeeeeees! Something went wrong here.")
-      print("If you keep seeing this error, please contact your device manufacturer.")
-      print("If this is the first time, proceed to fix your drivers.")
-      print("")
-      print("STOPCODE: 0x1337LOL")
-      print("Seriously though, logging in as KERNEL or nil does not work.")
-      sleep(0.5)
-      os.shutdown()
-      return false
-    end
     terminalActive = false
     if nightmode == true then
       menubarColor = colors.white
@@ -1349,16 +1228,16 @@ function desktop()
     --   sleep(0.1)
     -- end
     if not forcing then
-      if setting.variables.users[currentUser].background == "black" then
-        edge.render(1,1,mx,19,colors.black,colors.cyan,"",colors.black,false)
+      if setting.variables.users[_G.currentUser].background == "black" then
+        edge.render(1,1,mx,scr_y,colors.black,colors.cyan,"",colors.black,false)
       else
-        edge.image(1,1,setting.variables.users[currentUser].background,colors.cyan)
+        edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
       end
     end
     edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
     state = "main_gui"
     local x_p = 4
-    --edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
+    --edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
     edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
 
 
@@ -1501,13 +1380,13 @@ function desktop()
             exec = true
           end
           clickableIcons[#clickableIcons+1] = {
-            ["isfolder"] = fs.isDir("home/"..currentUser.."/Desktop/"..label), -- Get whether or not the program is a folder
+            ["isfolder"] = fs.isDir("home/".._G.currentUser.."/Desktop/"..label), -- Get whether or not the program is a folder
             ["openable"] = exec, -- Get executable status
             ["x"] = ab+7, -- Start clickbox position x-axis
             ["y"] = cd+4, -- Start clickbox position y-axis
             ["ex"] = ab+11, -- End clickbox position x-axis
             ["ey"] = cd+6, -- End clickbox position y-axis
-            ["opens"] = "home/"..currentUser.."/Desktop/"..label -- Executable location (if executable, otherwise folder)
+            ["opens"] = "home/".._G.currentUser.."/Desktop/"..label -- Executable location (if executable, otherwise folder)
 
           }
           ab = ab + 12
@@ -1525,14 +1404,14 @@ function desktop()
       _r = 0
 
     end
-    if fs.exists("/home/"..currentUser.."/Desktop/") then
-      local desktopfiles = fs.list("/home/"..currentUser.."/Desktop/")
+    if fs.exists("/home/".._G.currentUser.."/Desktop/") then
+      local desktopfiles = fs.list("/home/".._G.currentUser.."/Desktop/")
 
       for k,v in ipairs(desktopfiles) do
         if k > 12 then
           break
         end
-        if fs.isDir("home/"..currentUser.."/Desktop/"..v) then
+        if fs.isDir("home/".._G.currentUser.."/Desktop/"..v) then
           drawIcon("FOLDER",v)
         else
           local success = false
@@ -1723,7 +1602,7 @@ function desktop()
             desktop()
           end
           if x >= 1 and x <= mWidth and y == 5 then
-            files = setting.variables.users[currentUser].fexplore_startdir
+            files = setting.variables.users[_G.currentUser].fexplore_startdir
             if fs.exists("Axiom/programs/explorer.app") and invalidInstallation == false then
               shell.run("Axiom/programs/explorer.app")
               desktop()
@@ -1784,7 +1663,7 @@ function desktop()
             sleep(1)
             if setting.variables.temp.first_update == false then
               setting.variables.temp.first_update = true
-              edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
+              edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
               edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
               edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
               edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
@@ -1810,9 +1689,9 @@ function ftsRender(step,usr,pw,l,adduser)
   if not adduser then adduser = false end
   local a,b = term.getSize()
   if step == 1 then
-    local olicense = http.get("http://www.pastebin.com/raw/RYKHrp1c")
+    local olicense = "Axiom UI Community\n  Open Source software, you can freely modify to   your desires.\n  If you want to make some permanent changes to   Axiom UI Community,  please make a pull request in \n  axiom-opensource.\n   Redistribution disallowed.\n  (C) Linus Ramneborg 2018"
     if olicense then
-      edge.render(3,5,3,5,colors.white,colors.cyan,olicense.readAll(),colors.lightGray)
+      edge.render(3,5,3,5,colors.white,colors.cyan,olicense,colors.lightGray)
     else
       edge.render(3,5,3,5,colors.white,colors.cyan,"Unable to fetch license! :(",colors.lightGray)
     end
@@ -2249,7 +2128,7 @@ function bootanimation()
   sleep(1)
   local c = 0
   while c ~= 1 do
-    --edge.render(1,1,51,20,colors.orange,colors.white,"test")
+    --edge.render(1,1,scr_x,20,colors.orange,colors.white,"test")
     term.setTextColor(colors.black)
     edge.cprint(productName,10)
     sleep(0.1)
@@ -2338,7 +2217,7 @@ function safeBoot(force)
 
   os.loadAPI("Axiom/libraries/setting")
 
-  --files = setting.variables.users[currentUser].fexplore_startdir
+  --files = setting.variables.users[_G.currentUser].fexplore_startdir
   printout("LOADED: settings")
   os.loadAPI("Axiom/libraries/encryption")
   printout("LOADED: encryption")
@@ -2482,11 +2361,15 @@ function log(string)
   local time = os.clock()
   if not fs.exists("Axiom/log.txt") then
     logfile = fs.open("Axiom/log.txt","w")
-    logfile.close()
+    if logfile ~= nil then
+      logfile.close()
+    end
   end
   logfile = fs.open("Axiom/log.txt","a")
-  logfile.writeLine("["..time.."]: "..string.."\n")
-  logfile.close()
+  if logfile ~= nil then
+    logfile.writeLine("["..time.."]: "..string.."\n")
+    logfile.close()
+  end
 end
 if tArgs[1] == "force" then
   forcing = true
@@ -2582,7 +2465,7 @@ if fs.exists("safeStart") then
         bootanimation()
       else
         if craftos == true then
-          currentUser = "KERNEL"
+          _G.currentUser = "KERNEL"
           for k,v in ipairs(fs.list("Axiom/libraries")) do
             os.loadAPI("Axiom/libraries/"..v)
             printout("Loaded "..v)
@@ -2675,7 +2558,7 @@ if fs.exists("firstBoot") then
     end
   else
     if not ok and err then
-      printout(productName.." has run into a problem and has to shut down.")
+      printout(productName.." has run into a problem and had to shut down.")
       printerr(err)
       if cclite then
         cclite.screenshot()
@@ -2694,7 +2577,7 @@ else
       os.shutdown()
     end
   else
-    printout(productName.." has run into a problem and has to shut down.")
+    printout(productName.." has run into a problem and had to shut down.")
     printerr(err)
     if cclite then
       cclite.screenshot()
