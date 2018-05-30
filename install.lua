@@ -58,9 +58,10 @@ local branches = {
 
 print("Select a branch:")
 
-
 local user = "nothjarnan"
 local branch = 1
+local x,y = term.getCursorPos()
+selector(y,branch)
 while(true) do
   local e,k,h = os.pullEvent( "key" )
   if k == keys.up then
