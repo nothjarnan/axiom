@@ -26,7 +26,7 @@ for k,v in ipairs(tArgs) do
   end
   for a,b in ipairs(branches) do
     if v == b then
-      branch = a
+      branch = v
       skip_branch_select = true
       print("Selected branch "..b)
       break
