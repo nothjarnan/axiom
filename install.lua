@@ -51,10 +51,6 @@ if version == "CraftOS 1.5" then
   error("Axiom is not compatible with "..version.."!")
 end
 print("AxiomUI Github Superfast(tm) Installer")
-local branches = {
-  "master",
-  "experimental"
-}
 
 print("Select a branch:")
 
