@@ -167,7 +167,7 @@ if not skip_branch_select then
   end
 end
 wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
-shell.run(".gitget "..user.." axiom-opensource "..branch.." AxiomUI")
+shell.run(".gitget "..user.." axiom "..branch.." AxiomUI")
 formatFS()
 print("Installation completed.")
 if reboot then os.reboot() end
