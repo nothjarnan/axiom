@@ -1749,9 +1749,8 @@ function firstTimeSetupNew(adduser)
       ftsRender(step,"","",licensed)
     end
     local event, button, x, y = os.pullEvent("mouse_click")
-    if event == "terminate" then
-      edge.log("User terminated")
-      shell.exit()
+    while event == "terminate" do
+      event, button, x, y = os.pullEvent("mouse_click")
     end
     if x >= a-string.len("Next >> ") and x <= a and y == 2 then
       if step == 2 and #username >= 1 then
