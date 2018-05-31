@@ -325,14 +325,6 @@ function noapidl(url, file)
     --print("Written to file "..file)
 
 end
-function writesettings()
-  local vars = setting.variables
-  --print(textutils.serialise(vars))
-  local s = textutils.serialise(vars)
-  local fh = fs.open("Axiom/settings.bak","w")
-  fh.write(s)
-  fh.close()
-end
 function download(url, file, logOutput)
 
   if logOutput then
@@ -1569,10 +1561,10 @@ function desktop()
               setting.variables.temp.first_update = true
               edge.windowAlert(25,10,productName.." is downloading additional files, please wait.","noButton",colors.lightBlue)
               execUpd()
-              writesettings()
+              setting.writesettings()
               os.reboot()
             end
-            writesettings()
+            setting.writesettings()
             sleep(0.5)
             os.reboot()
           end
@@ -1611,13 +1603,13 @@ function desktop()
               edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
               edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
               execUpd()
-              writesettings()
+              setting.writesettings()
               if hasRednet then
                 rednet.close(detectedSide)
               end
               os.shutdown()
             end
-            writesettings()
+            setting.writesettings()
             if hasRednet then
               rednet.close(detectedSide)
             end
@@ -1684,26 +1676,34 @@ function ftsRender(step,usr,pw,l,adduser)
       setting.addUser(usr,encryption.sha256(pw.."QxLUF1bgIAdeQX"),usr,true)
     end
     setting.variables.temp.first_start = false
-    sleep(3)
-    writesettings()
+    fs.makeDir("Axiom/.fs")
+    setting.writesettings()
+    sleep(1)
     if not adduser then
       if not fs.exists("home/"..usr.."/Desktop/files.lnk") then
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 1/3",colors.lightGray)
         local fh = fs.open("home/"..usr.."/Desktop/files.lnk","w")
-        fh.write("Axiom/programs/explorer.app")
-        fh.close()
+        if fh then
+          fh.write("Axiom/programs/explorer.app")
+          fh.close()
+        end
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 2/3",colors.lightGray)
         local fh2 = fs.open("home/"..usr.."/Desktop/settings.lnk","w")
-        fh2.write("Axiom/programs/settings.app")
-        fh2.close()
+        if fh2 then
+          fh2.write("Axiom/programs/settings.app")
+          fh2.close()
+        end
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 3/3",colors.lightGray)
         local fh2 = fs.open("home/"..usr.."/Desktop/store.lnk","w")
-        fh2.write("Axiom/programs/stdgui.app")
-        fh2.close()
+        if fh2 then
+          fh2.write("Axiom/programs/stdgui.app")
+          fh2.close()
+        end
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. OK ",colors.lightGray)
         sleep(1)
         local mx = term.getSize()
       end
+      setting.writesettings()
       os.reboot()
     end
     return true
@@ -1811,12 +1811,14 @@ function initialize()
     return false, "axiom/settings.bak could not be found."
   end
 
-  if setting.variables.temp.first_start == true or setting.variables.temp.first_start == nil  then
+  if not fs.exists("Axiom/.fs") then
 
     setting.variables.temp.installDate = os.day()
     setting.variables.temp.systemID = os.getComputerID()
+    setting.variables.temp.first_start = false
+    fs.makeDir("Axiom/.fs")
       --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
-    writesettings()
+    setting.writesettings()
     firstTimeSetupNew()
   else
     edge.log("User already has account")
@@ -1830,7 +1832,7 @@ function initialize()
     end
     if setting.variables.temp.debugID == 0 and dUser ~= nil then
       setting.variables.temp.debugID = "user-"..dUser..""..math.random(0,9)..math.random(0,9)..math.random(0,9)..math.random(0,9)
-      writesettings()
+      setting.writesettings()
     end
   end
   if setting.variables.temp.systemID == 0 or setting.variables.temp.systemID == nil  then
@@ -1977,7 +1979,7 @@ function bootanimation()
     end
 
   end
-  writesettings()
+  setting.writesettings()
   if not edge then
     error("Axiom did not load Edge properly.")
   end

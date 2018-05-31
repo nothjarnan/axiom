@@ -11,7 +11,8 @@ local branch = 1
 -- Branches
 local branches = {
   "master",
-  "experimental"
+  "experimental",
+  "hotfix",
 }
 
 for k,v in ipairs(tArgs) do
@@ -87,6 +88,9 @@ local function formatFS()
             write("Deleting files.. ")
             fs.delete("install.lua")
             fs.delete("README.md")
+            fs.delete("CODE_OF_CONDUCT.md")
+            fs.delete(".gitignore")
+            fs.delete("Axiom/debug.lua")
             sleep(.25)
             print("OK")
             break
