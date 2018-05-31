@@ -1750,7 +1750,8 @@ function firstTimeSetupNew(adduser)
     end
     local event, button, x, y = os.pullEvent("mouse_click")
     if event == "terminate" then
-      return false
+      edge.log("User terminated")
+      shell.exit()
     end
     if x >= a-string.len("Next >> ") and x <= a and y == 2 then
       if step == 2 and #username >= 1 then
@@ -1816,7 +1817,6 @@ function initialize()
     setting.variables.temp.installDate = os.day()
     setting.variables.temp.systemID = os.getComputerID()
     setting.variables.temp.first_start = false
-    fs.makeDir("Axiom/.fs")
       --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
     setting.writesettings()
     firstTimeSetupNew()
