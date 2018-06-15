@@ -2468,8 +2468,8 @@ if os.version() ~= "CraftOS 1.7" then
   printwarn("running on unsupported CraftOS version, may be unstable")
   sleep(1)
 end
-if fs.exists("Axiom/settings.bak") == true and fs.exists("Axiom/settings.bak") == false then
-  fs.copy("Axiom/settings.bak","Axiom/settings.bak")
+if fs.exists("Axiom/settings.0") == true and fs.exists("Axiom/settings.bak") == false then
+  fs.copy("Axiom/settings.0","Axiom/settings.bak")
   printout("Settings file has been copied from backup.")
 end
 if not fs.exists("Axiom/settings.bak") then
