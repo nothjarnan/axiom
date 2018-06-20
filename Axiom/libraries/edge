@@ -551,7 +551,7 @@ if replicate_to_screen then
     local meth = k
     myterm[meth] = function(...)
         if screen and screen[k] then
-            screen.setTextScale(text_scale or 1)
+            screen.setTextScale(screen_scale or 1)
             screen[meth](...)
         end
         return oterm[meth](...)
