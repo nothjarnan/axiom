@@ -129,6 +129,7 @@ function screentest()
 end
 function setScale(scale)
   screen_scale = scale
+	if screen then screen.setTextScale(scale) end
 end
 function getScaleIndex()
   return selected_scale
