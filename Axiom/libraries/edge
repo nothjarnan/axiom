@@ -129,6 +129,7 @@ function screentest()
 end
 function setScale(scale)
   screen_scale = scale
+	if screen then screen.setTextScale(scale) end
 end
 function getScaleIndex()
   return selected_scale
@@ -543,14 +544,14 @@ function aabb(x,y,vx,vy,ex,ey)
     return false
   end
 end
-if true then
+if replicate_to_screen then
   local myterm = {}
   local oterm = term.current()
   for k, v in pairs(oterm) do
     local meth = k
     myterm[meth] = function(...)
         if screen and screen[k] then
-            screen.setTextScale(text_scale or 1)
+            screen.setTextScale(screen_scale or 1)
             screen[meth](...)
         end
         return oterm[meth](...)

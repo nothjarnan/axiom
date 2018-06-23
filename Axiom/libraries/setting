@@ -71,7 +71,7 @@ function writesettings()
   local serial = tutils.serialise(vars)
 
   --print(serial)
-  local fh = fs.open("Axiom/settings.0","w")
+  local fh = fs.open("Axiom/settings.bak","w")
   fh.write(serial)
   fh.close()
 end
@@ -93,5 +93,9 @@ function addUser(username, pw, display,su)
   }
 end
 if fs.exists("Axiom/settings.bak") then
+  loadsettings("Axiom/settings.bak")
+elseif fs.exists("Axiom/settings.bak") then
+  fs.copy("Axiom/settings.0","Axiom/settings.bak")
+  fs.delete("Axiom/settings.0")
   loadsettings("Axiom/settings.bak")
 end
