@@ -1861,6 +1861,16 @@ function cprint( text, y )
   write( text )
 end
 function bootanimation()
+  local loadingAnim = {
+    "ooooooo",
+    "Ooooooo",
+    "oOooooo",
+    "ooOoooo",
+    "oooOooo",
+    "ooooOoo",
+    "oooooOo",
+    "ooooooO",
+  }
   booting = true
   if not term.isColor() then
     printerr("No color support detected, quitting..")
@@ -2039,7 +2049,7 @@ function bootanimation()
       --print("Loaded: os/libraries/"..file)
     end
   end
-
+  booting = true
   --sleep(0.2)
   -- cprint("  X I O  ",my/2)
   -- cprint("  . . .  ",(my/2)+1)
@@ -2050,54 +2060,55 @@ function bootanimation()
   -- cprint("         ",my/2)
   -- cprint("         ",(my/2)+1)
   term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.black)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.gray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.lightGray)
-  edge.cprint(productName,10)
-  sleep(0.1)
   term.setTextColor(colors.white)
   edge.cprint(productName,10)
   sleep(0.1)
+  term.setBackgroundColor(bgCol)
   term.setTextColor(colors.lightGray)
   edge.cprint(productName,10)
   sleep(0.1)
+  term.setBackgroundColor(bgCol)
   term.setTextColor(colors.gray)
   edge.cprint(productName,10)
   sleep(0.1)
+  term.setBackgroundColor(bgCol)
   term.setTextColor(colors.black)
   edge.cprint(productName,10)
-  sleep(1)
+  sleep(2)
+  term.setBackgroundColor(bgCol)
+  term.setTextColor(colors.black)
+  edge.cprint(productName,10)
+  sleep(0.1)
+  term.setBackgroundColor(bgCol)
+  term.setTextColor(colors.gray)
+  edge.cprint(productName,10)
+  sleep(0.1)
+  term.setBackgroundColor(bgCol)
+  term.setTextColor(colors.lightGray)
+  edge.cprint(productName,10)
+  sleep(0.1)
+  term.setBackgroundColor(bgCol)
+  term.setTextColor(colors.white)
+  edge.cprint(productName,10)
   local c = 0
-  while c ~= 1 do
-    --edge.render(1,1,scr_x,20,colors.orange,colors.white,"test")
-    term.setTextColor(colors.black)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.gray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.lightGray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.white)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.lightGray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.gray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.black)
-    edge.cprint(productName,10)
-    sleep(1)
-    c= c + 1
+  sleep(.1)
+  local function animate(frames, length, y)
+    local anpoint = 1
+    local anmax = #frames
+    for i=1,length do
+      if anpoint > anmax then
+        anpoint = 1
+      end
+      term.setTextColor(colors.black)
+      edge.cprint(frames[anpoint],y)
+      sleep(0.2)
+      anpoint = anpoint + 1
+    end
+
   end
+  animate(loadingAnim, 20, 10)
   --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Started! "))) -- Excessive? Probably.
+  booting = false
   edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
   sleep(0.1)
   edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
