@@ -612,6 +612,18 @@ std.getSTDList = function(prevChannel)
 		maxScroll = setMaxScroll(catag)
 		return true, output
 	end
+	for k, v in pairs(std.storeCatagoryNames) do
+		if v == "Operating System" then
+			table.remove(std.storeCatagoryNames, k)
+			table.remove(std.storeCatagoryColors, k)
+			for k2, v2 in pairs(std.storeURLs) do
+				if v2.category == k then
+					table.remove(std.storeURLs, k2)
+				end
+			end
+		end
+		break
+	end
 end
 
 local cisf = function(str,fin)
