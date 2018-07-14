@@ -621,8 +621,8 @@ std.getSTDList = function(prevChannel)
 					table.remove(std.storeURLs, k2)
 				end
 			end
+			break
 		end
-		break
 	end
 end
 
