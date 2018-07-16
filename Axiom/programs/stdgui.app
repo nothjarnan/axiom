@@ -10,7 +10,10 @@ if not http then --why, you...
 	return false, printError("HTTP must be enabled to use STD. Contact an administrator for assistance.")
 else
 	if not http.checkURL("http://pastebin.com") then
-		return false, printError("For some reason, Pastebin.com is whitelisted. Abort.")
+	    term.setBackgroundColor(colors.black)
+		term.clear()
+		term.setCursorPos(1, 1)
+		return false, printError("For some reason, pastebin could not be reached.\nIt may be blacklisted.\nAlso try checking your internet connection.\nAbort."), sleep(3)
 	end
 end
 local scr_x, scr_y = term.getSize()
@@ -610,19 +613,24 @@ std.getSTDList = function(prevChannel)
 			output = output.." (got "..diff.." new store entries)"
 		end
 		maxScroll = setMaxScroll(catag)
-		return true, output
-	end
-	for k, v in pairs(std.storeCatagoryNames) do
-		if v == "Operating System" then
-			table.remove(std.storeCatagoryNames, k)
-			table.remove(std.storeCatagoryColors, k)
-			for k2, v2 in pairs(std.storeURLs) do
-				if v2.category == k then
-					table.remove(std.storeURLs, k2)
+		for k, v in pairs(std.storeCatagoryNames) do
+			if v == "Operating System" then
+				table.remove(std.storeCatagoryNames, k)
+				table.remove(std.storeCatagoryColors, k)
+				for k2, v2 in pairs(std.storeURLs) do
+					if v2.category == k then
+						table.remove(std.storeURLs, k2)
+					end
 				end
+				for k2, v2 in pairs(std.storeURLs) do
+					if v2.catagory > k then
+						std.storeURLs[k2].catagory = v2.catagory - 1
+					end
+				end
+				break
 			end
-			break
 		end
+		return true, output
 	end
 end
 
