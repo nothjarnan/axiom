@@ -489,18 +489,6 @@ function filebrowser(startDir,select)
                 else
                   if string.find(files..f_file[i],".app",string.len(f_file[i]) - 4) or string.find(files..f_file[i],".lua",string.len(f_file[i]) - 4) or string.find(files..f_file[i],".cmd",string.len(f_file[i]) - 4) or string.find(files..f_file[i],".axp",string.len(f_file[i]) - 4) then
                     menubarColor = colors.white
-                    local chkhash = fs.open(files..f_file[i],"r")
-                    for k,v in ipairs(bannedHashes) do
-                      if encryption.sha256(chkhash.readAll()) == v then
-                        axiom.alert(productName.." has protected your PC.",3)
-                        axiom.alert("Malware hash matched",3)
-                        fs.delete(files..f_file[i])
-                        chkhash.close()
-                        filebrowser("/")
-                      end
-                    end
-                    chkhash.close()
-
                     edge.render(1,1,51,1,menubarColor,colors.cyan," o*",colors.black,false)
                     edge.log("File:"..files..f_file[i])
                     local f = assert(loadfile(files..f_file[i]))

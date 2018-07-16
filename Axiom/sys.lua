@@ -129,21 +129,14 @@ updating = false
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
 _G.version_sub = ""
-_G.version = "5.0"
+_G.version = "6.0"
 _G.hasRootAccess = false
-_G.unreleased = false
-if _G.unreleased then
-  _G.version = _G.version.." nightly"
-end
 _G.latestversion = version
 
 -- CC 1.78 GLOBALS
 
 announcement = ""
 state = ""
-tasks = {kernel=false,settings_app=false,permngr=false,clock=false,filebrowser=false}
-demo = "Copper"
-frames_rendered = 1
 menubarColor = colors.white
 menuBarColor_Dark = colors.gray
 nightmode = false
@@ -436,8 +429,7 @@ function login_gui_unreleased()
   local attempt = 1
   local mx, my = term.getSize()
   local users = setting.variables.users
-  local userButtons = {
-  }
+  local userButtons = {}
   local tstep = 0
   for k,v in pairs(users) do
     if k ~= "KERNEL" and k ~= "GUEST" and _G.currentUser == "KERNEL" then _G.currentUser = k end
@@ -479,8 +471,15 @@ function login_gui_unreleased()
     edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue,"   Login", colors.gray, false)
   end
   term.setTextColor(colors.white)
+  if userButtons[_G.currentUser].display == nil then
+    if fs.exists("Axiom/.fs") then
+      fs.delete("Axiom/.fs")
+      edge.windowAlert(20,10,"An unexpected error has occurred and Axiom has to reboot. You will be taken through first time setup.",true, colors.red)
+      os.reboot()
+    end
+  end
   if _G.currentUser == nil then _G.currentUser = "KERNEL" end
-  edge.cprint(tostring(userButtons[_G.currentUser].display),7)
+  edge.cprint(tostring(userButtons[tostring(_G.currentUser)].display),7)
   edge.render(3,my-2,3,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
   while(true) do
     if redraw then
@@ -519,6 +518,7 @@ function login_gui_unreleased()
           state = "login_gui"
           if setting.variables.users[_G.currentUser].password == pw and attempt <= 3  then
             state = "desktop"
+            axiom.setCurrentUser(setting.variables.users[_G.currentUser].displayName)
             desktop()
           else
             attempt = attempt + 1
@@ -536,6 +536,7 @@ function login_gui_unreleased()
           end
         else
           state = "desktop"
+          axiom.setCurrentUser(setting.variables.users[_G.currentUser].displayName)
           desktop()
         end
       end
@@ -635,7 +636,6 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
   usr = ""
   pass = ""
   _G.currentUser = "KERNEL"
-  tasks.clock = false
   edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
   edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
 
@@ -780,7 +780,7 @@ function terminal(dir)
 
   terminalVersion = version
   local termunfucked = false
-  tasks.clock = false
+
 
   terminalActive = true
   workingDir = ""
@@ -811,7 +811,7 @@ function terminal(dir)
     command(input,curDir)
     termunfucked = true
   end
-  tasks.clock = true
+
 end
 function command(cmd)
 
@@ -1169,11 +1169,11 @@ function desktop()
         edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
       end
     end
-    edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
     state = "main_gui"
     local x_p = 4
     --edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
     edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
+    edge.render(mx-string.len(axiom.getCurrentUser())-1,1,mx,1,menubarColor, colors.cyan,axiom.getCurrentUser(),colors.gray)
 
 
     x_p = 4
@@ -1579,7 +1579,7 @@ function desktop()
             desktop()
           end
           if x >= 1 and x <= mWidth and y == 9 then
-            tasks.clock = false
+
             term.clear()
             cprint("A X I O M",9)
             cprint(". . . . .",10)
@@ -1711,7 +1711,7 @@ function ftsRender(step,usr,pw,l,adduser)
 end
 function firstTimeSetupNew(adduser)
   if not adduser then adduser = false end
-  tasks.clock = false
+
   disableclock = true
   local a,b = term.getSize()
   local password = "nopass"
@@ -1919,6 +1919,9 @@ function bootanimation()
   --print("encryption")
   os.loadAPI("Axiom/libraries/encryption")
   --print("loaded apis")
+  os.loadAPI("Axiom/libraries/net")
+  os.loadAPI("Axiom/libraries/json")
+  os.loadAPI("Axiom/libraries/axiom")
   if not edge then os.reboot() end
   if _G.unreleased then
     term.setBackgroundColor(colors.black)
@@ -1948,6 +1951,9 @@ function bootanimation()
           "encryption",
           "fs",
           "setting",
+          "axiom",
+          "net",
+          "json"
         }
         local allow = true
 
@@ -2153,7 +2159,7 @@ function safeBoot(force)
     end
   end
 
-  tasks.kernel = true
+
   term.setBackgroundColor(colors.black)
   term.setTextColor(colors.white)
   os.loadAPI("Axiom/libraries/edge")
@@ -2172,9 +2178,14 @@ function safeBoot(force)
 
 
   os.loadAPI("Axiom/libraries/setting")
-
+  os.loadAPI("Axiom/libraries/net")
   --files = setting.variables.users[_G.currentUser].fexplore_startdir
   printout("LOADED: settings")
+  printout("LOADED: net")
+  os.loadAPI("Axiom/libraries/json")
+  printout("LOADED: json")
+  os.loadAPI("Axiom/libraries/axiom")
+  printout("LOADED: axiom")
   os.loadAPI("Axiom/libraries/encryption")
   printout("LOADED: encryption")
 
@@ -2238,6 +2249,9 @@ function safeBoot(force)
           "encryption",
           "fs",
           "setting",
+          "axiom",
+          "net",
+          "json"
         }
         local allow = true
 
@@ -2340,8 +2354,7 @@ end
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 printout("SYSTEM: Starting services..")
-tasks.kernel = true
-tasks.permngr = true
+
 if fs.exists("safeStart") then
   if fs.exists("limbo") then
     hasRootAccess = true
