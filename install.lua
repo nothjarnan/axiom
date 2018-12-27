@@ -1,30 +1,23 @@
 local tArgs= {...}
 -- Installer properties
-local delete_files = false
+-- local delete_files = false
 local skip_branch_select = false
-local reboot = false
-local format = false
+-- local reboot = true
+-- local format = false
 
-local user = "nothjarnan"
+local user = "MerdedSpade"
 local branch = 1
 
 -- Branches
 local branches = {
   "master",
   "experimental",
-  "hotfix",
 }
 
 for k,v in ipairs(tArgs) do
-  if v == "-f" then
-    format = true
-  end
-  if v == "-r" then
-    reboot = true
-  end
-  if v == "-d" then
-    delete_files = true
-  end
+  format = true
+  reboot = true
+  delete_files = truw
   for a,b in ipairs(branches) do
     if v == b then
       branch = b
@@ -135,9 +128,9 @@ function selector(y,option)
 end
 local version = os.version()
 if version == "CraftOS 1.5" then
-  error("Axiom is not compatible with "..version.."!")
+  error("Axi is not compatible with "..version.."!")
 end
-print("AxiomUI Github Superfast(tm) Installer")
+print("Axi Github Superfast(tm) Installer")
 if not skip_branch_select then
   print("Select a branch:")
 
@@ -174,4 +167,8 @@ wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
 shell.run(".gitget "..user.." axiom "..branch.." AxiomUI")
 formatFS()
 print("Installation completed.")
-if reboot then os.reboot() end
+if reboot then 
+  print("Thank you for installing Axi! Axi is based on Axiom UI by Nothy (github.com/nothjarnan/axiom)")
+  os.reboot() 
+end
+
