@@ -10,6 +10,15 @@ local changes = "Changes:\nHopefully fixed program refusing to exit"
 local running = true
 local args = {...}
 function filebrowser(startDir,select)
+  if args[1] ~= nil then 
+    if args[1] == "select" then 
+      if args[2] ~= nil then 
+        if(fs.exists(args[2])) then 
+          files = args[2]
+        end
+      end
+    end
+  end
   if fileselect == true then select = true end
   if not select then
     select = false
@@ -202,7 +211,7 @@ function filebrowser(startDir,select)
     end
     if x >= 2 and x <= 5 and y == 3 then
       edge.windowAlert(25,10,"App Version "..appversion.."\nOfficially packaged with Axiom.",true,colors.green)
-      filebrowser()
+      --filebrowser()
     end
     if x >= 1 and x <= 4 and y == 1 and button == 1 then
       edge.log("menu")
@@ -222,7 +231,7 @@ function filebrowser(startDir,select)
         local event, button, x, y = os.pullEvent("mouse_click")
         if x >= 10 and y >= 1 or x >= 1 and y >= 11 or x >= 1 and x <= 4 and y == 1 then
           files = setting.variables.users[currentUser].fexplore_startdir
-          filebrowser(files)
+          --filebrowser(files)
 
         end
         if event == "terminate" then
@@ -245,7 +254,7 @@ function filebrowser(startDir,select)
         end
         if x >= 1 and x <= 10 and y == 5 then
           files = setting.variables.users[currentUser].fexplore_startdir
-          filebrowser(files, fileselect)
+          --filebrowser(files, fileselect)
         end
         if x >= 1 and x <= 10 and y == 7 then
           shell.run("clear")
@@ -317,7 +326,7 @@ function filebrowser(startDir,select)
       --menubarColor = colors.white
       disableclock = false
 
-      return true
+      break;
     end
     if x == 45 and y == 2 and button == 1 then
       --files = setting.variables.users[currentUser].fexplore_startdir
@@ -326,7 +335,7 @@ function filebrowser(startDir,select)
       disableclock = false
 
       fileselect = false
-      return true
+      break;
       --parallel.waitForAll(desktop,clock)
     end
     if x == 43 and y == 2 and button == 1 then
@@ -341,7 +350,7 @@ function filebrowser(startDir,select)
       if fs.getDir(files) == ".." then
       else
         files = "/"..fs.getDir(files).."/"
-        filebrowser(files, fileselect)
+        --filebrowser(files, fileselect)
       end
     end
     if x >= 7 and x <= 7+string.len("<New folder>") and y == 4 and button == 1 then
@@ -362,7 +371,7 @@ function filebrowser(startDir,select)
         fs.makeDir(files..input)
         edge.log("Created folder: "..files..input)
       end
-      filebrowser()
+      --filebrowser()
     end
     if x >= 19 and x <= 19+string.len("<New file>") and y == 4 and button == 1 then
 
@@ -382,9 +391,9 @@ function filebrowser(startDir,select)
           local a = fs.open(files..input,"w")
           a.close()
           edge.log("Created file: "..files..input)
-          filebrowser(files, fileselect)
-        else
-          filebrowser(files, fileselect)
+          --filebrowser(files, fileselect)
+        -- else
+        --   filebrowser(files, fileselect)
         end
       end
     end
@@ -441,7 +450,7 @@ function filebrowser(startDir,select)
       else
         edge.log("User entered nothing")
       end
-      filebrowser(files, fileselect)
+      --filebrowser(files, fileselect)
     end
     if button == 1 and event == "mouse_click" then
       for i=1, #f_file do
@@ -449,7 +458,7 @@ function filebrowser(startDir,select)
           if fs.isDir(files..f_file[i]) and f_file[i] ~= "rom" then
             previousDir = files
             files = files..""..f_file[i].."/"
-            filebrowser(files, fileselect)
+            --filebrowser(files, fileselect)
           else
 
             term.setBackgroundColor(colors.black)
@@ -458,8 +467,8 @@ function filebrowser(startDir,select)
             else
               shell.run("home/prg/luaide.app "..files..f_file[i])
             end
-            parallel.waitForAll(filebrowser)
-
+            --parallel.waitForAll(filebrowser)
+            break
           end
         end
       end
@@ -495,7 +504,7 @@ function filebrowser(startDir,select)
                     f()
                   end
                 end
-                filebrowser()
+                --filebrowser()
               end
             end
           end

@@ -51,15 +51,7 @@ for k,v in ipairs(sides) do
   end
 
 end
-if detectedSide ~= nil then
-  hasRednet = true
-  modem = peripheral.wrap(detectedSide)
-  for i=0,7, 1 do
-    modem.open(i)
-    modem.transmit(i,1, "axfs")
-  end
 
-end
 local tArgs = {...}
 --oldPullEvent = os.pullEvent
 os.pullEvent = os.pullEventRaw
@@ -128,8 +120,8 @@ updating = false
 
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
-_G.version_sub = ""
-_G.version = "6.0"
+_G.version_sub = "rw"
+_G.version = "7.0"
 _G.hasRootAccess = false
 _G.latestversion = version
 
@@ -405,7 +397,7 @@ function execUpd(isTerminal)
   --return success,"Update system not finished for Community version. Use gitget to update."
   local out = true
   local success = true
-  shell.run("/.gitget "..setting.variables.update.user.." axiom-opensource "..setting.variables.update.branch.." /")
+  shell.run("/.gitget "..setting.variables.update.user.." axiom "..setting.variables.update.branch.." /")
   return success, "Updated with gitget."
 end
 function login_clock()
@@ -459,6 +451,8 @@ function login_gui_unreleased()
   --     desktop()
   --   end
   -- end
+  
+
   local showuserlist = false
   local menu = false
   local redraw = false
@@ -471,14 +465,13 @@ function login_gui_unreleased()
     edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue,"   Login", colors.gray, false)
   end
   term.setTextColor(colors.white)
-  if userButtons[_G.currentUser].display == nil then
+  if userButtons[_G.currentUser] == nil then
     if fs.exists("Axiom/.fs") then
       fs.delete("Axiom/.fs")
       edge.windowAlert(20,10,"An unexpected error has occurred and Axiom has to reboot. You will be taken through first time setup.",true, colors.red)
       os.reboot()
     end
   end
-  if _G.currentUser == nil then _G.currentUser = "KERNEL" end
   edge.cprint(tostring(userButtons[tostring(_G.currentUser)].display),7)
   edge.render(3,my-2,3,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
   while(true) do
@@ -1579,23 +1572,6 @@ function desktop()
             desktop()
           end
           if x >= 1 and x <= mWidth and y == 9 then
-
-            term.clear()
-            cprint("A X I O M",9)
-            cprint(". . . . .",10)
-            sleep(0.2)
-            term.clear()
-            cprint("  X I O  ",9)
-            cprint("  . . .  ",10)
-            sleep(0.2)
-            term.clear()
-            cprint("    I    ",9)
-            cprint("    .    ",10)
-            sleep(0.2)
-            term.clear()
-            cprint("         ",9)
-            cprint("         ",10)
-            sleep(1)
             if setting.variables.temp.first_update == false then
               setting.variables.temp.first_update = true
               edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
@@ -1933,7 +1909,7 @@ function bootanimation()
   --sleep(10)
   term.clear()
 
-  latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
+  
 
   local mx, my = term.getSize()
 
@@ -2192,13 +2168,7 @@ function safeBoot(force)
   --cprint("A X I O M",9)
 
   printout("Determining latest version.")
-  latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
-  if latestversion.readAll() == nil or latestversion.readAll() == "" then
-    printwarn("Error determining version.")
-    latestversion = version
-  else
-    printout(latestversion.readAll())
-  end
+  printwarn("Version checking permanently disabled.")
   sleep(1)
   if not edge then
     error("AXIOM-EdgeNotLoaded")
