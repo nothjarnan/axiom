@@ -67,6 +67,26 @@ nft.drawImage = function(image, x, y)
 	term.setCursorPos(cx,cy)
 end
 
+local loadNFP = function(path)
+	if fs.exists(path) then
+		local file = fs.open(path, "r")
+		local image = file.readAll()
+		file.close()
+		local output = {}
+		local x, y = 1, 1
+		for i = 1, #image do
+			output[y] = output[y] or {}
+			if bl[image:sub(i,i)] then
+				output[y][x] = bl[image:sub(i,i)]
+				x = x + 1
+			elseif image:sub(i,i) == "\n" then
+				x, y = 1, y + 1
+			end
+		end
+		return output
+	end
+end
+
 local imageType = function(path)
 	local f = fs.open(path,"r")
 	local cont = f.readAll()
@@ -245,7 +265,7 @@ function ico(x,y,imgPath,defaultcolor)
   if fs.exists(imageDir..imgPath) then
     local chk = imageType(imageDir..imgPath)
     if chk == "nfp" then
-      local img = paintutils.loadImage(imageDir..imgPath)
+      local img = loadNFP(imageDir..imgPath)
       if img == nil then
         error("nil image data")
       end
@@ -265,7 +285,7 @@ function image(x,y,imgPath,defaultcolor)
   if fs.exists(imageDir..imgPath) then
     local chk = imageType(imageDir..imgPath)
     if chk == "nfp" then
-      local img = paintutils.loadImage(imageDir..imgPath)
+      local img = loadNFP(imageDir..imgPath)
       if img == nil then
         error("nil image data")
       end
