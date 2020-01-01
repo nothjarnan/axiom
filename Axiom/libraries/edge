@@ -67,6 +67,30 @@ nft.drawImage = function(image, x, y)
 	term.setCursorPos(cx,cy)
 end
 
+local bl = {	-- blit
+	[' '] = 0,
+	['0'] = 1,
+	['1'] = 2,
+	['2'] = 4,
+	['3'] = 8,
+	['4'] = 16,
+	['5'] = 32,
+	['6'] = 64,
+	['7'] = 128,
+	['8'] = 256,
+	['9'] = 512,
+	['a'] = 1024,
+	['b'] = 2048,
+	['c'] = 4096,
+	['d'] = 8192,
+	['e'] = 16384,
+	['f'] = 32768,
+}
+local lb = {} 	-- tilb
+for k,v in pairs(bl) do
+	lb[v] = k
+end
+
 local loadNFP = function(path)
 	if fs.exists(path) then
 		local file = fs.open(path, "r")
