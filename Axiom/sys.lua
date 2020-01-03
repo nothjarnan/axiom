@@ -120,8 +120,8 @@ updating = false
 
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
-_G.version_sub = "rw"
-_G.version = "7.0"
+_G.version_sub = ""
+_G.version = "5.1"
 _G.hasRootAccess = false
 _G.latestversion = version
 
@@ -2407,16 +2407,12 @@ if force_logcat or _G.unreleased then
     errorMessager(err)
   end
 end
-if os.version() ~= "CraftOS 1.7" then
+if os.version() ~= "CraftOS 1.8" then
   if os.version() == "CraftOS 1.5" then
     printerr("please update ComputerCraft.")
-
   end
-  if os.version() == "CraftOS 1.8" then
-    printwarn("Settings is known not to work properly in CC 1.80.")
-    sleep(1)
-  end
-  printwarn("running on unsupported CraftOS version, may be unstable")
+  printwarn("Running on potentially unsupported CraftOS version, may be unstable")
+  printwarn("If you are using CC 1.7x you can ignore this message.")
   sleep(1)
 end
 if fs.exists("Axiom/settings.0") == true and fs.exists("Axiom/settings.bak") == false then
