@@ -51,15 +51,7 @@ for k,v in ipairs(sides) do
   end
 
 end
-if detectedSide ~= nil then
-  hasRednet = true
-  modem = peripheral.wrap(detectedSide)
-  for i=0,7, 1 do
-    modem.open(i)
-    modem.transmit(i,1, "axfs")
-  end
 
-end
 local tArgs = {...}
 --oldPullEvent = os.pullEvent
 os.pullEvent = os.pullEventRaw
@@ -129,21 +121,14 @@ updating = false
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
 _G.version_sub = ""
-_G.version = "5.0"
+_G.version = "5.1"
 _G.hasRootAccess = false
-_G.unreleased = false
-if _G.unreleased then
-  _G.version = _G.version.." nightly"
-end
 _G.latestversion = version
 
 -- CC 1.78 GLOBALS
 
 announcement = ""
 state = ""
-tasks = {kernel=false,settings_app=false,permngr=false,clock=false,filebrowser=false}
-demo = "Copper"
-frames_rendered = 1
 menubarColor = colors.white
 menuBarColor_Dark = colors.gray
 nightmode = false
@@ -412,7 +397,7 @@ function execUpd(isTerminal)
   --return success,"Update system not finished for Community version. Use gitget to update."
   local out = true
   local success = true
-  shell.run("/.gitget "..setting.variables.update.user.." axiom-opensource "..setting.variables.update.branch.." /")
+  shell.run("/.gitget "..setting.variables.update.user.." axiom "..setting.variables.update.branch.." /")
   return success, "Updated with gitget."
 end
 function login_clock()
@@ -436,8 +421,7 @@ function login_gui_unreleased()
   local attempt = 1
   local mx, my = term.getSize()
   local users = setting.variables.users
-  local userButtons = {
-  }
+  local userButtons = {}
   local tstep = 0
   for k,v in pairs(users) do
     if k ~= "KERNEL" and k ~= "GUEST" and _G.currentUser == "KERNEL" then _G.currentUser = k end
@@ -467,6 +451,8 @@ function login_gui_unreleased()
   --     desktop()
   --   end
   -- end
+  
+
   local showuserlist = false
   local menu = false
   local redraw = false
@@ -479,8 +465,14 @@ function login_gui_unreleased()
     edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue,"   Login", colors.gray, false)
   end
   term.setTextColor(colors.white)
-  if _G.currentUser == nil then _G.currentUser = "KERNEL" end
-  edge.cprint(tostring(userButtons[_G.currentUser].display),7)
+  if userButtons[_G.currentUser] == nil then
+    if fs.exists("Axiom/.fs") then
+      fs.delete("Axiom/.fs")
+      edge.windowAlert(20,10,"An unexpected error has occurred and Axiom has to reboot. You will be taken through first time setup.",true, colors.red)
+      os.reboot()
+    end
+  end
+  edge.cprint(tostring(userButtons[tostring(_G.currentUser)].display),7)
   edge.render(3,my-2,3,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
   while(true) do
     if redraw then
@@ -519,6 +511,7 @@ function login_gui_unreleased()
           state = "login_gui"
           if setting.variables.users[_G.currentUser].password == pw and attempt <= 3  then
             state = "desktop"
+            axiom.setCurrentUser(setting.variables.users[_G.currentUser].displayName)
             desktop()
           else
             attempt = attempt + 1
@@ -536,6 +529,7 @@ function login_gui_unreleased()
           end
         else
           state = "desktop"
+          axiom.setCurrentUser(setting.variables.users[_G.currentUser].displayName)
           desktop()
         end
       end
@@ -635,7 +629,6 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
   usr = ""
   pass = ""
   _G.currentUser = "KERNEL"
-  tasks.clock = false
   edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
   edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
 
@@ -780,7 +773,7 @@ function terminal(dir)
 
   terminalVersion = version
   local termunfucked = false
-  tasks.clock = false
+
 
   terminalActive = true
   workingDir = ""
@@ -811,7 +804,7 @@ function terminal(dir)
     command(input,curDir)
     termunfucked = true
   end
-  tasks.clock = true
+
 end
 function command(cmd)
 
@@ -1169,11 +1162,11 @@ function desktop()
         edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
       end
     end
-    edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
     state = "main_gui"
     local x_p = 4
     --edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
     edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
+    edge.render(mx-string.len(axiom.getCurrentUser())-1,1,mx,1,menubarColor, colors.cyan,axiom.getCurrentUser(),colors.gray)
 
 
     x_p = 4
@@ -1579,23 +1572,6 @@ function desktop()
             desktop()
           end
           if x >= 1 and x <= mWidth and y == 9 then
-            tasks.clock = false
-            term.clear()
-            cprint("A X I O M",9)
-            cprint(". . . . .",10)
-            sleep(0.2)
-            term.clear()
-            cprint("  X I O  ",9)
-            cprint("  . . .  ",10)
-            sleep(0.2)
-            term.clear()
-            cprint("    I    ",9)
-            cprint("    .    ",10)
-            sleep(0.2)
-            term.clear()
-            cprint("         ",9)
-            cprint("         ",10)
-            sleep(1)
             if setting.variables.temp.first_update == false then
               setting.variables.temp.first_update = true
               edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
@@ -1711,7 +1687,7 @@ function ftsRender(step,usr,pw,l,adduser)
 end
 function firstTimeSetupNew(adduser)
   if not adduser then adduser = false end
-  tasks.clock = false
+
   disableclock = true
   local a,b = term.getSize()
   local password = "nopass"
@@ -1860,8 +1836,8 @@ function cprint( text, y )
   term.setCursorPos( centerXPos, y )
   write( text )
 end
-function bootanimation()
-  booting = true
+function boot() 
+
   if not term.isColor() then
     printerr("No color support detected, quitting..")
     sleep(2)
@@ -1909,19 +1885,10 @@ function bootanimation()
   --print("encryption")
   os.loadAPI("Axiom/libraries/encryption")
   --print("loaded apis")
-  if not edge then os.reboot() end
-  if _G.unreleased then
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  else
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  end
-  --sleep(10)
-  term.clear()
-
-  latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
-
+  os.loadAPI("Axiom/libraries/net")
+  os.loadAPI("Axiom/libraries/json")
+  os.loadAPI("Axiom/libraries/axiom")
+  if not edge then error("Edge is not loaded.") end
   local mx, my = term.getSize()
 
   if setting.variables.users["KERNEL"].allow_apis == true then
@@ -1938,6 +1905,9 @@ function bootanimation()
           "encryption",
           "fs",
           "setting",
+          "axiom",
+          "net",
+          "json"
         }
         local allow = true
 
@@ -1989,16 +1959,6 @@ function bootanimation()
   if not next then
     error("Axiom did not find Next API, which doesn't affect this OS what so ever since it's obsolete. Rendering this snippet of code absolutely useless.")
   end
-  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
-  sleep(0.1)
-
-  --log("settings "..tostring(sysSettings))
   if not setting.variables.temp.system_skipsys_scan then
     if fs.exists("Axiom/log.txt") then
       if fs.getSize("Axiom/log.txt") >= 12000 then
@@ -2020,85 +1980,75 @@ function bootanimation()
           log("SYSTEM: Verified file "..file)
 
           term.setTextColor(colors.lightGray)
-
-          if _G.unreleased then
-            term.setBackgroundColor(colors.white)
-            term.setTextColor(colors.black)
-          else
-            term.setBackgroundColor(colors.cyan)
-            term.setTextColor(colors.white)
-          end
         end
         x, y = term.getSize()
         midx = x / 2
         --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2,8,48,8,colors.white,colors.cyan,"File "..loaded.." of "..toLoad.." verified.",colors.black)
         loaded = loaded + 1
-        --sleep(0.1)
+        sleep(0.3)
       end
 
       --print("Loaded: os/libraries/"..file)
+      booting = false
     end
   end
+end
+function bootanimation()
 
-  --sleep(0.2)
-  -- cprint("  X I O  ",my/2)
-  -- cprint("  . . .  ",(my/2)+1)
-  -- sleep(0.2)
-  -- cprint("    I    ",my/2)
-  -- cprint("    .    ",(my/2)+1)
-  -- sleep(0.2)
-  -- cprint("         ",my/2)
-  -- cprint("         ",(my/2)+1)
-  term.setBackgroundColor(bgCol)
+  booting = true
+  term.setBackgroundColor(colors.white)
+
   term.setTextColor(colors.black)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.gray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.lightGray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.white)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.lightGray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.gray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setTextColor(colors.black)
-  edge.cprint(productName,10)
-  sleep(1)
+
   local c = 0
-  while c ~= 1 do
-    --edge.render(1,1,scr_x,20,colors.orange,colors.white,"test")
+  sleep(.1)
+  local loadingAnim = {
+    "ooooooo",
+    "Ooooooo",
+    "oOooooo",
+    "ooOoooo",
+    "oooOooo",
+    "ooooOoo",
+    "oooooOo",
+    "ooooooO",
+  }
+  
+  local function animate(frames, length, y)
+    local anpoint = 1
+    local anmax = #frames
+    local cycles = 0
     term.setTextColor(colors.black)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.gray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.lightGray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.white)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.lightGray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.gray)
-    edge.cprint(productName,10)
-    sleep(0.1)
-    term.setTextColor(colors.black)
-    edge.cprint(productName,10)
-    sleep(1)
-    c= c + 1
+    edge.cprint(frames[1],y)
+    while booting and cycles < 1 do
+      if anpoint > anmax then
+        anpoint = 1
+        cycles = cycles + 1
+      end
+      term.setTextColor(colors.black)
+      edge.cprint(frames[anpoint],y)
+      sleep(0.2)
+      anpoint = anpoint + 1
+    end
+
   end
-  --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Started! "))) -- Excessive? Probably.
-  edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
+  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
+  sleep(0.1)
+  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
+  sleep(0.1)
+  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
+  sleep(0.1)
+  edge.render(1,1,mx, my, colors.white, colors.white, "", colors.black)
+  sleep(0.1)
+  term.setTextColor(colors.lightGray)
+  edge.cprint(loadingAnim[1],10)
+  sleep(0.1)
+  term.setTextColor(colors.gray)
+  sleep(0.1)
+  edge.cprint(loadingAnim[1],10)
+  sleep(0.1)
+  animate(loadingAnim, 20, 10)
+  
+  edge.render(1,1,mx, my, colors.white, colors.white, "", colors.black)
   sleep(0.1)
   edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
   sleep(0.1)
@@ -2142,7 +2092,7 @@ function safeBoot(force)
     end
   end
 
-  tasks.kernel = true
+
   term.setBackgroundColor(colors.black)
   term.setTextColor(colors.white)
   os.loadAPI("Axiom/libraries/edge")
@@ -2161,22 +2111,21 @@ function safeBoot(force)
 
 
   os.loadAPI("Axiom/libraries/setting")
-
+  os.loadAPI("Axiom/libraries/net")
   --files = setting.variables.users[_G.currentUser].fexplore_startdir
   printout("LOADED: settings")
+  printout("LOADED: net")
+  os.loadAPI("Axiom/libraries/json")
+  printout("LOADED: json")
+  os.loadAPI("Axiom/libraries/axiom")
+  printout("LOADED: axiom")
   os.loadAPI("Axiom/libraries/encryption")
   printout("LOADED: encryption")
 
   --cprint("A X I O M",9)
 
   printout("Determining latest version.")
-  latestversion = http.get("http://www.nothy.se/Axiom/CurrentUpdate")
-  if latestversion.readAll() == nil or latestversion.readAll() == "" then
-    printwarn("Error determining version.")
-    latestversion = version
-  else
-    printout(latestversion.readAll())
-  end
+  printwarn("Version checking permanently disabled.")
   sleep(1)
   if not edge then
     error("AXIOM-EdgeNotLoaded")
@@ -2227,6 +2176,9 @@ function safeBoot(force)
           "encryption",
           "fs",
           "setting",
+          "axiom",
+          "net",
+          "json"
         }
         local allow = true
 
@@ -2329,8 +2281,7 @@ end
 term.setTextColor(colors.white)
 term.setBackgroundColor(colors.black)
 printout("SYSTEM: Starting services..")
-tasks.kernel = true
-tasks.permngr = true
+
 if fs.exists("safeStart") then
   if fs.exists("limbo") then
     hasRootAccess = true
@@ -2456,16 +2407,12 @@ if force_logcat or _G.unreleased then
     errorMessager(err)
   end
 end
-if os.version() ~= "CraftOS 1.7" then
+if os.version() ~= "CraftOS 1.8" then
   if os.version() == "CraftOS 1.5" then
     printerr("please update ComputerCraft.")
-
   end
-  if os.version() == "CraftOS 1.8" then
-    printwarn("Settings is known not to work properly in CC 1.80.")
-    sleep(1)
-  end
-  printwarn("running on unsupported CraftOS version, may be unstable")
+  printwarn("Running on potentially unsupported CraftOS version, may be unstable")
+  printwarn("If you are using CC 1.7x you can ignore this message.")
   sleep(1)
 end
 if fs.exists("Axiom/settings.0") == true and fs.exists("Axiom/settings.bak") == false then
@@ -2518,7 +2465,7 @@ if fs.exists("firstBoot") then
     end
   end
 else
-  local ok, err = pcall(bootanimation)
+  local ok, err = pcall(parallel.waitForAll,bootanimation, boot)
   if edge then
     if edge.windowAlert(26,10,productName.." has crashed. Error: "..err.."\n Reboot?", false) then
       os.reboot()

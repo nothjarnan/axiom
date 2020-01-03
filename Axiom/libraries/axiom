@@ -1,0 +1,10 @@
+
+local user = "Nobody"
+
+function getCurrentUser()
+  return user
+end
+
+function setCurrentUser(newUser)
+  user = newUser
+end

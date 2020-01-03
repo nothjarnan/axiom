@@ -1,0 +1,67 @@
+os.loadAPI("Axiom/libraries/json")
+
+local r = ""
+local log = true
+function disablelog()
+  log = false
+end
+function send(hostname,data,user,color)
+  if not color then color = 1 end
+  if not hostname then hostname = "localhost:1337" end
+  if not user then
+    user = "Guest"
+  end
+  if data then
+    res = http.request("http://"..hostname.."/",nil,{["data"]=data,["user"]=user,["msgcolor"]=color})
+    if log then print("sending msg="..data.." as user "..user) end
+  else
+    res = http.request("http://"..hostname.."/",nil,{})
+  end
+  if log then
+    print("awaiting response..")
+  end
+  while res do
+    local event, url, response = os.pullEvent()
+    if event == "http_success" then
+      os.queueEvent("net_success")
+      r = response.readAll()
+      res = false
+    elseif event == "http_failure" then
+      if log then
+        print("fatal error: http_failure")
+      end
+      os.queueEvent("net_failed")
+      r = nil
+      res = false
+    end
+  end
+  if r == "" then
+    r = nil
+    if log then
+      print("request timed out/no response")
+      os.queueEvent("net_failed")
+    end
+  end
+  return r
+end
+function ping(hostname)
+  local response = send(hostname,".ping")
+  if response ~= nil then
+    return true
+  else
+    return false
+  end
+end
+function getMessages(hostname, username)
+  if not username then username = "Guest" end
+  local msg = send(hostname,"._client.getMessages",username)
+  if msg == nil then
+    if log then print("could not get messages") end
+    return nil
+  else
+    local msg_json = json.jdecode( msg )
+    if type(msg_json) == "table" then
+      return msg_json
+    end
+  end
+end

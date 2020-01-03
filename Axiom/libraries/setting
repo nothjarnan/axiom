@@ -13,7 +13,7 @@ variables = {
 
   },
   users = {
-    KERNEL = {
+    ["KERNEL"] = {
       password = ".",
       superuser = true,
       displayName = "Kernel",
@@ -39,10 +39,10 @@ function loadsettings(dir)
     local unserial = fs.open(dir,"r")
     variables = textutils.unserialize(unserial.readAll())
     unserial.close()
-    return true
+    return variables
   else
     error("file not present",2)
-    return false
+    return nil
   end
 end
 function getVariable(a,b)
@@ -79,7 +79,7 @@ end
 
 function addUser(username, pw, display,su)
   if su == nil then su = false end
-  variables.users[username] = {
+  variables.users[tostring(username)] = {
     password = pw,
     displayName = display,
     superuser = su,
@@ -91,6 +91,16 @@ function addUser(username, pw, display,su)
     fexplore_startdir = "/home/",
     allow_downloads = true,
   }
+end
+function deleteUser(username)
+  loadsettings("Axiom/settings.bak")
+  for k, v in pairs(variables.users) do
+    if k == username or v.displayName == username then 
+      variables.users[k] = nil
+      break
+    end
+  end
+  writesettings()
 end
 if fs.exists("Axiom/settings.bak") then
   loadsettings("Axiom/settings.bak")
