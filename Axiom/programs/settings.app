@@ -84,8 +84,7 @@ function ftsRender(step,usr,pw,l,adduser)
       setting.addUser(usr,encryption.sha256(pw.."QxLUF1bgIAdeQX"),usr,true)
     end
     setting.variables.temp.first_start = false
-    sleep(3)
-    writesettings()
+    setting.writesettings()
     if not adduser then
       if not fs.exists("home/Desktop/files.lnk") then
         edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 1/3",colors.lightGray)
@@ -153,6 +152,7 @@ function firstTimeSetupNew(adduser)
     end
     if step > 1 then
       local success = ftsRender(step,username,password,licensed,adduser)
+      
       if success then
         return true
       end
@@ -186,8 +186,20 @@ function firstTimeSetupNew(adduser)
       term.setCursorPos(15,8)
       username = read()
       while(string.len(username) < 3) do
+        edge.windowAlert(20,10, "Error: Username too short.", true, colors.red)
+        edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
         edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
         username = read()
+      end
+      while(string.lower(username) == "kernel" or setting.variables.users[username] ~= nil) do 
+
+          edge.windowAlert(20,10, "Error: Username unavailable.", true, colors.red)
+          edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
+          -- pick username(?)
+          edge.render(12,6,a,6,colors.white,colors.cyan,"Enter your desired username ",colors.gray)
+          edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
+          username = read()
+  
       end
       if not adduser then
         if unreleased then
@@ -713,6 +725,7 @@ function settings_new(startpage)
           --edge.render(1,2,mx,my,colors.white,colors.cyan,"",colors.black)
           edge.render(1,2,mx,4,colors.lime,colors.cyan,"",colors.black)
           edge.render(mx-2,2,mx-2,2,colors.lime,colors.cyan,"x",colors.red)
+          setting.variables = setting.loadsettings("Axiom/settings.bak")
           settings_draw(currentpage)
         end
 
@@ -750,21 +763,22 @@ function settings_new(startpage)
                   if users[k].confirmC == true then
                     edge.render(44,users[k].by+1,49,users[k].by+1,colors.red,colors.cyan,"DELETED",colors.white)              
                     setting.deleteUser(v.uname)
-                    local ok = edge.windowAlert(20,10,"An immediate reboot is required to apply these changes. Click OK to reboot.",true,colors.orange)
+                    local ok = edge.windowAlert(20,10,"A reboot may be required to apply these changes.",true,colors.orange)
+                    setting.variables = setting.loadsettings("Axiom/settings.bak")
                     settings_draw(currentpage)
-                    if not ok then
-                      sleep(0.2)
-                      edge.windowAlert(20,10, "You think you can get away that easy? I'll reboot anyway for you :)", true, colors.red)
-                    end
-                    edge.render(1,1,mx,my,colors.white,colors.cyan,"",colors.white)
-                    sleep(0.1)
-                    edge.render(1,1,mx,my,colors.lightGray,colors.cyan,"",colors.white)
-                    sleep(0.1)
-                    edge.render(1,1,mx,my,colors.gray,colors.cyan,"",colors.white)
-                    sleep(0.1)
-                    edge.render(1,1,mx,my,colors.black,colors.cyan,"",colors.white)
-                    sleep(0.1)
-                    os.reboot()
+                    -- if not ok then
+                    --   sleep(0.2)
+                    --   edge.windowAlert(20,10, "You think you can get away that easy? I'll reboot anyway for you :)", true, colors.red)
+                    -- end
+                    -- edge.render(1,1,mx,my,colors.white,colors.cyan,"",colors.white)
+                    -- sleep(0.1)
+                    -- edge.render(1,1,mx,my,colors.lightGray,colors.cyan,"",colors.white)
+                    -- sleep(0.1)
+                    -- edge.render(1,1,mx,my,colors.gray,colors.cyan,"",colors.white)
+                    -- sleep(0.1)
+                    -- edge.render(1,1,mx,my,colors.black,colors.cyan,"",colors.white)
+                    -- sleep(0.1)
+                    -- os.reboot()
                   else
                     edge.render(44,users[k].by+1,49,users[k].by+1,colors.red,colors.cyan,"CONFIRM",colors.white)
                     users[k].confirmC = true
@@ -1043,7 +1057,7 @@ function settings_new(startpage)
         end
       end
       if x >= 45 and x <= 50 and y == 10 and button == 1 then
-        edge.windowAlert(25,12, "Telemetry sends information that Nothy can use to iron out bugs that you've stumbled across. Disabling this will not delete any previously sent info.", true)
+        edge.windowAlert(25,12, "Telemetry is deprecated. All previous data no longer exists.", true)
         settings_draw(currentpage)
       end
       if x >= 46 and x <= 50 and y == 12 and button == 1 then
