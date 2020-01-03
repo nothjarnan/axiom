@@ -27,7 +27,7 @@
     enable_guest_login = true
   },
   users = {
-    KERNEL = {
+    ["KERNEL"] = {
       superuser = true,
       fexplore_startdir = "/home/",
       background = "default.nfp",
@@ -40,7 +40,7 @@
       image_dir = "Axiom/images/",
       allow_background_change = true,
     },
-    GUEST = {
+    ["GUEST"] = {
       superuser = false,
       fexplore_startdir = "/home/",
       background = "default.nfp",

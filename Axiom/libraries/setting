@@ -13,7 +13,7 @@ variables = {
 
   },
   users = {
-    KERNEL = {
+    ["KERNEL"] = {
       password = ".",
       superuser = true,
       displayName = "Kernel",
@@ -79,7 +79,7 @@ end
 
 function addUser(username, pw, display,su)
   if su == nil then su = false end
-  variables.users[username] = {
+  variables.users[tostring(username)] = {
     password = pw,
     displayName = display,
     superuser = su,
@@ -91,6 +91,21 @@ function addUser(username, pw, display,su)
     fexplore_startdir = "/home/",
     allow_downloads = true,
   }
+end
+function deleteUser(username)
+  loadsettings("Axiom/settings.bak")
+  print("deleting "..tutils.serialize(username))
+  sleep(1)
+  for k, v in pairs(variables.users) do
+    print(k) 
+    if k == username or v.displayName == username then 
+      print("delet: "..k)
+      variables.users[k] = nil
+      break
+    end
+  end
+  print("writing")
+  writesettings()
 end
 if fs.exists("Axiom/settings.bak") then
   loadsettings("Axiom/settings.bak")

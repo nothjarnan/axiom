@@ -1836,18 +1836,8 @@ function cprint( text, y )
   term.setCursorPos( centerXPos, y )
   write( text )
 end
-function bootanimation()
-  local loadingAnim = {
-    "ooooooo",
-    "Ooooooo",
-    "oOooooo",
-    "ooOoooo",
-    "oooOooo",
-    "ooooOoo",
-    "oooooOo",
-    "ooooooO",
-  }
-  booting = true
+function boot() 
+
   if not term.isColor() then
     printerr("No color support detected, quitting..")
     sleep(2)
@@ -1898,19 +1888,7 @@ function bootanimation()
   os.loadAPI("Axiom/libraries/net")
   os.loadAPI("Axiom/libraries/json")
   os.loadAPI("Axiom/libraries/axiom")
-  if not edge then os.reboot() end
-  if _G.unreleased then
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  else
-    term.setBackgroundColor(colors.black)
-    term.setTextColor(colors.white)
-  end
-  --sleep(10)
-  term.clear()
-
-  
-
+  if not edge then error("Edge is not loaded.") end
   local mx, my = term.getSize()
 
   if setting.variables.users["KERNEL"].allow_apis == true then
@@ -1981,16 +1959,6 @@ function bootanimation()
   if not next then
     error("Axiom did not find Next API, which doesn't affect this OS what so ever since it's obsolete. Rendering this snippet of code absolutely useless.")
   end
-  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
-  sleep(0.1)
-  edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
-  sleep(0.1)
-
-  --log("settings "..tostring(sysSettings))
   if not setting.variables.temp.system_skipsys_scan then
     if fs.exists("Axiom/log.txt") then
       if fs.getSize("Axiom/log.txt") >= 12000 then
@@ -2012,74 +1980,49 @@ function bootanimation()
           log("SYSTEM: Verified file "..file)
 
           term.setTextColor(colors.lightGray)
-
-          if _G.unreleased then
-            term.setBackgroundColor(colors.white)
-            term.setTextColor(colors.black)
-          else
-            term.setBackgroundColor(colors.cyan)
-            term.setTextColor(colors.white)
-          end
         end
         x, y = term.getSize()
         midx = x / 2
         --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2,8,48,8,colors.white,colors.cyan,"File "..loaded.." of "..toLoad.." verified.",colors.black)
         loaded = loaded + 1
-        --sleep(0.1)
+        sleep(0.3)
       end
 
       --print("Loaded: os/libraries/"..file)
+      booting = false
     end
   end
+end
+function bootanimation()
+
   booting = true
-  --sleep(0.2)
-  -- cprint("  X I O  ",my/2)
-  -- cprint("  . . .  ",(my/2)+1)
-  -- sleep(0.2)
-  -- cprint("    I    ",my/2)
-  -- cprint("    .    ",(my/2)+1)
-  -- sleep(0.2)
-  -- cprint("         ",my/2)
-  -- cprint("         ",(my/2)+1)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.white)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.lightGray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.gray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setBackgroundColor(bgCol)
+  term.setBackgroundColor(colors.white)
+
   term.setTextColor(colors.black)
-  edge.cprint(productName,10)
-  sleep(2)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.black)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.gray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.lightGray)
-  edge.cprint(productName,10)
-  sleep(0.1)
-  term.setBackgroundColor(bgCol)
-  term.setTextColor(colors.white)
-  edge.cprint(productName,10)
+
   local c = 0
   sleep(.1)
+  local loadingAnim = {
+    "ooooooo",
+    "Ooooooo",
+    "oOooooo",
+    "ooOoooo",
+    "oooOooo",
+    "ooooOoo",
+    "oooooOo",
+    "ooooooO",
+  }
+  
   local function animate(frames, length, y)
     local anpoint = 1
     local anmax = #frames
-    for i=1,length do
+    local cycles = 0
+    term.setTextColor(colors.black)
+    edge.cprint(frames[1],y)
+    while booting and cycles < 1 do
       if anpoint > anmax then
         anpoint = 1
+        cycles = cycles + 1
       end
       term.setTextColor(colors.black)
       edge.cprint(frames[anpoint],y)
@@ -2088,10 +2031,24 @@ function bootanimation()
     end
 
   end
+  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
+  sleep(0.1)
+  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
+  sleep(0.1)
+  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
+  sleep(0.1)
+  edge.render(1,1,mx, my, colors.white, colors.white, "", colors.black)
+  sleep(0.1)
+  term.setTextColor(colors.lightGray)
+  edge.cprint(loadingAnim[1],10)
+  sleep(0.1)
+  term.setTextColor(colors.gray)
+  sleep(0.1)
+  edge.cprint(loadingAnim[1],10)
+  sleep(0.1)
   animate(loadingAnim, 20, 10)
-  --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Started! "))) -- Excessive? Probably.
-  booting = false
-  edge.render(1,1,mx, my, bgCol, colors.white, "", colors.black)
+  
+  edge.render(1,1,mx, my, colors.white, colors.white, "", colors.black)
   sleep(0.1)
   edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
   sleep(0.1)
@@ -2512,7 +2469,7 @@ if fs.exists("firstBoot") then
     end
   end
 else
-  local ok, err = pcall(bootanimation)
+  local ok, err = pcall(parallel.waitForAll,bootanimation, boot)
   if edge then
     if edge.windowAlert(26,10,productName.." has crashed. Error: "..err.."\n Reboot?", false) then
       os.reboot()

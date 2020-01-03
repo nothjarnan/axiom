@@ -117,7 +117,7 @@ function writesettings()
   local vars = setting.variables
   --print(textutils.serialise(vars))
   local s = textutils.serialise(vars)
-  local fh = fs.open("Axiom/settings.0","w")
+  local fh = fs.open("Axiom/settings.bak","w")
   fh.write(s)
   fh.close()
 end
@@ -620,16 +620,27 @@ function settings_draw(page)
   --   edge.render(2,18,2,18,colors.white,colors.white," (LunarOS collects data for debugging. By downloading you agree with uploading debug data.)",colors.lightGray)
   -- end
 end
-
+function getUserIndex(uname)
+  local index = 1
+  for k,v in pairs(setting.variables.users) do 
+    if v.displayName == uname then 
+      return index
+    else 
+      index = index + 1
+    end
+  end
+  
+end
 function settings_new(startpage)
   local users = {}
   local count = 0
   for k,v in pairs(setting.variables.users) do
     if k ~= "KERNEL" then
-      users[k] = {
+      table.insert(users, {
         by = 6+count,
         confirmC = false,
-      }
+        uname = k,
+      })
       count = count +1
     end
 
@@ -717,8 +728,8 @@ function settings_new(startpage)
           for k,v in pairs(users) do
             if y == users[k].by+1 then
               if users[k] ~= currentUser and users[k] ~= nil  then
-                setting.variables.users[k].superuser = not setting.variables.users[k].superuser
-                if setting.variables.users[k].superuser then
+                setting.variables.users[v.uname].superuser = not setting.variables.users[v.uname].superuser
+                if setting.variables.users[v.uname].superuser then
                   edge.render(41,users[k].by+1,42,users[k].by+1,colors.green,colors.cyan,"SU",colors.white)
                 else
                   edge.render(41,users[k].by+1,42,users[k].by+1,colors.red,colors.cyan,"SU",colors.white)
@@ -730,15 +741,30 @@ function settings_new(startpage)
 
         end
         if x >= 44 and x <= 49 then
-          users = setting.variables.users
+          --users = setting.variables.users
           for k,v in pairs(users) do -- TODO: unfuck
-            if users[k] ~= nil then
-              if y == users[k].by+1 then
+            
+            if v ~= nil then
+              if y == v.by+1 then
                 if users[k] ~= currentUser and users[k] ~= nil then
                   if users[k].confirmC == true then
-                    edge.render(44,users[k].by+1,49,users[k].by+1,colors.red,colors.cyan,"DELETED",colors.white)
-                    setting.variables.users[k] = nil
-                    users[k] = nil
+                    edge.render(44,users[k].by+1,49,users[k].by+1,colors.red,colors.cyan,"DELETED",colors.white)              
+                    setting.deleteUser(v.uname)
+                    local ok = edge.windowAlert(20,10,"An immediate reboot is required to apply these changes. Click OK to reboot.",true,colors.orange)
+                    settings_draw(currentpage)
+                    if not ok then
+                      sleep(0.2)
+                      edge.windowAlert(20,10, "You think you can get away that easy? I'll reboot anyway for you :)", true, colors.red)
+                    end
+                    edge.render(1,1,mx,my,colors.white,colors.cyan,"",colors.white)
+                    sleep(0.1)
+                    edge.render(1,1,mx,my,colors.lightGray,colors.cyan,"",colors.white)
+                    sleep(0.1)
+                    edge.render(1,1,mx,my,colors.gray,colors.cyan,"",colors.white)
+                    sleep(0.1)
+                    edge.render(1,1,mx,my,colors.black,colors.cyan,"",colors.white)
+                    sleep(0.1)
+                    os.reboot()
                   else
                     edge.render(44,users[k].by+1,49,users[k].by+1,colors.red,colors.cyan,"CONFIRM",colors.white)
                     users[k].confirmC = true
