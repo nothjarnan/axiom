@@ -10,7 +10,7 @@ if not http then --why, you...
 	return false, printError("HTTP must be enabled to use STD. Contact an administrator for assistance.")
 else
 	if not http.checkURL("http://pastebin.com") then
-	    term.setBackgroundColor(colors.black)
+		term.setBackgroundColor(colors.black)
 		term.clear()
 		term.setCursorPos(1, 1)
 		return false, printError("For some reason, pastebin could not be reached.\nIt may be blacklisted.\nAlso try checking your internet connection.\nAbort."), sleep(3)
@@ -31,7 +31,8 @@ std.channel = "STD"
 std.prevChannel = std.channel
 
 std.channelURLs = { --special pastebin URLs for getting a list of files.
-	["STD"] = "http://pastebin.com/raw/zVws7eLq", --default store list
+	["STD"] = "https://github.com/LDDestroier/STD-GUI/raw/master/list.lua",
+	["STD (Pastebin)"] = "http://pastebin.com/raw/zVws7eLq", --default store list
 	["Discover"] = "http://pastebin.com/raw/9bXfCz6M", --owned by dannysmc95
 --	["OnlineAPPS"] = "http://pastebin.com/raw/g2EnDYLp", --owned by Twijn, but discontinued.
 	["STD-Media"] = "https://pastebin.com/raw/3JZHXTGL", --list of pictures and music
