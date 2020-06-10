@@ -19,10 +19,69 @@ local sides = {"front","back","left","right","top","bottom"}
 local detectedSide = nil
 local modem = nil
 local dangerousStatus = false
+
+local needsUpdate = false
+
 _G.apiErrors = {
 
 }
+local icons = {
+  lua = {
+    bg = "bbbbbbbbbbbb",
+    fg = "    lua    >",
+    tcol = colors.white,
+    extension = ".lua",
+  },
+  app = {
+    bg = "333333333333",
+    fg = "010010011100",
+    tcol = colors.white,
+    extension = ".app",
+  },
+  unknown = {
+    bg = "888888888888",
+    fg = "     ??     ",
+    tcol = colors.white,
+    extension = ".*",
+  },
+  txt = {
+    bg = "700070007000",
+    fg = " --- --- ---",
+    tcol = colors.gray,
+    extension = ".txt",
+  },
+  folder = {
+    bg = "444144414444",
+    fg = "        fldr",
+    tcol = colors.gray,
+    extension = "FOLDER"
+  },
+  lnk = {
+    bg = "bbbbbbbbbbbb",
+    fg = "    prg    >",
+    tcol = colors.white,
+    extension = ".lnk",
+  },
+  nfp = {
+    bg = "c3333c333383",
+    fg = "    nfp    >",
+    tcol = colors.white,
+    extension = ".nfp",
+  },
+  pain = {
+    bg = "c3333c333383",
+    fg = "    PAIN   >",
+    tcol = colors.red,
+    extension = ".blt",
+  },
+  nft = {
+    bg = "c3333c333383",
+    fg = "   nft    >",
+    tcol = colors.white,
+    extension = ".nft",
+  },
 
+}
 local dismissed = false
 local remoteChannels = {}
 local remoteSystemInfo = {}
@@ -120,8 +179,8 @@ updating = false
 
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
-_G.version_sub = ""
-_G.version = "5.1"
+_G.version_sub = "branch:experimental"
+_G.version = "5.2"
 _G.hasRootAccess = false
 _G.latestversion = version
 
@@ -229,7 +288,14 @@ function errorHandler(err)
 end
 
 function checkForUpdates()
-  return false
+  local result = http.get("http://nothy.se/axiom/latest")
+  _G.latestversion = result.readAll()
+  if _G.latestversion ~= nil and _G.latestversion == version then 
+    return false 
+  else 
+    return true
+  end
+  --#return false
 end
 
 function keyStrokeHandler()
@@ -677,12 +743,11 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
             if v.password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
 
               _G.currentUser = k
-              parallel.waitForAll(desktop,checkForUpdates) --NOTE: DO NOT FUCKING CHANGE THIS YA TWATS
-              break
+              desktop() 
             end
             if pass == v.password then
               _G.currentUser = k
-              parallel.waitForAll(desktop,checkForUpdates) --NOTE: DO NOT FUCKING CHANGE THIS YA TWATS
+              desktop() 
               break
             else
               if attempts < 3 then
@@ -1213,63 +1278,7 @@ function desktop()
       end
       return colors.white
     end
-    local icons = {
-      lua = {
-        bg = "bbbbbbbbbbbb",
-        fg = "    lua    >",
-        tcol = colors.white,
-        extension = ".lua",
-      },
-      app = {
-        bg = "333333333333",
-        fg = "010010011100",
-        tcol = colors.white,
-        extension = ".app",
-      },
-      unknown = {
-        bg = "888888888888",
-        fg = "     ??     ",
-        tcol = colors.white,
-        extension = ".*",
-      },
-      txt = {
-        bg = "700070007000",
-        fg = " --- --- ---",
-        tcol = colors.gray,
-        extension = ".txt",
-      },
-      folder = {
-        bg = "444144414444",
-        fg = "        fldr",
-        tcol = colors.gray,
-        extension = "FOLDER"
-      },
-      lnk = {
-        bg = "bbbbbbbbbbbb",
-        fg = "    prg    >",
-        tcol = colors.white,
-        extension = ".lnk",
-      },
-      nfp = {
-        bg = "c3333c333383",
-        fg = "    nfp    >",
-        tcol = colors.white,
-        extension = ".nfp",
-      },
-      pain = {
-        bg = "c3333c333383",
-        fg = "    PAIN   >",
-        tcol = colors.red,
-        extension = ".blt",
-      },
-      nft = {
-        bg = "c3333c333383",
-        fg = "   nft    >",
-        tcol = colors.white,
-        extension = ".nft",
-      },
-
-    }
+    
     local ab = 0
     local cd = 0
     local i = 1
@@ -1959,6 +1968,9 @@ function boot()
   if not next then
     error("Axiom did not find Next API, which doesn't affect this OS what so ever since it's obsolete. Rendering this snippet of code absolutely useless.")
   end
+
+  needsUpdate = checkForUpdates()
+
   if not setting.variables.temp.system_skipsys_scan then
     if fs.exists("Axiom/log.txt") then
       if fs.getSize("Axiom/log.txt") >= 12000 then
@@ -1987,11 +1999,11 @@ function boot()
         loaded = loaded + 1
         sleep(0.3)
       end
-
+      
       --print("Loaded: os/libraries/"..file)
-      booting = false
     end
   end
+  booting = false
 end
 function bootanimation()
 
@@ -2046,8 +2058,9 @@ function bootanimation()
   sleep(0.1)
   edge.cprint(loadingAnim[1],10)
   sleep(0.1)
-  animate(loadingAnim, 20, 10)
-  
+  while(booting) do 
+    animate(loadingAnim, 20, 10)
+  end
   edge.render(1,1,mx, my, colors.white, colors.white, "", colors.black)
   sleep(0.1)
   edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
@@ -2060,200 +2073,7 @@ function bootanimation()
   initialize()
 end
 
-function safeBoot(force)
-  if shell.getRunningProgram() == "startup" then
-    error("Invalid session: cannot be run as startup")
-  end
-  if not fs.exists("Axiom/libraries/edge") then
-    printerr("Edge Graphics not found. Are you sure you have installed "..productName.." properly?")
-    printout("How to install "..productName..":")
-    printout("- Run the following command: pastebin run 2nLQRsSd")
-    printout("- And wait as "..productName.." installs.")
-    sleep(1)
-    printout("Would you like to have Edge Graphics installed for you? (y/n)")
-    i = io.read()
-    if string.lower(i) == "y" then
-      printout("Installing Edge Graphics.")
-      noapidl("https://www.dropbox.com/s/a5kxzjl6122uti2/edge?dl=1","Axiom/libraries/edge")
-    else
-      print("OK")
-    end
-  end
-  for k,v in ipairs(allfiles) do
-    if fs.exists(allfiles[k]) then
-      printout(allfiles[k].. " OK")
-      sleep(0.1)
-    else
-      if allfiles[k] ~= 12 then
-        printwarn("Missing file: "..allfiles[k])
-        fixNeeded = true
-        sleep(0.1)
-      end
-    end
-  end
 
-
-  term.setBackgroundColor(colors.black)
-  term.setTextColor(colors.white)
-  os.loadAPI("Axiom/libraries/edge")
-  if not _G.unreleased then edge.noLog = true end
-  printout("LOADED: Edge")
-  if monitor then
-    printout("Connecting to monitor...")
-    local ok, err = edge.setScreen(monitor)
-    if ok then
-      printout("Monitor connected successfully")
-    else
-      printerr("Monitor not present or disconnected")
-      printerr("Returned: "..tostring(err))
-    end
-  end
-
-
-  os.loadAPI("Axiom/libraries/setting")
-  os.loadAPI("Axiom/libraries/net")
-  --files = setting.variables.users[_G.currentUser].fexplore_startdir
-  printout("LOADED: settings")
-  printout("LOADED: net")
-  os.loadAPI("Axiom/libraries/json")
-  printout("LOADED: json")
-  os.loadAPI("Axiom/libraries/axiom")
-  printout("LOADED: axiom")
-  os.loadAPI("Axiom/libraries/encryption")
-  printout("LOADED: encryption")
-
-  --cprint("A X I O M",9)
-
-  printout("Determining latest version.")
-  printwarn("Version checking permanently disabled.")
-  sleep(1)
-  if not edge then
-    error("AXIOM-EdgeNotLoaded")
-  end
-  if not next then
-    error("AXIOM-NextNotLoaded")
-  end
-  if setting.getVariable("Axiom/settings.bak","system_skipsys_scan") == "false" then
-    if fs.exists("Axiom/log.txt") then
-      if fs.getSize("Axiom/log.txt") >= 12000 then
-        fs.delete("Axiom/log.txt")
-      end
-    end
-    local fileList = fs.list("/")
-    local loaded = 0
-    local toLoad = #fileList
-    for _, file in ipairs(fileList) do
-      if file == "rom" then
-        log("SYSTEM: CraftOS System file detected '"..file.."'. Ignoring")
-        --edge.render(midx - string.len("Disallowed file detected, removing") / 2,8,48,8,colors.white,colors.cyan,"Disallowed file detected, removing",colors.black)
-      else
-        if fs.isDir(file) then
-          printout("SYSTEM: Verified folder "..file.."/ and it's contents")
-        else
-          printout("SYSTEM: Verified file "..file)
-        end
-        x, y = term.getSize()
-        midx = x / 2
-        --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2,8,48,8,colors.white,colors.cyan,"File "..loaded.." of "..toLoad.." verified.",colors.black)
-        loaded = loaded + 1
-        sleep(0.1)
-      end
-
-      --print("Loaded: os/libraries/"..file)
-    end
-  end
-  if setting.variables.users["KERNEL"].allow_apis == true then
-    local dir = setting.variables.temp.api_dir
-    if setting.variables.temp.api_dir ~= nil then
-
-      local fileList = fs.list(dir)
-      local t = 0
-      local c = 0
-      for _, api in ipairs(fileList) do
-        local apiL = {
-          "button",
-          "edge",
-          "encryption",
-          "fs",
-          "setting",
-          "axiom",
-          "net",
-          "json"
-        }
-        local allow = true
-
-        if setting.variables.temp.ignore_blacklist == false then
-          for k,v in ipairs(apiL) do
-            if api == v then
-              allow = false
-              break
-            end
-          end
-        else
-          if t < 1 then
-            table.insert(apiErrors, "Blacklist ignored.")
-            t = t + 1
-
-          end
-        end
-
-        printout("Loading api "..api.. " from "..dir)
-
-        if allow then
-          local apil, err = os.loadAPI(dir..api)
-          c = c + 1
-          if not apil then
-            os.unloadAPI(apil)
-            c = c - 1
-            --if err then print(err) sleep(3) end
-            table.insert(apiErrors, api.." could not load")
-            printerror(api.." could not load")
-          else
-            printout(api.." OK")
-          end
-        else
-          table.insert(apiErrors, api.." not loaded. (access denied)")
-          printerr(api.." not loaded (access denied)")
-          c = c - 1
-        end
-        --sleep(0.2)
-        --sleep(3)
-      end
-      table.insert(apiErrors, "Loaded "..c.." API(s)")
-      printout("Loaded custom apis.")
-    end
-
-  end
-  term.setBackgroundColor(colors.cyan)
-  printout("Initializing")
-  sleep(1)
-  term.setCursorPos(1,1)
-  if force == "desktop" then
-    printwarn("WARNING: MAY NOT WORK.")
-    printout("For security reasons you have to log in.")
-    write("username:")
-    username = read()
-    write("password:")
-    password = read("*")
-    if encryption.sha256(username.."QxLUF1bgIAdeQX") == setting.getVariable("Axiom/settings.bak","username") then
-      if encryption.sha256(password.."QxLUF1bgIAdeQX") == setting.getVariable("Axiom/settings.bak","password") then
-          local ok, err = pcall(desktop)
-          if not ok then
-            printerr("Fatal error: "..err)
-          end
-      else
-        printerr("Invalid password.")
-        os.reboot()
-      end
-      printerr("Invalid username.")
-      os.reboot()
-    end
-
-
-  end
-
-  initialize()
-end
 function log(string)
   local time = os.clock()
   if not fs.exists("Axiom/log.txt") then
@@ -2296,91 +2116,6 @@ if fs.exists("safeStart") then
     terminal("/")
     os.reboot()
   end
-  safe = false
-  term.setBackgroundColor(colors.black)
-  term.clear()
-  term.setTextColor(colors.white)
-  --paintutils.drawLine(1,my/2,mx,my/2,colors.blue)
-  term.setBackgroundColor(colors.blue)
-  term.setCursorPos(1,1)
-  print("[AXIOM BOOT MANAGER]")
-  term.setBackgroundColor(colors.black)
-  print("Please select a mode for "..productName.." to run in")
-  term.setCursorPos(1,4)
-  print("[ ] Last known good configuration ")
-  print("    (Overrides your settings)")
-  print("[ ] Normal start + cleared logs")
-  print("")
-  print("[ ] Terminal")
-  print("")
-  while(true) do
-    local event, button, x, y = os.pullEvent("mouse_click")
-    if x == 2 and y == 4 then
-      safe = true
-      craftos = false
-      term.setCursorPos(1,4)
-      print("[+] Last known good configuration")
-      print("    (Overrides your settings)")
-      print("[ ] Normal start + cleared logs")
-      print("")
-      print("[ ] Terminal")
-      print("")
-      print("[Boot]")
-    end
-    if x == 2 and y == 6 then
-      safe = false
-      craftos = false
-      term.setCursorPos(1,4)
-      print("[ ] Last known good configuration")
-      print("    (Overrides your settings)")
-      print("[+] Normal start + cleared logs")
-      print("")
-      print("[ ] Terminal")
-      print("")
-      print("[Boot]")
-    end
-    if x == 2 and y == 8 then
-      safe = false
-      craftos = true
-      term.setCursorPos(1,4)
-      print("[ ] Last known good configuration")
-      print("    (Overrides your settings)")
-      print("[ ] Normal start + cleared logs")
-      print("")
-      print("[+] Terminal")
-      print("")
-      print("[Run] ")
-    end
-    if x >= 1 and x <= 5 and y == 10 then
-      if safe == false and craftos == false then
-        if fs.exists("Axiom/settings.bak") and fs.exists("Axiom/backup/os/settings.bak") then
-          fs.delete("Axiom/settings.bak")
-          fs.move("Axiom/backup/os/settings.bak","Axiom/settings.bak")
-        end
-        fs.delete("safeStart")
-        bootanimation()
-      else
-        if craftos == true then
-          _G.currentUser = "KERNEL"
-          for k,v in ipairs(fs.list("Axiom/libraries")) do
-            os.loadAPI("Axiom/libraries/"..v)
-            printout("Loaded "..v)
-          end
-          terminal("/")
-          print("Goodbye!")
-          if hasRednet then
-            rednet.close(detectedSide)
-          end
-          os.shutdown()
-        else
-          sleep(1)
-          fs.delete("safeStart")
-
-          safeBoot()
-        end
-      end
-    end
-  end
 end
 
 
@@ -2399,14 +2134,7 @@ if cclite then
   printout("Enabling cclite support.")
 end
 printout("started "..productName.." v"..version)
-if force_logcat or _G.unreleased then
-  printwarn("forced logcat output")
-  sleep(2.5)
-  local ok, err = pcall(safeBoot)
-  if err then
-    errorMessager(err)
-  end
-end
+
 if os.version() ~= "CraftOS 1.8" then
   if os.version() == "CraftOS 1.5" then
     printerr("please update ComputerCraft.")
@@ -2443,7 +2171,7 @@ if fs.exists("firstBoot") then
   fs.delete("firstBoot")
 
   term.setBackgroundColor(colors.black)
-  local ok, err = pcall(safeBoot)
+  local ok, err = pcall(parallel.waitForAll,boot, bootanimation)
   if edge then
     if not ok and err then
       if edge.windowAlert(26,10,productName.." has crashed. Error: "..err.."\n Reboot?", false) then
