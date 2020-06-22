@@ -1,7 +1,7 @@
 
 term.setBackgroundColor(colors.black)
 term.clear()
-term.setCursorPos(1,1)
+term.setCursorPos(1, 1)
 
 local scr_x, scr_y = term.getSize() --initial screen size
 
@@ -15,7 +15,7 @@ if not ip_processed then
 end
 local hasRednet = false
 local rednetDist = 999
-local sides = {"front","back","left","right","top","bottom"}
+local sides = {"front", "back", "left", "right", "top", "bottom"}
 local detectedSide = nil
 local modem = nil
 local dangerousStatus = false
@@ -95,13 +95,13 @@ local remoteInfo = {
   sharingFiles = true,
   fileDirectory = "/home/",
 }
-for k,v in ipairs(sides) do
+for k, v in ipairs(sides) do
   if peripheral.isPresent(v) then
     if peripheral.getType(v) == "speaker" then
       speakerSide = v
       speakerPresent = true
       speaker = peripheral.wrap(v)
-      speaker.playNote("harp",1, 1)
+      speaker.playNote("harp", 1, 1)
       break
     end
     if peripheral.getType(v) == "monitor" then
@@ -260,9 +260,9 @@ end
 --
 function errorMessager(errmsg)
   if not fs.exists("safeStart") then fs.makeDir("safeStart") end
-  local ok = edge.windowAlert(25,8,"An application errored out. \n"..errmsg.."\nReport?",false,colors.red)
+  local ok = edge.windowAlert(25, 8, "An application errored out. \n"..errmsg.."\nReport?", false, colors.red)
   if ok then
-      local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Version: "..productName.." "..version.." <br> dev: "..tostring(_G.unreleased).."<br> IsColor:"..tostring(term.isColor()).."<br> Last updated: Day "..tostring(setting.variables.temp.last_update))))
+      local h = http.post("http://nothy.000webhostapp.com/bugreport.php", "uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Version: "..productName.." "..version.." <br> dev: "..tostring(_G.unreleased).."<br> IsColor:"..tostring(term.isColor()).."<br> Last updated: Day "..tostring(setting.variables.temp.last_update))))
   end
   if _G.currentUser ~= "KERNEL" then
     if state == "desktop" then
@@ -290,9 +290,9 @@ end
 function checkForUpdates()
   local result = http.get("http://nothy.se/axiom/latest")
   _G.latestversion = result.readAll()
-  if _G.latestversion ~= nil and _G.latestversion == version then 
-    return false 
-  else 
+  if _G.latestversion ~= nil and _G.latestversion == version then
+    return false
+  else
     return true
   end
   --#return false
@@ -310,7 +310,7 @@ function keyStrokeHandler()
     end
     if keys.getName(key) == "f8" and isHeld then
       -- Super secret hidden menu stuff yes
-      edge.windowAlert(25,10,"no",false,colors.orange)
+      edge.windowAlert(25, 10, "no", false, colors.orange)
 
     end
     table.insert(keystrokes, key)
@@ -348,7 +348,7 @@ function keyStrokeHandler()
       end
     end
   end
-  axiom.alert("keyStrokeHandler killed",3)
+  axiom.alert("keyStrokeHandler killed", 3)
 end
 function clock()
 
@@ -359,19 +359,19 @@ function notifHandler()
 
 end
 function noapidl(url, file)
-  --edge.xprint("Downloading "..file.."..",2,18,colors.white)
-  --edge.render(1,18,1,18,colors.cyan,colors.cyan,"Downloading "..file.."..",colors.white)
+  --edge.xprint("Downloading "..file.."..", 2, 18, colors.white)
+  --edge.render(1, 18, 1, 18, colors.cyan, colors.cyan, "Downloading "..file.."..", colors.white)
 
     --if not args[1] == "silent" and args[1] == nil then
     --print("Opening file "..file)
       fdl = http.get(url)
-      f = fs.open(file,"w")
+      f = fs.open(file, "w")
       f.write(fdl.readAll())
       f.close()
-      --edge.xprint(" Done",1+string.len("Downloading "..file..".."),18,colors.white)
-      --edge.render(2+string.len("Downloading "..file..".."),18,2+string.len("Downloading "..file.."..")+3,18,colors.cyan,colors.cyan,"Done ",colors.white)
+      --edge.xprint(" Done", 1+string.len("Downloading "..file..".."), 18, colors.white)
+      --edge.render(2+string.len("Downloading "..file..".."), 18, 2+string.len("Downloading "..file.."..")+3, 18, colors.cyan, colors.cyan, "Done ", colors.white)
       sleep(1)
-      --edge.xprint("                                                  ",1,18,colors.white)
+      --edge.xprint("                                                  ", 1, 18, colors.white)
 
     --print("Written to file "..file)
 
@@ -381,23 +381,23 @@ function download(url, file, logOutput)
   if logOutput then
     write("Downloading "..file..".. ")
   end
-  --edge.xprint("Downloading "..file.."..",2,18,colors.white)
-  --edge.render(1,18,1,18,colors.cyan,colors.cyan,"Downloading "..file.."..",colors.white)
+  --edge.xprint("Downloading "..file.."..", 2, 18, colors.white)
+  --edge.render(1, 18, 1, 18, colors.cyan, colors.cyan, "Downloading "..file.."..", colors.white)
   edge.log("Downloading from "..url..", saving to "..file)
   if fs.getFreeSpace("/") <= 1024 then
-    --edge.render(1,18,1,18,colors.cyan,colors.cyan,"Warning: Low space on disk!",colors.orange)
-    edge.xprint("Warning: Low space on disk! "..fs.getFreeSpace("/") / 1024 .."kb",1,18,colors.orange)
+    --edge.render(1, 18, 1, 18, colors.cyan, colors.cyan, "Warning: Low space on disk!", colors.orange)
+    edge.xprint("Warning: Low space on disk! "..fs.getFreeSpace("/") / 1024 .."kb", 1, 18, colors.orange)
   end
   if not http then
     if speakerPresent then
-      speaker.playNote("harp",1, 1)
-      speaker.playNote("harp",1, 1)
-      speaker.playNote("harp",1, 1)
+      speaker.playNote("harp", 1, 1)
+      speaker.playNote("harp", 1, 1)
+      speaker.playNote("harp", 1, 1)
     end
-    edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
-    --edge.render(17,8,34,8,colors.white,colors.cyan,"Welcome to Axiom!",colors.black,false)
-    edge.render(17,9,34,9,colors.white,colors.cyan," (!) Fatal error",colors.red,false)
-    edge.render(16,10,34,10,colors.white,colors.cyan,"HTTP_DISABLED",colors.orange,false)
+    edge.render(16, 7, 34, 12, colors.white, colors.cyan, "", colors.black, true)
+    --edge.render(17, 8, 34, 8, colors.white, colors.cyan, "Welcome to Axiom!", colors.black, false)
+    edge.render(17, 9, 34, 9, colors.white, colors.cyan, " (!) Fatal error", colors.red, false)
+    edge.render(16, 10, 34, 10, colors.white, colors.cyan, "HTTP_DISABLED", colors.orange, false)
     return false
   else
 
@@ -426,7 +426,7 @@ function download(url, file, logOutput)
         return false
         --sleep(1)
       end
-      f = fs.open(file,"w")
+      f = fs.open(file, "w")
       f.write(fdl.readAll())
       f.close()
       if logOutput then
@@ -435,10 +435,10 @@ function download(url, file, logOutput)
         term.setTextColor(colors.white)
       end
       return true
-      --edge.xprint(" Done",1+string.len("Downloading "..file..".."),18,colors.white)
-      --edge.render(2+string.len("Downloading "..file..".."),18,2+string.len("Downloading "..file.."..")+3,18,colors.cyan,colors.cyan,"Done ",colors.white)
+      --edge.xprint(" Done", 1+string.len("Downloading "..file..".."), 18, colors.white)
+      --edge.render(2+string.len("Downloading "..file..".."), 18, 2+string.len("Downloading "..file.."..")+3, 18, colors.cyan, colors.cyan, "Done ", colors.white)
       --sleep(1)
-      --edge.xprint("                                                  ",1,18,colors.white)
+      --edge.xprint("                                                  ", 1, 18, colors.white)
     else
       if logOutput then
         term.setTextColor(colors.red)
@@ -453,14 +453,14 @@ end
 function execUpd(isTerminal)
   --local out = false
   --local success = false
-  --setting.setVariable("Axiom/settings.bak","system_last_update","Day "..os.day().." @ "..edge.c())
+  --setting.setVariable("Axiom/settings.bak", "system_last_update", "Day "..os.day().." @ "..edge.c())
 
   --if not success and isTerminal then write("Update not set up yet.\n") end
   --if speakerPresent then
-  --  speaker.playNote("harp",1, 1.5)
+  --  speaker.playNote("harp", 1, 1.5)
   --end
   --sleep(0.1)
-  --return success,"Update system not finished for Community version. Use gitget to update."
+  --return success, "Update system not finished for Community version. Use gitget to update."
   local out = true
   local success = true
   shell.run("/.gitget "..setting.variables.update.user.." axiom "..setting.variables.update.branch.." /")
@@ -468,16 +468,16 @@ function execUpd(isTerminal)
 end
 function login_clock()
   local mx, my = term.getSize()
-  local time = textutils.formatTime(os.time(),false)
+  local time = textutils.formatTime(os.time(), false)
 
   while(true) do
     if cclite then
-      time = textutils.formatTime(os.time("local"),false)
+      time = textutils.formatTime(os.time("local"), false)
     else
-      time = textutils.formatTime(os.time(),false)
+      time = textutils.formatTime(os.time(), false)
     end
     if state == "login_gui" then
-      edge.render((mx-1)-string.len(time),2,mx-1,2,colors.lightBlue, colors.lightBlue,time,colors.white)
+      edge.render((mx-1)-string.len(time), 2, mx-1, 2, colors.lightBlue, colors.lightBlue, time, colors.white)
     end
     sleep(.5)
   end
@@ -489,7 +489,7 @@ function login_gui_unreleased()
   local users = setting.variables.users
   local userButtons = {}
   local tstep = 0
-  for k,v in pairs(users) do
+  for k, v in pairs(users) do
     if k ~= "KERNEL" and k ~= "GUEST" and _G.currentUser == "KERNEL" then _G.currentUser = k end
     if k ~= "KERNEL" then
       if k ~= "GUEST" then
@@ -517,48 +517,48 @@ function login_gui_unreleased()
   --     desktop()
   --   end
   -- end
-  
+
 
   local showuserlist = false
   local menu = false
   local redraw = false
-  edge.render(1,1,mx,my, colors.lightBlue,colors.lightBlue,"")
-  edge.render(3,2,3,2,colors.lightBlue,colors.lightBlue,"o*",colors.white)
+  edge.render(1, 1, mx, my, colors.lightBlue, colors.lightBlue, "")
+  edge.render(3, 2, 3, 2, colors.lightBlue, colors.lightBlue, "o*", colors.white)
   if setting.variables.users[_G.currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
-    edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue," Password..", colors.gray, false)
+    edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue, " Password..", colors.gray, false)
   else
-    edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightBlue, colors.lightBlue,"", colors.gray, false)
-    edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue,"   Login", colors.gray, false)
+    edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightBlue, colors.lightBlue, "", colors.gray, false)
+    edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue, "   Login", colors.gray, false)
   end
   term.setTextColor(colors.white)
   if userButtons[_G.currentUser] == nil then
     if fs.exists("Axiom/.fs") then
       fs.delete("Axiom/.fs")
-      edge.windowAlert(20,10,"An unexpected error has occurred and Axiom has to reboot. You will be taken through first time setup.",true, colors.red)
+      edge.windowAlert(20, 10, "An unexpected error has occurred and Axiom has to reboot. You will be taken through first time setup.", true, colors.red)
       os.reboot()
     end
   end
-  edge.cprint(tostring(userButtons[tostring(_G.currentUser)].display),7)
-  edge.render(3,my-2,3,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
+  edge.cprint(tostring(userButtons[tostring(_G.currentUser)].display), 7)
+  edge.render(3, my-2, 3, my-2, colors.lightBlue, colors.lightBlue, "Not you?", colors.white)
   while(true) do
     if redraw then
       showuserlist = false
       menu = false
-      edge.render(1,1,mx,my, colors.lightBlue,colors.lightBlue,"")
-      edge.render(3,2,3,2,colors.lightBlue,colors.lightBlue,"=",colors.white)
+      edge.render(1, 1, mx, my, colors.lightBlue, colors.lightBlue, "")
+      edge.render(3, 2, 3, 2, colors.lightBlue, colors.lightBlue, "=", colors.white)
       if setting.variables.users[_G.currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
-        edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue," Password..", colors.gray, false)
+        edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue, " Password..", colors.gray, false)
       else
-        edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightBlue, colors.lightBlue,"", colors.gray, false)
-        edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue,"   Login", colors.gray, false)
+        edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightBlue, colors.lightBlue, "", colors.gray, false)
+        edge.render((mx/2)-5, 9, (mx/2)+5, 9, colors.lightGray, colors.lightBlue, "   Login", colors.gray, false)
       end
       term.setTextColor(colors.white)
-      edge.cprint(userButtons[_G.currentUser].display,7)
-      edge.render(3,my-2,3,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
+      edge.cprint(userButtons[_G.currentUser].display, 7)
+      edge.render(3, my-2, 3, my-2, colors.lightBlue, colors.lightBlue, "Not you?", colors.white)
       redraw = false
 
     end
-    local e,b,x,y = os.pullEvent()
+    local e, b, x, y = os.pullEvent()
     if e == "mouse_click" then
       if x == 1 and y == 1 then
         os.reboot()
@@ -569,7 +569,7 @@ function login_gui_unreleased()
 
       if x >= (mx/2)-8 and x <= (mx/2)+8 and y == 9 then
         if setting.variables.users[_G.currentUser].password ~= encryption.sha256("nopassQxLUF1bgIAdeQX") then
-          edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue,"", colors.gray, false)
+          edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue, "", colors.gray, false)
           term.setTextColor(colors.gray)
           term.setBackgroundColor(colors.lightGray)
           state = "login_gui-w"
@@ -581,16 +581,16 @@ function login_gui_unreleased()
             desktop()
           else
             attempt = attempt + 1
-            edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.red, colors.lightBlue,"", colors.gray, false)
+            edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.red, colors.lightBlue, "", colors.gray, false)
             sleep(0.5)
-            edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue,"", colors.gray, false)
+            edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue, "", colors.gray, false)
             if attempt >= 3 then
-              edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.black, colors.lightBlue,"Locked for 30s", colors.white, false)
-              for i=30,0,-1 do
+              edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.black, colors.lightBlue, "Locked for 30s", colors.white, false)
+              for i=30, 0, -1 do
                 sleep(1)
-                edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.black, colors.lightBlue,"Locked for "..i.."s", colors.white, false)
+                edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.black, colors.lightBlue, "Locked for "..i.."s", colors.white, false)
               end
-              edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue," Password..", colors.gray, false)
+              edge.render((mx/2)-8, 9, (mx/2)+8, 9, colors.lightGray, colors.lightBlue, " Password..", colors.gray, false)
             end
           end
         else
@@ -600,77 +600,77 @@ function login_gui_unreleased()
         end
       end
       if x >= 2 and x <= 15 and y >= my-3 and y <= my-1 then
-        edge.render(2,my-3,15,my-1,colors.gray,colors.lightBlue,"", colors.white)
-        edge.render(3,my-2,11,my-2,colors.gray,colors.lightBlue,"Not you?", colors.white)
+        edge.render(2, my-3, 15, my-1, colors.gray, colors.lightBlue, "", colors.white)
+        edge.render(3, my-2, 11, my-2, colors.gray, colors.lightBlue, "Not you?", colors.white)
         showuserlist = not showuserlist
       end
       if showuserlist then
-        edge.render(2,my-15,15,my-4,colors.gray,colors.lightBlue,"", colors.white)
+        edge.render(2, my-15, 15, my-4, colors.gray, colors.lightBlue, "", colors.white)
         local step = 0
-        for k,v in pairs(userButtons) do
+        for k, v in pairs(userButtons) do
 
             edge.render(v.x, v.y , v.ex, v.ey, colors.gray, colors.black, "" , colors.black)
             edge.render(v.x+1, v.y+1, v.ex, v.ey-1, colors.gray, colors.black, ""..tostring(v.display).."" , colors.white)
 
         end
       else
-        edge.render(2,my-15,15,my-4,colors.lightBlue,colors.lightBlue,"", colors.white)
+        edge.render(2, my-15, 15, my-4, colors.lightBlue, colors.lightBlue, "", colors.white)
       end
       if menu then
-        edge.render(2,2,12,5,colors.gray,colors.gray,"",colors.white)
-        edge.render(3,2,3,2,colors.gray,colors.gray,"o*",colors.white)
+        edge.render(2, 2, 12, 5, colors.gray, colors.gray, "", colors.white)
+        edge.render(3, 2, 3, 2, colors.gray, colors.gray, "o*", colors.white)
 
-        edge.render(3,3,8,3,colors.gray,colors.gray,"Shutdown",colors.white)
-        edge.render(3,4,5,4,colors.gray,colors.gray,"Reboot",colors.white)
+        edge.render(3, 3, 8, 3, colors.gray, colors.gray, "Shutdown", colors.white)
+        edge.render(3, 4, 5, 4, colors.gray, colors.gray, "Reboot", colors.white)
       else
-        edge.render(2,2,12,3,colors.lightBlue,colors.lightBlue,"",colors.white)
-        edge.render(3,2,3,2,colors.lightBlue,colors.lightBlue,"o*",colors.white)
+        edge.render(2, 2, 12, 3, colors.lightBlue, colors.lightBlue, "", colors.white)
+        edge.render(3, 2, 3, 2, colors.lightBlue, colors.lightBlue, "o*", colors.white)
       end
       if showuserlist then
-        for k,v in pairs(userButtons) do
-          --print(tostring(edge.aabb(x,y,v.x,v.y,v.ex,v.ey)))
-          if edge.aabb(x,y,v.x,v.y,v.ex,v.ey) then
+        for k, v in pairs(userButtons) do
+          --print(tostring(edge.aabb(x, y, v.x, v.y, v.ex, v.ey)))
+          if edge.aabb(x, y, v.x, v.y, v.ex, v.ey) then
             _G.currentUser = k
             --if setting.variables.users[_G.currentUser].password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
               redraw = true
             --end
             edge.render(v.x, v.y , v.ex, v.ey, colors.lightGray, colors.black, "" , colors.black)
             term.setBackgroundColor(colors.lightGray)
-            edge.xprint(tostring(v.display),v.x+1,v.y+1,colors.white)
+            edge.xprint(tostring(v.display), v.x+1, v.y+1, colors.white)
             term.setTextColor(colors.white)
             term.setBackgroundColor(colors.lightBlue)
-            edge.cprint(_G.currentUser,7)
+            edge.cprint(_G.currentUser, 7)
             break
           end
         end
       end
     end
     if e == "mouse_up" then
-      if edge.aabb(x,y,3,3,10,3) and menu then
-        edge.render(1,1,mx,my, colors.lightBlue,colors.lightBlue,"",colors.white)
+      if edge.aabb(x, y, 3, 3, 10, 3) and menu then
+        edge.render(1, 1, mx, my, colors.lightBlue, colors.lightBlue, "", colors.white)
         term.setTextColor(colors.white)
-        edge.cprint("Shutting down..",my/2)
+        edge.cprint("Shutting down..", my/2)
         sleep(2.5)
         os.shutdown()
       end
-      if edge.aabb(x,y,3,4,10,4) and menu then
+      if edge.aabb(x, y, 3, 4, 10, 4) and menu then
         os.reboot()
       end
       if showuserlist then
-        edge.render(2,my-3,15,my-1,colors.gray,colors.lightBlue,"", colors.white)
-        edge.render(3,my-2,11,my-2,colors.gray,colors.lightBlue,"Not you?", colors.white)
+        edge.render(2, my-3, 15, my-1, colors.gray, colors.lightBlue, "", colors.white)
+        edge.render(3, my-2, 11, my-2, colors.gray, colors.lightBlue, "Not you?", colors.white)
       end
       if x >= 2 and x <= 15 and y >= my-3 and y <= my-1 and not showuserlist then
-        edge.render(2,my-3,15,my-1,colors.lightBlue,colors.lightBlue,"", colors.white)
-        edge.render(3,my-2,11,my-2,colors.lightBlue,colors.lightBlue,"Not you?", colors.white)
+        edge.render(2, my-3, 15, my-1, colors.lightBlue, colors.lightBlue, "", colors.white)
+        edge.render(3, my-2, 11, my-2, colors.lightBlue, colors.lightBlue, "Not you?", colors.white)
       end
       if showuserlist then
-        for k,v in pairs(userButtons) do
-          --print(tostring(edge.aabb(x,y,v.x,v.y,v.ex,v.ey)))
-          if edge.aabb(x,y,v.x,v.y,v.ex,v.ey) then
+        for k, v in pairs(userButtons) do
+          --print(tostring(edge.aabb(x, y, v.x, v.y, v.ex, v.ey)))
+          if edge.aabb(x, y, v.x, v.y, v.ex, v.ey) then
             edge.render(v.x, v.y , v.ex, v.ey, colors.gray, colors.black, "" , colors.black)
             term.setBackgroundColor(colors.gray)
-            edge.xprint(tostring(v.display),v.x+1,v.y+1,colors.white)
+            edge.xprint(tostring(v.display), v.x+1, v.y+1, colors.white)
             --edge.render(v.x+1, v.y+1, v.ex, v.ey-1, colors.gray, colors.lightBlue, ""..tostring(v.display).."" , colors.white)
             break
           end
@@ -682,27 +682,27 @@ end
 function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
   local attempts = 0
   if setting.variables.temp.enable_animations and state ~= "login_gui" then
-    edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
+    edge.render(1, 1, mx, my, colors.black, colors.white, "", colors.black)
     sleep(0.1)
-    edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
+    edge.render(1, 1, mx, my, colors.gray, colors.white, "", colors.black)
     sleep(0.1)
-    edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
+    edge.render(1, 1, mx, my, colors.lightGray, colors.white, "", colors.black)
     sleep(0.1)
-    edge.render(1,1,mx, my, colors.cyan, colors.white, "", colors.black)
+    edge.render(1, 1, mx, my, colors.cyan, colors.white, "", colors.black)
     sleep(0.1)
   end
   state = "login_gui"
   usr = ""
   pass = ""
   _G.currentUser = "KERNEL"
-  edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
-  edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
+  edge.image(1, 1, setting.variables.users[_G.currentUser].background, colors.cyan)
+  edge.render(1, 1, mx, 1, menubarColor, colors.cyan, " o*", colors.gray, false)
 
-  edge.render(18,7,33,12,colors.white,colors.cyan," Login", colors.black)
-  edge.render(20,9,30,9,colors.lightGray,colors.cyan,"Username",colors.gray)
-  edge.render(20,11,30,11,colors.lightGray,colors.cyan,"Password",colors.gray)
-  edge.render(32,9,32,11,colors.lightGray,colors.cyan,"", colors.gray)
-  edge.render(32,10,32,10,colors.lightGray,colors.cyan,">", colors.white)
+  edge.render(18, 7, 33, 12, colors.white, colors.cyan, " Login", colors.black)
+  edge.render(20, 9, 30, 9, colors.lightGray, colors.cyan, "Username", colors.gray)
+  edge.render(20, 11, 30, 11, colors.lightGray, colors.cyan, "Password", colors.gray)
+  edge.render(32, 9, 32, 11, colors.lightGray, colors.cyan, "", colors.gray)
+  edge.render(32, 10, 32, 10, colors.lightGray, colors.cyan, ">", colors.white)
 
     while(true) do
 
@@ -721,33 +721,33 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
         os.shutdown()
       end
       if x >= 20 and x <= 30 and y == 9 then --#Error
-        edge.render(20,9,30,9,colors.lightGray,colors.cyan,"",colors.gray)
-        term.setCursorPos(20,9)
+        edge.render(20, 9, 30, 9, colors.lightGray, colors.cyan, "", colors.gray)
+        term.setCursorPos(20, 9)
         term.setTextColor(colors.black)
         term.setBackgroundColor(colors.lightGray)
         usr = io.read()
         _G.currentUser = usr
       end
       if x >= 20 and x <= 30 and y == 11 then
-        edge.render(20,11,30,11,colors.lightGray,colors.cyan,"",colors.gray)
-        term.setCursorPos(20,11)
+        edge.render(20, 11, 30, 11, colors.lightGray, colors.cyan, "", colors.gray)
+        term.setCursorPos(20, 11)
         term.setTextColor(colors.black)
         term.setBackgroundColor(colors.lightGray)
         pass = read("*")
         pass = encryption.sha256(pass.."QxLUF1bgIAdeQX")
       end
       if x >= 32 and x <= 32 and y >= 9 and y <= 11 then
-        for k,v in pairs(setting.variables.users) do
+        for k, v in pairs(setting.variables.users) do
           if usr == k and usr ~= "KERNEL" then
             edge.log("usr "..usr.." k "..k)
             if v.password == encryption.sha256("nopassQxLUF1bgIAdeQX") then
 
               _G.currentUser = k
-              desktop() 
+              desktop()
             end
             if pass == v.password then
               _G.currentUser = k
-              desktop() 
+              desktop()
               break
             else
               if attempts < 3 then
@@ -755,27 +755,27 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
                 usr = ""
                 pass = ""
 
-                edge.render(18,7,33,12,colors.red,colors.cyan," Attempt "..attempts.."/3", colors.black)
-                edge.render(20,9,30,9,colors.lightGray,colors.cyan,"Username",colors.gray)
-                edge.render(20,11,30,11,colors.lightGray,colors.cyan,"Password",colors.gray)
-                edge.render(32,9,32,11,colors.lightGray,colors.cyan,"", colors.gray)
-                edge.render(32,10,32,10,colors.lightGray,colors.cyan,">", colors.white)
+                edge.render(18, 7, 33, 12, colors.red, colors.cyan, " Attempt "..attempts.."/3", colors.black)
+                edge.render(20, 9, 30, 9, colors.lightGray, colors.cyan, "Username", colors.gray)
+                edge.render(20, 11, 30, 11, colors.lightGray, colors.cyan, "Password", colors.gray)
+                edge.render(32, 9, 32, 11, colors.lightGray, colors.cyan, "", colors.gray)
+                edge.render(32, 10, 32, 10, colors.lightGray, colors.cyan, ">", colors.white)
                 sleep(0.25)
-                edge.render(18,7,33,12,colors.white,colors.cyan," Attempt "..attempts.."/3", colors.black)
-                edge.render(20,9,30,9,colors.lightGray,colors.cyan,"Username",colors.gray)
-                edge.render(20,11,30,11,colors.lightGray,colors.cyan,"Password",colors.gray)
-                edge.render(32,9,32,11,colors.lightGray,colors.cyan,"", colors.gray)
-                edge.render(32,10,32,10,colors.lightGray,colors.cyan,">", colors.white)
+                edge.render(18, 7, 33, 12, colors.white, colors.cyan, " Attempt "..attempts.."/3", colors.black)
+                edge.render(20, 9, 30, 9, colors.lightGray, colors.cyan, "Username", colors.gray)
+                edge.render(20, 11, 30, 11, colors.lightGray, colors.cyan, "Password", colors.gray)
+                edge.render(32, 9, 32, 11, colors.lightGray, colors.cyan, "", colors.gray)
+                edge.render(32, 10, 32, 10, colors.lightGray, colors.cyan, ">", colors.white)
                 if speakerPresent then
-                  speaker.playNote("harp",1, 1.8)
+                  speaker.playNote("harp", 1, 1.8)
                   sleep(.1)
-                  speaker.playNote("harp",1, 1.8)
+                  speaker.playNote("harp", 1, 1.8)
                   sleep(.1)
-                  speaker.playNote("harp",1, 1.8)
+                  speaker.playNote("harp", 1, 1.8)
                 end
                 break
               else
-                edge.windowAlert(10,8,"Too many attempts. Please try again later.",true, colors.red)
+                edge.windowAlert(10, 8, "Too many attempts. Please try again later.", true, colors.red)
                 os.shutdown()
               end
             end
@@ -784,12 +784,12 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
 
       end
       if x >= 1 and x <= 4 and y == 1 and button == 1 then
-        edge.render(1,1,4,1,colors.gray,colors.cyan," o*",colors.white,false)
-        edge.render(1,2,10,5,menubarColor,colors.cyan,"",colors.white,true)
+        edge.render(1, 1, 4, 1, colors.gray, colors.cyan, " o*", colors.white, false)
+        edge.render(1, 2, 10, 5, menubarColor, colors.cyan, "", colors.white, true)
 
-        edge.render(1,2,10,2,menubarColor,colors.cyan,"   Menu   ",colors.black,false)
-        edge.render(1,3,10,3,menubarColor,colors.cyan,"Shut down",colors.black,false)
-        edge.render(1,4,10,4,menubarColor,colors.cyan,"Reboot",colors.black,false)
+        edge.render(1, 2, 10, 2, menubarColor, colors.cyan, "   Menu   ", colors.black, false)
+        edge.render(1, 3, 10, 3, menubarColor, colors.cyan, "Shut down", colors.black, false)
+        edge.render(1, 4, 10, 4, menubarColor, colors.cyan, "Reboot", colors.black, false)
 
         while(true) do
           local event, button, x, y = os.pullEvent("mouse_click")
@@ -797,7 +797,7 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
             if setting.variables.temp.restore_legacy_login then
               login_gui()
             else
-              parallel.waitForAll(login_gui_unreleased,login_clock)
+              parallel.waitForAll(login_gui_unreleased, login_clock)
             end
           end
           if x >= 1 and x <= 10 and y == 3 then
@@ -811,7 +811,7 @@ function login_gui() -- TO BE CONVERTED TO NEW SETTINGS SYSTEM.
           end
           if x >= 1 and x <= 10 and y == 5 then
             if unreleased then
-              parallel.waitForAll(login_gui_unreleased,login_clock)
+              parallel.waitForAll(login_gui_unreleased, login_clock)
             end
           end
           if event == "terminate" then
@@ -849,9 +849,9 @@ function terminal(dir)
   end
   sleep(0.5)
   if edge then
-    edge.render(1,1,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
+    edge.render(1, 1, scr_x, scr_y, colors.black, colors.black, "", colors.white, false)
   end
-  term.setCursorPos(1,1)
+  term.setCursorPos(1, 1)
   write("Axiom Terminal "..terminalVersion.."\n")
   while(terminalActive) do
     term.setBackgroundColor(colors.black)
@@ -866,7 +866,7 @@ function terminal(dir)
     term.setTextColor(colors.white)
     term.setBackgroundColor(colors.black)
     local input = read()
-    command(input,curDir)
+    command(input, curDir)
     termunfucked = true
   end
 
@@ -885,14 +885,14 @@ function command(cmd)
   cmdArgs = ""
   if #cmdTable > 1 then
     local c = 1
-    for k,v in ipairs(cmdTable) do
+    for k, v in ipairs(cmdTable) do
       if k ~= 1 then
         cmdArgs = cmdArgs.." "..v
       end
     end
 
   end
-  for i in string.gmatch(cmd,"%S+") do
+  for i in string.gmatch(cmd, "%S+") do
     cmdTable[#cmdTable+1] = tostring(i)
   end
   if #cmdTable > 0 then
@@ -915,7 +915,7 @@ function command(cmd)
     end
   end
   if setting.variables.terminalCommands ~= nil then
-    for k,v in pairs(setting.variables.terminalCommands) do
+    for k, v in pairs(setting.variables.terminalCommands) do
       if cmdTable[1] == k then
 
         write(k.." exists\n")
@@ -944,7 +944,7 @@ function command(cmd)
   end
   if cmdTable[1] == "uninstall" then
     if setting.variables.users[_G.currentUser].superuser or hasRootAccess then
-      if edge.windowAlert(22, 9, "Are you sure?",false, colors.orange) then
+      if edge.windowAlert(22, 9, "Are you sure?", false, colors.orange) then
         write("Uninstalling. \n")
         fs.delete("startup")
         fs.delete("/Axiom/libraries")
@@ -955,7 +955,7 @@ function command(cmd)
         fs.delete("/home")
         fs.delete("/users")
         write("Uninstall complete. Rebooting.\n")
-        edge.windowAlert(22,9,"Uninstall complete.", true, colors.green)
+        edge.windowAlert(22, 9, "Uninstall complete.", true, colors.green)
         os.reboot()
       end
     else
@@ -966,9 +966,9 @@ function command(cmd)
   end
   if cmdTable[1] == "testalert" then
     if cmdTable[2] ~= nil then
-      axiom.alert(cmdTable[2],0)
+      axiom.alert(cmdTable[2], 0)
     else
-      axiom.alert("Alert test.",0)
+      axiom.alert("Alert test.", 0)
     end
   end
   if cmdTable[1] == "version" then
@@ -982,17 +982,17 @@ function command(cmd)
   end
   if cmdTable[1] == "clear" then
     if edge then
-      edge.render(1,2,scr_x,scr_y,colors.black,colors.black,"",colors.white,false)
+      edge.render(1, 2, scr_x, scr_y, colors.black, colors.black, "", colors.white, false)
     else
       term.clear()
     end
-    term.setCursorPos(1,2)
+    term.setCursorPos(1, 2)
   end
   if cmdTable[1] == "reboot" then
     if speakerPresent then
-      speaker.playNote("harp",1, 1)
-      speaker.playNote("harp",1, .75)
-      speaker.playNote("harp",1, .5)
+      speaker.playNote("harp", 1, 1)
+      speaker.playNote("harp", 1, .75)
+      speaker.playNote("harp", 1, .5)
     end
     os.reboot()
   end
@@ -1002,7 +1002,7 @@ function command(cmd)
   if cmdTable[1] == "users" then
     if setting.variables.users[_G.currentUser].superuser or hasRootAccess then
       local c = 0
-      for k,v in pairs(setting.variables.users) do
+      for k, v in pairs(setting.variables.users) do
         write(c..": "..tostring(k).."\n")
         c = c +1
       end
@@ -1014,7 +1014,7 @@ function command(cmd)
     local allowOverwrite = cmdTable[4]
     if url and filename then
       if not fs.exists(filename) or allowOverwrite then
-        download(url,filename,true)
+        download(url, filename, true)
         write("Saved as "..filename.."\n")
       end
     end
@@ -1096,7 +1096,7 @@ function command(cmd)
   end
   if cmdTable[1] == "luaide" then
     if #cmdTable > 1 then
-      shell.run("home/prg/luaide.app",workingDir.."/"..cmdTable[2])
+      shell.run("home/prg/luaide.app", workingDir.."/"..cmdTable[2])
     else
       shell.run("home/prg/luaide.app")
     end
@@ -1104,7 +1104,7 @@ function command(cmd)
   if cmdTable[1] == "ls" then
     if cmdTable[2] then
       local fileList = fs.list(""..cmdTable[2])
-      for k,v in ipairs(fileList) do
+      for k, v in ipairs(fileList) do
         if fs.isDir(workingDir.."/"..v) then
           term.setTextColor(dircolor)
           write(v.."\n")
@@ -1117,7 +1117,7 @@ function command(cmd)
       end
     elseif cmdTable[2] == nil then
       local fileList = fs.list("/"..workingDir)
-      for k,v in ipairs(fileList) do
+      for k, v in ipairs(fileList) do
         if fs.isDir(workingDir.."/"..v) then
           term.setTextColor(dircolor)
           write(v.."\n")
@@ -1187,7 +1187,7 @@ function command(cmd)
         desktop()
       end
       if cmdTable[2] == "login" then
-        parallel.waitForAll(login_gui_unreleased,login_clock)
+        parallel.waitForAll(login_gui_unreleased, login_clock)
       end
     else
       term.setTextColor(errorcolor)
@@ -1211,35 +1211,35 @@ function desktop()
       menubarColor = colors.orange
     end
     -- if state ~= "main_gui" and setting.variables.temp.enable_animations then
-    --   edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
+    --   edge.render(1, 1, mx, my, colors.black, colors.white, "", colors.black)
     --   sleep(0.1)
-    --   edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
+    --   edge.render(1, 1, mx, my, colors.gray, colors.white, "", colors.black)
     --   sleep(0.1)
-    --   edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
+    --   edge.render(1, 1, mx, my, colors.lightGray, colors.white, "", colors.black)
     --   sleep(0.1)
     -- end
     if not forcing then
       if setting.variables.users[_G.currentUser].background == "black" then
-        edge.render(1,1,mx,scr_y,colors.black,colors.cyan,"",colors.black,false)
+        edge.render(1, 1, mx, scr_y, colors.black, colors.cyan, "", colors.black, false)
       else
         term.setBackgroundColor(colors.black) --helps make transparent backgrounds less glitchesque looking
         term.clear()
-        edge.image(1,1,setting.variables.users[_G.currentUser].background,colors.cyan)
+        edge.image(1, 1, setting.variables.users[_G.currentUser].background, colors.cyan)
       end
     end
     state = "main_gui"
     local x_p = 4
-    --edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
-    edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
-    edge.render(mx-string.len(axiom.getCurrentUser())-1,1,mx,1,menubarColor, colors.cyan,axiom.getCurrentUser(),colors.gray)
+    --edge.render(1, 1, mx, scr_y, colors.cyan, colors.cyan, "", colors.black, false)
+    edge.render(1, 1, mx, 1, menubarColor, colors.cyan, " o*", colors.gray, false)
+    edge.render(mx-string.len(axiom.getCurrentUser())-1, 1, mx, 1, menubarColor, colors.cyan, axiom.getCurrentUser(), colors.gray)
 
 
     x_p = 4
     --edge.log(announcement)
 
-    --edge.render(1,18,1,1,colors.cyan,colors.cyan,demo,colors.white,false)
-    --edge.render(2,2,2,2,colors.white,colors.cyan,": Home",colors.black)
-    --edge.render(2,4,8,4,colors.white,colors.cyan,": Update",colors.black)
+    --edge.render(1, 18, 1, 1, colors.cyan, colors.cyan, demo, colors.white, false)
+    --edge.render(2, 2, 2, 2, colors.white, colors.cyan, ": Home", colors.black)
+    --edge.render(2, 4, 8, 4, colors.white, colors.cyan, ": Update", colors.black)
     --local desktopFiles = fs.list("home/Desktop/")
     local offset = 0
     local width = 7
@@ -1249,7 +1249,7 @@ function desktop()
     local function stt(str)
       if not str then str = "No string or nil!" end
       local t={}
-      str:gsub(".",function(c) table.insert(t,c) end)
+      str:gsub(".", function(c) table.insert(t, c) end)
       return t
 
     end
@@ -1272,13 +1272,13 @@ function desktop()
         ["e"] = colors.red,
         ["f"] = colors.black,
       }
-      for k,v in pairs(cols) do
+      for k, v in pairs(cols) do
         --edge.log("KEY:"..k..";VAL:"..v)
         if tostring(col) == tostring(k) then return v end
       end
       return colors.white
     end
-    
+
     local ab = 0
     local cd = 0
     local i = 1
@@ -1289,7 +1289,7 @@ function desktop()
     }
     local function drawIcon(type, label)
 
-      for k,v in pairs(icons) do
+      for k, v in pairs(icons) do
         if type == v.extension then
           local _tc = 0
           local _tr = 0
@@ -1297,14 +1297,14 @@ function desktop()
           if chars[1] == nil then
             chars = stt(v.fg) -- Retry if string-to-table conversion failed.
           end
-          local icoLabel = string.gsub(label,type,"")
+          local icoLabel = string.gsub(label, type, "")
 
           if string.len(icoLabel) > 8 then
-            icoLabel = string.gsub(icoLabel,string.sub(icoLabel,7),"")..".."
+            icoLabel = string.gsub(icoLabel, string.sub(icoLabel, 7), "")..".."
           end
-          edge.render(ab+6+_c,cd+8+_r,ab+6,cd+4+_r,colors.cyan, colors.cyan,icoLabel,colors.white)
+          edge.render(ab+6+_c, cd+8+_r, ab+6, cd+4+_r, colors.cyan, colors.cyan, icoLabel, colors.white)
           for key, value in ipairs(stt(v.bg)) do
-            edge.render(ab+8+_c,cd+4+_r,ab+8+_c,cd+4+_r,cconv(value),colors.cyan,tostring(chars[i]),v.tcol)
+            edge.render(ab+8+_c, cd+4+_r, ab+8+_c, cd+4+_r, cconv(value), colors.cyan, tostring(chars[i]), v.tcol)
             i = i + 1
             _c = _c + 1
             if _c == 4 then
@@ -1313,7 +1313,7 @@ function desktop()
             end
           end
           local exec = false
-          if string.find(label,".lua",1) or string.find(label,".app",1) then
+          if string.find(label, ".lua", 1) or string.find(label, ".app", 1) then
             exec = true
           end
           clickableIcons[#clickableIcons+1] = {
@@ -1327,7 +1327,7 @@ function desktop()
 
           }
           ab = ab + 12
-          if ab == 48 then
+          if ab >= (mx - 12) then
             cd = cd + 6
             ab = 0
           end
@@ -1344,49 +1344,49 @@ function desktop()
     if fs.exists("/home/".._G.currentUser.."/Desktop/") then
       local desktopfiles = fs.list("/home/".._G.currentUser.."/Desktop/")
 
-      for k,v in ipairs(desktopfiles) do
+      for k, v in ipairs(desktopfiles) do
         if k > 12 then
           break
         end
         if fs.isDir("home/".._G.currentUser.."/Desktop/"..v) then
-          drawIcon("FOLDER",v)
+          drawIcon("FOLDER", v)
         else
           local success = false
-          local ext = string.sub(v,string.len(v)-3)
+          local ext = string.sub(v, string.len(v)-3)
           --edge.log("program ext: "..ext)
-          for b,c in pairs(icons) do
+          for b, c in pairs(icons) do
             --edge.log(tostring(v..":"..c.extension))
             if ext == c.extension then
-              local label = string.gsub(v,ext,"")
-              drawIcon(c.extension,v)
+              local label = string.gsub(v, ext, "")
+              drawIcon(c.extension, v)
               success = true
               break
             end
           end
           if not success then
-            drawIcon(".*",v)
+            drawIcon(".*", v)
           end
         end
 
       end
     end
-    -- for k,v in pairs(clickableIcons) do
-    --   edge.render(v.x, v.y, v.ex, v.ey, colors.red, colors.cyan,tostring(k), colors.black)
+    -- for k, v in pairs(clickableIcons) do
+    --   edge.render(v.x, v.y, v.ex, v.ey, colors.red, colors.cyan, tostring(k), colors.black)
     -- end
-    -- for k,v in ipairs(desktopFiles) do
+    -- for k, v in ipairs(desktopFiles) do
     --   if string.len(v) > 6 then
-    --     substring = string.sub(v,7)
-    --     filename = string.gsub(v,substring,"..")
+    --     substring = string.sub(v, 7)
+    --     filename = string.gsub(v, substring, "..")
     --     --axiom.alert(filename)
     --   else
     --     filename = v
     --   end
     --   if fs.isDir("home/Desktop/"..v) then
-    --     edge.render(2+(offset),3,9+(offset),7,colors.green,colors.cyan,"",colors.white,false)
-    --     edge.render(2+(offset),9,9+(offset),9,colors.white,colors.cyan,filename,colors.gray,false)
+    --     edge.render(2+(offset), 3, 9+(offset), 7, colors.green, colors.cyan, "", colors.white, false)
+    --     edge.render(2+(offset), 9, 9+(offset), 9, colors.white, colors.cyan, filename, colors.gray, false)
     --   else
-    --     edge.render(2+(offset),3,9+(offset),7,colors.cyan,colors.cyan,"",colors.white,false)
-    --     edge.render(2+(offset),9,9+(offset),9,colors.white,colors.cyan,filename,colors.gray,false)
+    --     edge.render(2+(offset), 3, 9+(offset), 7, colors.cyan, colors.cyan, "", colors.white, false)
+    --     edge.render(2+(offset), 9, 9+(offset), 9, colors.white, colors.cyan, filename, colors.gray, false)
     --   end
     --   offset = (width + 2) * k
     -- end
@@ -1407,22 +1407,22 @@ function desktop()
       if event == "terminate" then
         --error("Main process was terminated.")
         if speakerPresent then
-          speaker.playNote("harp",1, 1.5)
+          speaker.playNote("harp", 1, 1.5)
 
         end
         if not hasRootAccess then
-          if edge.windowAlert(20,5, "Logout?",false) then
+          if edge.windowAlert(20, 5, "Logout?", false) then
             state = "loginscreen"
             if setting.variables.temp.restore_legacy_login then
               login_gui()
             else
-              parallel.waitForAll(login_gui_unreleased,login_clock)
+              parallel.waitForAll(login_gui_unreleased, login_clock)
             end
           else
             desktop()
           end
         else
-          if edge.windowAlert(20,5,"Go back to terminal?",false) then
+          if edge.windowAlert(20, 5, "Go back to terminal?", false) then
             return true
           else
             desktop()
@@ -1430,11 +1430,11 @@ function desktop()
         end
 
       end
-      for k,v in ipairs(clickableIcons) do
-        --edge.render(v.x, v.y, v.ex, v.ey, colors.red, colors.cyan,tostring(k), colors.black)
+      for k, v in ipairs(clickableIcons) do
+        --edge.render(v.x, v.y, v.ex, v.ey, colors.red, colors.cyan, tostring(k), colors.black)
         if x >= v.x and x <= v.ex and y >= v.y and y <= v.ey and button == 1 then
           -- Do stuff
-          local ext = string.sub(v.opens,string.len(v.opens)-3)
+          local ext = string.sub(v.opens, string.len(v.opens)-3)
           if ext == ".nfp" or ext == ".blt" or ext == ".nft" then
             if fs.exists("Axiom/programs/pain.app") and invalidInstallation == false then
               shell.run("Axiom/programs/pain.app "..v.opens)
@@ -1443,7 +1443,7 @@ function desktop()
             end
           end
           if ext == ".lnk" then
-            local fh = fs.open(v.opens,"r")
+            local fh = fs.open(v.opens, "r")
             if fh ~= nil then
               local lnk = fh.readLine()
               fh.close()
@@ -1451,7 +1451,7 @@ function desktop()
                 if fs.exists(lnk) then
                   shell.run(lnk)
                 else
-                  edge.windowAlert(25,10,"Could not open link (destination not present)",true,colors.red)
+                  edge.windowAlert(25, 10, "Could not open link (destination not present)", true, colors.red)
                 end
               end
             end
@@ -1466,31 +1466,31 @@ function desktop()
         end
       end
       if x >= 1 and x <= 4 and y == 1 and button == 1 then
-        edge.render(1,1,4,1,colors.gray,colors.cyan," o*",colors.white,false)
-        local mWidth,mHeight = 16,10
+        edge.render(1, 1, 4, 1, colors.gray, colors.cyan, " o*", colors.white, false)
+        local mWidth, mHeight = 16, 10
         local mTitle = "  "
         local mPage = 1
         local mCol = colors.gray
-        edge.render(1,2,mWidth,mHeight,mCol,colors.cyan,"",colors.white,false)
-        edge.render((mWidth/2)-(string.len(mTitle)/2),2,mWidth,2,mCol,colors.cyan,mTitle,colors.white,false)
-        edge.render(1,3,mWidth,3,mCol,mCol,"Update",colors.white,false)
-        if updating then edge.render(1,3,10,3,mCol,colors.cyan,"Updating..",colors.white,false) end
-        edge.render(1,4,mWidth,4,mCol,mCol,"Settings",colors.white,false)
-        edge.render(1,5,mWidth,5,mCol,mCol,"Files",colors.white,false)
-        edge.render(1,6,mWidth,5,mCol,mCol,"Terminal  ",colors.white,false)
-        edge.render(1,7,mWidth,7,mCol,mCol,"Logout",colors.white,false)
-        edge.render(1,8,mWidth,8,mCol,mCol,"Reboot",colors.white,false)
-        edge.render(1,9,mWidth,9,mCol,mCol,"Shut down",colors.white,false)
-        edge.render(1,10,mWidth,10,mCol,mCol,"Store",colors.white,false)
+        edge.render(1, 2, mWidth, mHeight, mCol, colors.cyan, "", colors.white, false)
+        edge.render((mWidth/2)-(string.len(mTitle)/2), 2, mWidth, 2, mCol, colors.cyan, mTitle, colors.white, false)
+        edge.render(1, 3, mWidth, 3, mCol, mCol, "Update", colors.white, false)
+        if updating then edge.render(1, 3, 10, 3, mCol, colors.cyan, "Updating..", colors.white, false) end
+        edge.render(1, 4, mWidth, 4, mCol, mCol, "Settings", colors.white, false)
+        edge.render(1, 5, mWidth, 5, mCol, mCol, "Files", colors.white, false)
+        edge.render(1, 6, mWidth, 5, mCol, mCol, "Terminal  ", colors.white, false)
+        edge.render(1, 7, mWidth, 7, mCol, mCol, "Logout", colors.white, false)
+        edge.render(1, 8, mWidth, 8, mCol, mCol, "Reboot", colors.white, false)
+        edge.render(1, 9, mWidth, 9, mCol, mCol, "Shut down", colors.white, false)
+        edge.render(1, 10, mWidth, 10, mCol, mCol, "Store", colors.white, false)
         while(true) do
           local event, button, x, y = os.pullEvent("mouse_click")
           if event == "terminate" then
-            if edge.windowAlert(20,5, "Logout?",false) then
+            if edge.windowAlert(20, 5, "Logout?", false) then
               state = "loginscreen"
               if setting.variables.temp.restore_legacy_login then
                 login_gui()
               else
-                parallel.waitForAll(login_gui_unreleased,login_clock)
+                parallel.waitForAll(login_gui_unreleased, login_clock)
               end
             else
               desktop()
@@ -1503,16 +1503,16 @@ function desktop()
             desktop()
           end
           if x >= 1 and x <= mWidth and y == 3 then
-            edge.render(1,3,10,3,mCol,colors.cyan,"Updating..",colors.white,false)
+            edge.render(1, 3, 10, 3, mCol, colors.cyan, "Updating..", colors.white, false)
             local ok, file = execUpd()
             if ok then
-              edge.render(1,3,10,3,mCol,colors.cyan,"Updated!",colors.green,false)
+              edge.render(1, 3, 10, 3, mCol, colors.cyan, "Updated!", colors.green, false)
             else
-              edge.render(1,3,10,3,mCol,colors.cyan,"Error [?]",colors.red,false)
+              edge.render(1, 3, 10, 3, mCol, colors.cyan, "Error [?]", colors.red, false)
               while(true) do
-                local e,b,x,y = os.pullEvent("mouse_click")
-                if edge.aabb(x,y,1,3,mWidth,3) then
-                  edge.windowAlert(20,10,"Some files could not be downloaded. File: "..file,true)
+                local e, b, x, y = os.pullEvent("mouse_click")
+                if edge.aabb(x, y, 1, 3, mWidth, 3) then
+                  edge.windowAlert(20, 10, "Some files could not be downloaded. File: "..file, true)
                   break
                 else
                   break
@@ -1530,7 +1530,7 @@ function desktop()
               end
               desktop()
             else
-              edge.windowAlert(20,8,"Axiom/programs/settings.app is unavailable",true, colors.red)
+              edge.windowAlert(20, 8, "Axiom/programs/settings.app is unavailable", true, colors.red)
               desktop()
             end
           end
@@ -1544,7 +1544,7 @@ function desktop()
               shell.run("Axiom/programs/explorer.app")
               desktop()
             else
-              edge.windowAlert(20,8,"Axiom/programs/explorer.app is unavailable",true, colors.red)
+              edge.windowAlert(20, 8, "Axiom/programs/explorer.app is unavailable", true, colors.red)
               desktop()
             end
 
@@ -1555,13 +1555,13 @@ function desktop()
             if setting.variables.temp.restore_legacy_login then
               login_gui()
             else
-              parallel.waitForAll(login_gui_unreleased,login_clock)
+              parallel.waitForAll(login_gui_unreleased, login_clock)
             end
           end
           if x >= 1 and x <= mWidth and y == 8 then
             if setting.variables.temp.first_update == false then
               setting.variables.temp.first_update = true
-              edge.windowAlert(25,10,productName.." is downloading additional files, please wait.","noButton",colors.lightBlue)
+              edge.windowAlert(25, 10, productName.." is downloading additional files, please wait.", "noButton", colors.lightBlue)
               execUpd()
               setting.writesettings()
               os.reboot()
@@ -1574,7 +1574,7 @@ function desktop()
             if fs.exists("Axiom/programs/store.app") and invalidInstallation == false then
               shell.run("Axiom/programs/store.app")
             else
-              edge.windowAlert(20,8,"Axiom/programs/store.app is unavailable",true, colors.red)
+              edge.windowAlert(20, 8, "Axiom/programs/store.app is unavailable", true, colors.red)
               desktop()
             end
 
@@ -1583,10 +1583,10 @@ function desktop()
           if x >= 1 and x <= mWidth and y == 9 then
             if setting.variables.temp.first_update == false then
               setting.variables.temp.first_update = true
-              edge.render(1,1,mx,scr_y,colors.cyan,colors.cyan,"",colors.black,false)
-              edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
-              edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
-              edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
+              edge.render(1, 1, mx, scr_y, colors.cyan, colors.cyan, "", colors.black, false)
+              edge.render(16, 7, 34, 12, colors.white, colors.cyan, "", colors.black, true)
+              edge.render(17, 8, 34, 8, colors.white, colors.cyan, productName.." is updating ", colors.black, false)
+              edge.render(17, 10, 34, 10, colors.white, colors.cyan, "  Please wait.", colors.black, false)
               execUpd()
               setting.writesettings()
               if hasRednet then
@@ -1605,60 +1605,60 @@ function desktop()
     end
 end
 
-function ftsRender(step,usr,pw,l,adduser)
+function ftsRender(step, usr, pw, l, adduser)
   if not adduser then adduser = false end
-  local a,b = term.getSize()
+  local a, b = term.getSize()
   if step == 1 then
-    local olicense = "Axiom UI Community\n  Open Source software, you can freely modify to   your desires.\n  If you want to make some permanent changes to   Axiom UI Community,  please make a pull request in \n  axiom-opensource.\n   Redistribution disallowed.\n  (C) Linus Ramneborg 2018"
+    local olicense = "Axiom UI Community\n  Open Source software, you can freely modify to   your desires.\n  If you want to make some permanent changes to   Axiom UI Community, please make a pull request in \n  axiom-opensource.\n   Redistribution disallowed.\n  (C) Linus Ramneborg 2018"
     if olicense then
-      edge.render(3,5,3,5,colors.white,colors.cyan,olicense,colors.lightGray)
+      edge.render(3, 5, 3, 5, colors.white, colors.cyan, olicense, colors.lightGray)
     else
-      edge.render(3,5,3,5,colors.white,colors.cyan,"Unable to fetch license! :(",colors.lightGray)
+      edge.render(3, 5, 3, 5, colors.white, colors.cyan, "Unable to fetch license! :(", colors.lightGray)
     end
     if l then
-      edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"[+] I have read and agree to the TOS.",colors.gray)
+      edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "[+] I have read and agree to the TOS.", colors.gray)
     else
-      edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"[ ] I have read and agree to the TOS.",colors.gray)
+      edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "[ ] I have read and agree to the TOS.", colors.gray)
     end
   end
   if step == 2 then
-    edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
+    edge.render(1, 4, a, b, colors.white, colors.cyan, "", colors.white)
     -- pick username(?)
-    edge.render(12,6,a,6,colors.white,colors.cyan,"Enter your desired username ",colors.gray)
+    edge.render(12, 6, a, 6, colors.white, colors.cyan, "Enter your desired username ", colors.gray)
     if not usr then
-      edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,"",colors.black)
+      edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, "", colors.black)
     else
-      edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..usr,colors.black)
+      edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, ""..usr, colors.black)
     end
 
   end
   if step == 3 then
-    edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
+    edge.render(1, 4, a, b, colors.white, colors.cyan, "", colors.white)
     -- pick username(?)
-    edge.render(15,6,a,6,colors.white,colors.cyan,"Enter a password ",colors.gray)
-    edge.render(15,7,a,7,colors.white,colors.cyan,"(optional) ",colors.lightGray)
+    edge.render(15, 6, a, 6, colors.white, colors.cyan, "Enter a password ", colors.gray)
+    edge.render(15, 7, a, 7, colors.white, colors.cyan, "(optional) ", colors.lightGray)
     if pw ~= "nopass" then
 
-      edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,string.rep("*",string.len(pw)),colors.black)
+      edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, string.rep("*", string.len(pw)), colors.black)
     else
-      edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,"",colors.black)
+      edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, "", colors.black)
     end
   end
   if step == 4 then
-    edge.render(a-string.len("Next >> "),2,a,2,colors.lime,colors.cyan,"Next x ",colors.white)
-    edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
+    edge.render(a-string.len("Next >> "), 2, a, 2, colors.lime, colors.cyan, "Next x ", colors.white)
+    edge.render(1, 4, a, b, colors.white, colors.cyan, "", colors.white)
     if not adduser then
-      edge.render((a/2)-(string.len("Welcome to Axiom")/2),(b/2),(a/2)-(string.len("Welcome to Axiom")/2),(b/2),colors.white,colors.cyan,"Welcome to Axiom.",colors.gray)
-      edge.render((a/2)-(string.len("Let's go!")/2),(b/2)+1,(a/2)-(string.len("Let's go!")/2),(b/2)+1,colors.white,colors.cyan,"Let's go!",colors.gray)
-      edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Rebooting...",colors.lightGray)
+      edge.render((a/2)-(string.len("Welcome to Axiom")/2), (b/2), (a/2)-(string.len("Welcome to Axiom")/2), (b/2), colors.white, colors.cyan, "Welcome to Axiom.", colors.gray)
+      edge.render((a/2)-(string.len("Let's go!")/2), (b/2)+1, (a/2)-(string.len("Let's go!")/2), (b/2)+1, colors.white, colors.cyan, "Let's go!", colors.gray)
+      edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "Rebooting...", colors.lightGray)
     end
     if usr == "KERNEL" then
       usr = "kernel"
     end
     if adduser then
-      setting.addUser(usr,encryption.sha256(pw.."QxLUF1bgIAdeQX"),usr)
+      setting.addUser(usr, encryption.sha256(pw.."QxLUF1bgIAdeQX"), usr)
     else
-      setting.addUser(usr,encryption.sha256(pw.."QxLUF1bgIAdeQX"),usr,true)
+      setting.addUser(usr, encryption.sha256(pw.."QxLUF1bgIAdeQX"), usr, true)
     end
     setting.variables.temp.first_start = false
     fs.makeDir("Axiom/.fs")
@@ -1666,25 +1666,25 @@ function ftsRender(step,usr,pw,l,adduser)
     sleep(1)
     if not adduser then
       if not fs.exists("home/"..usr.."/Desktop/files.lnk") then
-        edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 1/3",colors.lightGray)
-        local fh = fs.open("home/"..usr.."/Desktop/files.lnk","w")
+        edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "Creating additional desktop icons.. 1/3", colors.lightGray)
+        local fh = fs.open("home/"..usr.."/Desktop/files.lnk", "w")
         if fh then
           fh.write("Axiom/programs/explorer.app")
           fh.close()
         end
-        edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 2/3",colors.lightGray)
-        local fh2 = fs.open("home/"..usr.."/Desktop/settings.lnk","w")
+        edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "Creating additional desktop icons.. 2/3", colors.lightGray)
+        local fh2 = fs.open("home/"..usr.."/Desktop/settings.lnk", "w")
         if fh2 then
           fh2.write("Axiom/programs/settings.app")
           fh2.close()
         end
-        edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. 3/3",colors.lightGray)
-        local fh2 = fs.open("home/"..usr.."/Desktop/store.lnk","w")
+        edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "Creating additional desktop icons.. 3/3", colors.lightGray)
+        local fh2 = fs.open("home/"..usr.."/Desktop/store.lnk", "w")
         if fh2 then
           fh2.write("Axiom/programs/stdgui.app")
           fh2.close()
         end
-        edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"Creating additional desktop icons.. OK ",colors.lightGray)
+        edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "Creating additional desktop icons.. OK ", colors.lightGray)
         sleep(1)
         local mx = term.getSize()
       end
@@ -1698,40 +1698,40 @@ function firstTimeSetupNew(adduser)
   if not adduser then adduser = false end
 
   disableclock = true
-  local a,b = term.getSize()
+  local a, b = term.getSize()
   local password = "nopass"
   local username = ""
   local licensed = false
   local step = 1
   if adduser then step = 2 end
   if adduser then licensed = true end
-  edge.render(1,1,a,4,colors.lime,colors.cyan,"",colors.white)
+  edge.render(1, 1, a, 4, colors.lime, colors.cyan, "", colors.white)
   if not adduser then
-    edge.render(3,2,3,2,colors.lime,colors.cyan,"First time setup", colors.white)
+    edge.render(3, 2, 3, 2, colors.lime, colors.cyan, "First time setup", colors.white)
   else
-    edge.render(3,2,3,2,colors.lime,colors.cyan,"Set up new user account", colors.white)
+    edge.render(3, 2, 3, 2, colors.lime, colors.cyan, "Set up new user account", colors.white)
   end
-  edge.render(a-string.len("Next >> "),2,a,2,colors.lime,colors.cyan,"Next >>",colors.white)
-  edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
+  edge.render(a-string.len("Next >> "), 2, a, 2, colors.lime, colors.cyan, "Next >>", colors.white)
+  edge.render(1, 4, a, b, colors.white, colors.cyan, "", colors.white)
   ftsRender(step)
   while(true) do
-    --edge.render(a-string.len("Next >> "),2,a,2,colors.lime,colors.cyan,"Next >> ",colors.white)
+    --edge.render(a-string.len("Next >> "), 2, a, 2, colors.lime, colors.cyan, "Next >> ", colors.white)
     if step == 1 then
       if licensed then
-        edge.render(a-string.len("Next >> "),2,a,2,colors.lime,colors.cyan,"Next >>",colors.white)
-        edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"[+] I have read and agree to the TOS.",colors.gray)
+        edge.render(a-string.len("Next >> "), 2, a, 2, colors.lime, colors.cyan, "Next >>", colors.white)
+        edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "[+] I have read and agree to the TOS.", colors.gray)
       else
-        edge.render(a-string.len("Next >> "),2,a,2,colors.lime,colors.cyan,"Next >>",colors.gray)
-        edge.render(1,b-1,1,b-1,colors.white,colors.cyan,"[ ] I have read and agree to the TOS.",colors.gray)
+        edge.render(a-string.len("Next >> "), 2, a, 2, colors.lime, colors.cyan, "Next >>", colors.gray)
+        edge.render(1, b-1, 1, b-1, colors.white, colors.cyan, "[ ] I have read and agree to the TOS.", colors.gray)
       end
     end
     if step > 1 then
-      local success = ftsRender(step,username,password,licensed,adduser)
+      local success = ftsRender(step, username, password, licensed, adduser)
       if success then
         return true
       end
     else
-      ftsRender(step,"","",licensed)
+      ftsRender(step, "", "", licensed)
     end
     local event, button, x, y = os.pullEvent("mouse_click")
     if event == "terminate" then
@@ -1739,13 +1739,13 @@ function firstTimeSetupNew(adduser)
     end
     if x >= a-string.len("Next >> ") and x <= a and y == 2 then
       if step == 2 and #username >= 1 then
-        setting.setVariable("Axiom/settings.bak","username",encryption.sha256(username.."QxLUF1bgIAdeQX"))
+        setting.setVariable("Axiom/settings.bak", "username", encryption.sha256(username.."QxLUF1bgIAdeQX"))
       end
       if step == 3 then
-        setting.setVariable("Axiom/settings.bak","password",encryption.sha256(password.."QxLUF1bgIAdeQX"))
+        setting.setVariable("Axiom/settings.bak", "password", encryption.sha256(password.."QxLUF1bgIAdeQX"))
       end
       if licensed == true then
-        setting.setVariable("Axiom/settings.bak","licensed","true")
+        setting.setVariable("Axiom/settings.bak", "licensed", "true")
       end
       if (step >= 1) and licensed and ((#username >= 1) or (step ~= 2))  then
         step = step + 1
@@ -1755,12 +1755,12 @@ function firstTimeSetupNew(adduser)
       licensed = not licensed
     end
     if step == 2 and x >= 15 and x <= a-15 and y == 8 then
-      edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
+      edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, ""..username, colors.gray)
       term.setBackgroundColor(colors.lightGray)
-      term.setCursorPos(15,8)
+      term.setCursorPos(15, 8)
       username = read()
       while(string.len(username) < 1) do
-        edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
+        edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, ""..username, colors.gray)
         username = read()
       end
       if not adduser then
@@ -1774,12 +1774,12 @@ function firstTimeSetupNew(adduser)
     end
     if step == 3 and x >= 15 and x <= a-15 and y == 8 then
       if password ~= "nopass" then
-        edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,string.rep("*",string.len(password)),colors.gray)
+        edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, string.rep("*", string.len(password)), colors.gray)
       else
-        edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,"",colors.gray)
+        edge.render(15, 8, a-15, 8, colors.lightGray, colors.lightGray, "", colors.gray)
       end
       term.setBackgroundColor(colors.lightGray)
-      term.setCursorPos(15,8)
+      term.setCursorPos(15, 8)
       password = read("*")
       if password == "" or password == nil then
         password = "nopass"
@@ -1792,7 +1792,7 @@ function initialize()
 
   setting.loadsettings("Axiom/settings.bak")
   if not fs.exists("Axiom/settings.bak") then
-    axiom.alert("FATAL ERROR, SETTINGS FILE NOT FOUND.",3)
+    axiom.alert("FATAL ERROR, SETTINGS FILE NOT FOUND.", 3)
     return false, "axiom/settings.bak could not be found."
   end
 
@@ -1802,21 +1802,21 @@ function initialize()
     setting.variables.temp.systemID = os.getComputerID()
     setting.variables.temp.first_start = false
     fs.makeDir("Axiom/.fs")
-      --local h = http.post("http://nothy.000webhostapp.com/bugreport.php","uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
+      --local h = http.post("http://nothy.000webhostapp.com/bugreport.php", "uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
     setting.writesettings()
     firstTimeSetupNew()
   else
     edge.log("User already has account")
     -- Get first non kernel User
     local dUser = nil
-    for k,v in pairs(setting.variables.users) do
+    for k, v in pairs(setting.variables.users) do
       if k ~= "KERNEL" then
         dUser = k
         break
       end
     end
     if setting.variables.temp.debugID == 0 and dUser ~= nil then
-      setting.variables.temp.debugID = "user-"..dUser..""..math.random(0,9)..math.random(0,9)..math.random(0,9)..math.random(0,9)
+      setting.variables.temp.debugID = "user-"..dUser..""..math.random(0, 9)..math.random(0, 9)..math.random(0, 9)..math.random(0, 9)
       setting.writesettings()
     end
   end
@@ -1835,9 +1835,9 @@ function initialize()
   if setting.variables.temp.restore_legacy_login then
     login_gui()
   else
-    parallel.waitForAll(login_gui_unreleased,login_clock)
+    parallel.waitForAll(login_gui_unreleased, login_clock)
   end
-  --parallel.waitForAll(login_gui_unreleased,notifHandler,taskHandler,eventHandler)
+  --parallel.waitForAll(login_gui_unreleased, notifHandler, taskHandler, eventHandler)
 end
 function cprint( text, y )
   local x = term.getSize()
@@ -1845,7 +1845,7 @@ function cprint( text, y )
   term.setCursorPos( centerXPos, y )
   write( text )
 end
-function boot() 
+function boot()
 
   if not term.isColor() then
     printerr("No color support detected, quitting..")
@@ -1869,7 +1869,7 @@ function boot()
     i = io.read()
     if string.lower(i) == "y" then
       print("Installing Edge Graphics.")
-      noapidl("https://www.dropbox.com/s/a5kxzjl6122uti2/edge?dl=1","Axiom/libraries/edge")
+      noapidl("https://www.dropbox.com/s/a5kxzjl6122uti2/edge?dl=1", "Axiom/libraries/edge")
     else
       print("OK")
     end
@@ -1921,7 +1921,7 @@ function boot()
         local allow = true
 
         if setting.variables.temp.ignore_blacklist == false then
-          for k,v in ipairs(apiL) do
+          for k, v in ipairs(apiL) do
             if api == v then
               allow = false
               break
@@ -1984,7 +1984,7 @@ function boot()
     for _, file in ipairs(fileList) do
       if file == "rom" then
         log("SYSTEM: CraftOS System file detected '"..file.."'. Ignoring")
-        --edge.render(midx - string.len("Disallowed file detected, removing") / 2,8,48,8,colors.white,colors.cyan,"Disallowed file detected, removing",colors.black)
+        --edge.render(midx - string.len("Disallowed file detected, removing") / 2, 8, 48, 8, colors.white, colors.cyan, "Disallowed file detected, removing", colors.black)
       else
         if fs.isDir(file) then
           log("SYSTEM: Verified folder "..file.."/ and it's contents")
@@ -1995,11 +1995,11 @@ function boot()
         end
         x, y = term.getSize()
         midx = x / 2
-        --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2,8,48,8,colors.white,colors.cyan,"File "..loaded.." of "..toLoad.." verified.",colors.black)
+        --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2, 8, 48, 8, colors.white, colors.cyan, "File "..loaded.." of "..toLoad.." verified.", colors.black)
         loaded = loaded + 1
         sleep(0.3)
       end
-      
+
       --print("Loaded: os/libraries/"..file)
     end
   end
@@ -2024,52 +2024,52 @@ function bootanimation()
     "oooooOo",
     "ooooooO",
   }
-  
+
   local function animate(frames, length, y)
     local anpoint = 1
     local anmax = #frames
     local cycles = 0
     term.setTextColor(colors.black)
-    edge.cprint(frames[1],y)
+    edge.cprint(frames[1], y)
     while booting and cycles < 1 do
       if anpoint > anmax then
         anpoint = 1
         cycles = cycles + 1
       end
       term.setTextColor(colors.black)
-      edge.cprint(frames[anpoint],y)
+      edge.cprint(frames[anpoint], y)
       sleep(0.2)
       anpoint = anpoint + 1
     end
 
   end
-  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.black, colors.white, "", colors.black)
   sleep(0.1)
-  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.gray, colors.white, "", colors.black)
   sleep(0.1)
-  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.lightGray, colors.white, "", colors.black)
   sleep(0.1)
-  edge.render(1,1,mx, my, colors.white, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.white, colors.white, "", colors.black)
   sleep(0.1)
   term.setTextColor(colors.lightGray)
-  edge.cprint(loadingAnim[1],10)
+  edge.cprint(loadingAnim[1], math.floor(my / 2))
   sleep(0.1)
   term.setTextColor(colors.gray)
   sleep(0.1)
-  edge.cprint(loadingAnim[1],10)
+  edge.cprint(loadingAnim[1], math.floor(my / 2))
   sleep(0.1)
-  while(booting) do 
-    animate(loadingAnim, 20, 10)
+  while(booting) do
+    animate(loadingAnim, 20, math.floor(my / 2))
   end
-  edge.render(1,1,mx, my, colors.white, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.white, colors.white, "", colors.black)
   sleep(0.1)
-  edge.render(1,1,mx, my, colors.lightGray, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.lightGray, colors.white, "", colors.black)
   sleep(0.1)
-  edge.render(1,1,mx, my, colors.gray, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.gray, colors.white, "", colors.black)
   sleep(0.1)
-  edge.render(1,1,mx, my, colors.black, colors.white, "", colors.black)
+  edge.render(1, 1, mx, my, colors.black, colors.white, "", colors.black)
   sleep(0.1)
-  term.setCursorPos(1,1)
+  term.setCursorPos(1, 1)
   initialize()
 end
 
@@ -2077,12 +2077,12 @@ end
 function log(string)
   local time = os.clock()
   if not fs.exists("Axiom/log.txt") then
-    logfile = fs.open("Axiom/log.txt","w")
+    logfile = fs.open("Axiom/log.txt", "w")
     if logfile ~= nil then
       logfile.close()
     end
   end
-  logfile = fs.open("Axiom/log.txt","a")
+  logfile = fs.open("Axiom/log.txt", "a")
   if logfile ~= nil then
     logfile.writeLine("["..time.."]: "..string.."\n")
     logfile.close()
@@ -2105,7 +2105,7 @@ printout("SYSTEM: Starting services..")
 if fs.exists("safeStart") then
   if fs.exists("limbo") then
     hasRootAccess = true
-    for k,v in ipairs(fs.list("Axiom/libraries")) do
+    for k, v in ipairs(fs.list("Axiom/libraries")) do
       if v ~= "button" then
         os.loadAPI("Axiom/libraries/"..v)
         printout("Loaded "..v)
@@ -2144,25 +2144,25 @@ if os.version() ~= "CraftOS 1.8" then
   sleep(1)
 end
 if fs.exists("Axiom/settings.0") == true and fs.exists("Axiom/settings.bak") == false then
-  fs.copy("Axiom/settings.0","Axiom/settings.bak")
+  fs.copy("Axiom/settings.0", "Axiom/settings.bak")
   printout("Settings file has been copied from backup.")
 end
 if not fs.exists("Axiom/settings.bak") then
   term.setTextColor(colors.white)
   term.setBackgroundColor(colors.black)
   if fs.exists("Axiom/backup/os/settings.bak") then
-    fs.copy("Axiom/backup/os/settings.bak","Axiom/settings.bak")
+    fs.copy("Axiom/backup/os/settings.bak", "Axiom/settings.bak")
     printout("Restored settings from backup.")
   else
     printerr("Settings file is missing or corrupt. System will reboot when repair is finished.")
-    noapidl("https://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1","Axiom/settings.bak")
+    noapidl("https://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1", "Axiom/settings.bak")
     printout("Repair finished. Rebooting into first time setup.")
     sleep(5)
     os.reboot()
   end
 end
 if fs.exists("Axiom/settings") == true and fs.exists("Axiom/settings.bak") == false then
-  fs.copy("Axiom/settings","Axiom/settings.bak")
+  fs.copy("Axiom/settings", "Axiom/settings.bak")
   fs.delete("Axiom/settings")
   printout("Settings file has been updated to support "..version)
   sleep(1)
@@ -2171,10 +2171,10 @@ if fs.exists("firstBoot") then
   fs.delete("firstBoot")
 
   term.setBackgroundColor(colors.black)
-  local ok, err = pcall(parallel.waitForAll,boot, bootanimation)
+  local ok, err = pcall(parallel.waitForAll, boot, bootanimation)
   if edge then
     if not ok and err then
-      if edge.windowAlert(26,10,productName.." has crashed. Error: "..err.."\n Reboot?", false) then
+      if edge.windowAlert(26, 10, productName.." has crashed. Error: "..err.."\n Reboot?", false) then
         os.reboot()
       else
         os.shutdown()
@@ -2193,9 +2193,9 @@ if fs.exists("firstBoot") then
     end
   end
 else
-  local ok, err = pcall(parallel.waitForAll,bootanimation, boot)
+  local ok, err = pcall(parallel.waitForAll, bootanimation, boot)
   if edge then
-    if edge.windowAlert(26,10,productName.." has crashed. Error: "..err.."\n Reboot?", false) then
+    if edge.windowAlert(26, 10, productName.." has crashed. Error: "..err.."\n Reboot?", false) then
       os.reboot()
     else
       os.shutdown()
