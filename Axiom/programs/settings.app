@@ -28,6 +28,9 @@ local selectedScale_emu = 4
 --   end
 --   -- Forcibly load settings from file
 -- end
+local function filebrowser(files, select)
+	shell.run("Axiom/programs/explorer.app", files, select and "select" or nil)
+end
 function ftsRender(step,usr,pw,l,adduser)
   if not adduser then adduser = false end
   local a,b = term.getSize()
@@ -152,7 +155,7 @@ function firstTimeSetupNew(adduser)
     end
     if step > 1 then
       local success = ftsRender(step,username,password,licensed,adduser)
-      
+
       if success then
         return true
       end
@@ -191,7 +194,7 @@ function firstTimeSetupNew(adduser)
         edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
         username = read()
       end
-      while(string.lower(username) == "kernel" or setting.variables.users[username] ~= nil) do 
+      while(string.lower(username) == "kernel" or setting.variables.users[username] ~= nil) do
 
           edge.windowAlert(20,10, "Error: Username unavailable.", true, colors.red)
           edge.render(1,4,a,b,colors.white,colors.cyan,"",colors.white)
@@ -199,7 +202,7 @@ function firstTimeSetupNew(adduser)
           edge.render(12,6,a,6,colors.white,colors.cyan,"Enter your desired username ",colors.gray)
           edge.render(15,8,a-15,8,colors.lightGray,colors.lightGray,""..username,colors.gray)
           username = read()
-  
+
       end
       if not adduser then
         if unreleased then
@@ -636,14 +639,14 @@ function settings_draw(page)
 end
 function getUserIndex(uname)
   local index = 1
-  for k,v in pairs(setting.variables.users) do 
-    if v.displayName == uname then 
+  for k,v in pairs(setting.variables.users) do
+    if v.displayName == uname then
       return index
-    else 
+    else
       index = index + 1
     end
   end
-  
+
 end
 function settings_new(startpage)
   local users = {}
@@ -758,12 +761,12 @@ function settings_new(startpage)
         if x >= 44 and x <= 49 then
           --users = setting.variables.users
           for k,v in pairs(users) do -- TODO: unfuck
-            
+
             if v ~= nil then
               if y == v.by+1 then
                 if users[k] ~= currentUser and users[k] ~= nil then
                   if users[k].confirmC == true then
-                    edge.render(44,users[k].by+1,49,users[k].by+1,colors.red,colors.cyan,"DELETED",colors.white)              
+                    edge.render(44,users[k].by+1,49,users[k].by+1,colors.red,colors.cyan,"DELETED",colors.white)
                     setting.deleteUser(v.uname)
                     local ok = edge.windowAlert(20,10,"A reboot may be required to apply these changes.",true,colors.orange)
                     setting.variables = setting.loadsettings("Axiom/settings.bak")
@@ -974,7 +977,7 @@ function settings_new(startpage)
       end
       if x >= 2 and x <= 24 and y == bg_y+5 then
         fileselect = true
-        local file = filebrowser(setting.variables.users[currentUser].image_dir,true)
+        local file = filebrowser(setting.variables.users[currentUser].image_dir, true)
         fileselect = false
         settings_draw(currentpage)
       end
