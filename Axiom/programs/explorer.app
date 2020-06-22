@@ -10,10 +10,10 @@ local changes = "Changes:\nHopefully fixed program refusing to exit"
 local running = true
 local args = {...}
 function filebrowser(startDir,select)
-  if args[1] ~= nil then 
-    if args[1] == "select" then 
-      if args[2] ~= nil then 
-        if(fs.exists(args[2])) then 
+  if args[1] ~= nil then
+    if args[1] == "select" then
+      if args[2] ~= nil then
+        if(fs.exists(args[2])) then
           files = args[2]
         end
       end
@@ -28,9 +28,9 @@ function filebrowser(startDir,select)
   menubarColor = colors.green
   --files = setting.variables.users[currentUser].fexplore_startdir
   edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.gray,false)
-  edge.render(1,2,51,2,colors.lime,colors.cyan,"                                          _ x",colors.black,false)
-  edge.render(1,4,51,19,colors.white,colors.cyan,"",colors.black,true)
-  edge.render(1,3,51,4,colors.lime,colors.cyan,"",colors.black,false)
+  edge.render(1,2,mx,2,colors.lime,colors.cyan,"                                          _ x",colors.black,false)
+  edge.render(1,4,mx,my,colors.white,colors.cyan,"",colors.black,true)
+  edge.render(1,3,mx,4,colors.lime,colors.cyan,"",colors.black,false)
   --edge.render(7,4,7,4,colors.white,colors.cyan,"Files: <Up>",colors.black)
   edge.render(7,3,39,3,colors.white,colors.cyan,os.getComputerID()..":"..files,colors.black)
   edge.render(41,3,41,3,colors.lime,colors.cyan," Back ",colors.black)
@@ -199,7 +199,7 @@ function filebrowser(startDir,select)
     --edge.render(7,fy,7,fy,colors.white,colors.cyan,file[i],colors.black,false)
   end
   if fileselect then
-    edge.render(1,19,51,19,colors.white,colors.cyan,"Right-click to select.",colors.black,false)
+    edge.render(1,my,mx,my,colors.white,colors.cyan,"Right-click to select.",colors.black,false)
   end
   edge.log("listed files")
   while(true) do
@@ -264,7 +264,7 @@ function filebrowser(startDir,select)
         if x >= 1 and x <= 10 and y == 8 then
           if setting.variables.temp.first_update == false then
             setting.variables.temp.first_update = true
-            edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
+            edge.render(1,1,mx,my,colors.cyan,colors.cyan,"",colors.black,false)
             edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
             edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
             edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
@@ -299,7 +299,7 @@ function filebrowser(startDir,select)
           sleep(1)
             if setting.variables.temp.first_update == false then
               setting.variables.temp.first_update = true
-              edge.render(1,1,mx,19,colors.cyan,colors.cyan,"",colors.black,false)
+              edge.render(1,1,mx,my,colors.cyan,colors.cyan,"",colors.black,false)
               edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
               edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
               edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
@@ -348,6 +348,7 @@ function filebrowser(startDir,select)
     if x >= 42 and y == 3 and x <= 45 and y == 3 then
       edge.log("F:"..fs.getDir(files))
       if fs.getDir(files) == ".." then
+	  	break
       else
         files = "/"..fs.getDir(files).."/"
         --filebrowser(files, fileselect)
@@ -357,11 +358,11 @@ function filebrowser(startDir,select)
 
       term.setBackgroundColor(colors.blue)
       term.setTextColor(colors.black)
-      edge.render(1,16,51,19,colors.white,colors.cyan,"Create folder:",colors.black,true)
-      edge.render(1,17,51,19,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
-      edge.render(2,18,50,18,colors.lightGray,colors.lightGray,"/",colors.black)
+      edge.render(1,16,mx,my,colors.white,colors.cyan,"Create folder:",colors.black,true)
+      edge.render(1,17,mx,my,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
+      edge.render(2,my-1,mx-1,my-1,colors.lightGray,colors.lightGray,"/",colors.black)
       term.setTextColor(colors.black)
-      term.setCursorPos(3,18)
+      term.setCursorPos(3,my-1)
 
       local input = read()
       term.setBackgroundColor(colors.cyan)
@@ -373,13 +374,13 @@ function filebrowser(startDir,select)
       end
       --filebrowser()
     end
-    if x >= 19 and x <= 19+string.len("<New file>") and y == 4 and button == 1 then
+    if x >= my and x <= my+string.len("<New file>") and y == 4 and button == 1 then
 
-      edge.render(1,16,51,19,colors.white,colors.cyan,"Create file:",colors.black,true)
-      edge.render(1,17,51,19,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
-      edge.render(2,18,50,18,colors.lightGray,colors.lightGray,"/",colors.black)
+      edge.render(1,my-3,mx,my,colors.white,colors.cyan,"Create file:",colors.black,true)
+      edge.render(1,my-2,mx,my,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
+      edge.render(2,my-1,mx-1,my-1,colors.lightGray,colors.lightGray,"/",colors.black)
       term.setTextColor(colors.black)
-      term.setCursorPos(3,18)
+      term.setCursorPos(3,my-1)
 
       local input = read()
       term.setBackgroundColor(colors.cyan)
@@ -399,11 +400,11 @@ function filebrowser(startDir,select)
     end
     if x >= 30 and x <= 30+string.len("<Delete>") and y == 4 and button == 1 then
 
-      edge.render(1,16,51,19,colors.white,colors.cyan,"Delete file:",colors.black,true)
-      edge.render(1,17,51,19,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
-      edge.render(2,18,50,18,colors.lightGray,colors.lightGray,"/",colors.black)
+      edge.render(1,16,mx,my,colors.white,colors.cyan,"Delete file:",colors.black,true)
+      edge.render(1,17,mx,my,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
+      edge.render(2,my-1,mx-1,my-1,colors.lightGray,colors.lightGray,"/",colors.black)
       term.setTextColor(colors.black)
-      term.setCursorPos(3,18)
+      term.setCursorPos(3,my-1)
 
       local input = read()
       if not fs.exists(files..input) then
@@ -427,7 +428,7 @@ function filebrowser(startDir,select)
           end
         else
           edge.render(16,7,34,12,colors.lightGray,colors.cyan,"Unexpected error",colors.black,true)
-          --edge.render(18,9,32,9,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
+          --edge.render(my-1,9,32,9,colors.white,colors.lightGray,"(In current dir)",colors.lightGray)
           edge.render(16,10,34,10,colors.lightGray,colors.lightGray,"File access denied.",colors.black)
           term.setTextColor(colors.black)
           sleep(5)
@@ -458,7 +459,7 @@ function filebrowser(startDir,select)
           if fs.isDir(files..f_file[i]) and f_file[i] ~= "rom" then
             previousDir = files
             files = files..""..f_file[i].."/"
-            --filebrowser(files, fileselect)
+            filebrowser(files, fileselect)
           else
 
             term.setBackgroundColor(colors.black)
@@ -498,7 +499,7 @@ function filebrowser(startDir,select)
                 else
                   if string.find(files..f_file[i],".app",string.len(f_file[i]) - 4) or string.find(files..f_file[i],".lua",string.len(f_file[i]) - 4) or string.find(files..f_file[i],".cmd",string.len(f_file[i]) - 4) or string.find(files..f_file[i],".axp",string.len(f_file[i]) - 4) then
                     menubarColor = colors.white
-                    edge.render(1,1,51,1,menubarColor,colors.cyan," o*",colors.black,false)
+                    edge.render(1,1,mx,1,menubarColor,colors.cyan," o*",colors.black,false)
                     edge.log("File:"..files..f_file[i])
                     local f = assert(loadfile(files..f_file[i]))
                     f()
@@ -515,11 +516,12 @@ function filebrowser(startDir,select)
 end
 if #args > 0 then
   files = args[1]
+  local doSelect = args[2] == "select"
   if not fs.exists(args[1]) then
-    edge.windowAlert(20,10,"Fatal error: Folder "..args[1].." does not exist.",true, colors.red)
+    edge.windowAlert(20, 10, "Fatal error: Folder "..args[1].." does not exist.", true, colors.red)
     return false
   end
-  filebrowser()
+  filebrowser(files, doSelect)
 else
   local ok, err = pcall(filebrowser)
   if not ok then
