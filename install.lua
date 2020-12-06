@@ -170,7 +170,7 @@ if not skip_branch_select then
     end
   end
 end
-wget("http://www.pastebin.com/raw/w5zkvysi",".gitget")
+wget("https://pastebin.com/raw/W5ZkVYSi",".gitget")
 shell.run(".gitget "..user.." axiom "..branch.." AxiomUI")
 formatFS()
 print("Installation completed.")
