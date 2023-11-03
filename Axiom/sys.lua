@@ -180,7 +180,7 @@ updating = false
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
 _G.version_sub = "branch:experimental"
-_G.version = "5.3"
+_G.version = "5.2"
 _G.hasRootAccess = false
 _G.latestversion = version
 
