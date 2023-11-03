@@ -14,7 +14,7 @@
     installDate = 0,
     debugID = 0,
     systemID = 0,
-    enable_telemetry = true,
+    enable_telemetry = false,
     system_skipsys_scan = false,
     update_sharing = true,
     modem_portrange_start = 0,

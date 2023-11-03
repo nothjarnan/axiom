@@ -180,7 +180,7 @@ updating = false
 _G.currentUser = "KERNEL"
 _G.productName = "Axiom UI"
 _G.version_sub = "branch:experimental"
-_G.version = "5.2"
+_G.version = "5.3"
 _G.hasRootAccess = false
 _G.latestversion = version
 
@@ -262,7 +262,7 @@ function errorMessager(errmsg)
   if not fs.exists("safeStart") then fs.makeDir("safeStart") end
   local ok = edge.windowAlert(25, 8, "An application errored out. \n"..errmsg.."\nReport?", false, colors.red)
   if ok then
-      local h = http.post("http://nothy.000webhostapp.com/bugreport.php", "uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Version: "..productName.." "..version.." <br> dev: "..tostring(_G.unreleased).."<br> IsColor:"..tostring(term.isColor()).."<br> Last updated: Day "..tostring(setting.variables.temp.last_update))))
+      --local h = http.post("http://nothy.000webhostapp.com/bugreport.php", "uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring(errmsg.." <br> Version: "..productName.." "..version.." <br> dev: "..tostring(_G.unreleased).."<br> IsColor:"..tostring(term.isColor()).."<br> Last updated: Day "..tostring(setting.variables.temp.last_update))))
   end
   if _G.currentUser ~= "KERNEL" then
     if state == "desktop" then
@@ -288,14 +288,20 @@ function errorHandler(err)
 end
 
 function checkForUpdates()
-  local result = http.get("http://nothy.se/axiom/latest")
-  _G.latestversion = result.readAll()
-  if _G.latestversion ~= nil and _G.latestversion == version then
-    return false
+  local result = http.get("https://raw.githubusercontent.com/nothjarnan/axiom/experimental/Axiom/version")
+  if result ~= nil then 
+    _G.latestversion = result.readAll()
+    if _G.latestversion ~= nil and _G.latestversion == version then
+      return false
+    else
+      return true
+    end
+    --#return false
   else
-    return true
+    _G.latestversion = "-1" 
+    return false
   end
-  --#return false
+  
 end
 
 function keyStrokeHandler()
@@ -1609,7 +1615,7 @@ function ftsRender(step, usr, pw, l, adduser)
   if not adduser then adduser = false end
   local a, b = term.getSize()
   if step == 1 then
-    local olicense = "Axiom UI Community\n  Open Source software, you can freely modify to   your desires.\n  If you want to make some permanent changes to   Axiom UI Community, please make a pull request in \n  axiom-opensource.\n   Redistribution disallowed.\n  (C) Linus Ramneborg 2018"
+    local olicense = "Axiom UI \n  Open Source software, you can freely modify to     your desires.\n  If you want to make some permanent changes to     Axiom UI, please make a pull request in \n  the official repository. \n  Redistribution allowed with credit.\n  (C) Linus 'nothy' Ramneborg 2023"
     if olicense then
       edge.render(3, 5, 3, 5, colors.white, colors.cyan, olicense, colors.lightGray)
     else
@@ -1802,7 +1808,6 @@ function initialize()
     setting.variables.temp.systemID = os.getComputerID()
     setting.variables.temp.first_start = false
     fs.makeDir("Axiom/.fs")
-      --local h = http.post("http://nothy.000webhostapp.com/bugreport.php", "uid="..textutils.urlEncode(tostring(setting.variables.temp.debugID)).."&brep="..textutils.urlEncode(tostring("First run on "..version.."<br><b>installed on "..os.day().."</b>")))
     setting.writesettings()
     firstTimeSetupNew()
   else
@@ -1966,10 +1971,10 @@ function boot()
     error("Axiom did not load Settings API properly.")
   end
   if not next then
-    error("Axiom did not find Next API, which doesn't affect this OS what so ever since it's obsolete. Rendering this snippet of code absolutely useless.")
+    error("Axiom did not find Next API, which doesn't affect this OS what-so-ever since it's obsolete. Rendering this snippet of code absolutely useless.")
   end
 
-  needsUpdate = checkForUpdates()
+  needsUpdate = false
 
   if not setting.variables.temp.system_skipsys_scan then
     if fs.exists("Axiom/log.txt") then
@@ -1997,7 +2002,7 @@ function boot()
         midx = x / 2
         --edge.render(midx - string.len("File"..loaded.." of "..toLoad.." verified.") / 2, 8, 48, 8, colors.white, colors.cyan, "File "..loaded.." of "..toLoad.." verified.", colors.black)
         loaded = loaded + 1
-        sleep(0.3)
+        sleep(0)
       end
 
       --print("Loaded: os/libraries/"..file)
@@ -2006,7 +2011,7 @@ function boot()
   booting = false
 end
 function bootanimation()
-
+  local w, h = term.getSize()
   booting = true
   term.setBackgroundColor(colors.white)
 
@@ -2015,15 +2020,9 @@ function bootanimation()
   local c = 0
   sleep(.1)
   local loadingAnim = {
-    "ooooooo",
-    "Ooooooo",
-    "oOooooo",
-    "ooOoooo",
-    "oooOooo",
-    "ooooOoo",
-    "oooooOo",
-    "ooooooO",
+    "|","/","-","\\","|","/","-","\\"
   }
+  local frame = 0
 
   local function animate(frames, length, y)
     local anpoint = 1
@@ -2038,10 +2037,10 @@ function bootanimation()
       end
       term.setTextColor(colors.black)
       edge.cprint(frames[anpoint], y)
-      sleep(0.2)
+      sleep(0.1)
       anpoint = anpoint + 1
     end
-
+    frame = anpoint
   end
   edge.render(1, 1, mx, my, colors.black, colors.white, "", colors.black)
   sleep(0.1)
@@ -2061,15 +2060,18 @@ function bootanimation()
   while(booting) do
     animate(loadingAnim, 20, math.floor(my / 2))
   end
-  edge.render(1, 1, mx, my, colors.white, colors.white, "", colors.black)
+  term.setCursorPos(w/2,h/2)
   sleep(0.1)
-  edge.render(1, 1, mx, my, colors.lightGray, colors.white, "", colors.black)
+  term.setTextColor(colors.lightGray)
+  write(loadingAnim[2])
   sleep(0.1)
-  edge.render(1, 1, mx, my, colors.gray, colors.white, "", colors.black)
+  term.setCursorPos(w/2,h/2)
+  term.setTextColor(colors.gray)
+  write(loadingAnim[2])
+  term.setCursorPos(w/2,h/2)
   sleep(0.1)
-  edge.render(1, 1, mx, my, colors.black, colors.white, "", colors.black)
-  sleep(0.1)
-  term.setCursorPos(1, 1)
+  term.setTextColor(colors.black)
+  write(loadingAnim[2])
   initialize()
 end
 
@@ -2155,7 +2157,7 @@ if not fs.exists("Axiom/settings.bak") then
     printout("Restored settings from backup.")
   else
     printerr("Settings file is missing or corrupt. System will reboot when repair is finished.")
-    noapidl("https://www.dropbox.com/s/ynyrs22t1hh2mry/settings?dl=1", "Axiom/settings.bak")
+    noapidl("https://raw.githubusercontent.com/nothjarnan/axiom/experimental/Axiom/settings.bak", "Axiom/settings.bak")
     printout("Repair finished. Rebooting into first time setup.")
     sleep(5)
     os.reboot()

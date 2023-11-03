@@ -5,7 +5,7 @@ local files = "home/"
 local hideFiles = true
 local previousDir = files
 local mx, my = term.getSize()
-local appversion = "1.2"
+local appversion = "1.3"
 local changes = "Changes:\nHopefully fixed program refusing to exit"
 local running = true
 local args = {...}
@@ -280,43 +280,8 @@ function filebrowser(startDir,select)
           sysInfo()
         end
         if x >= 1 and x <= 10 and y == 9 then
-
-          shell.run("clear")
-          cprint("A X I O M",9)
-          cprint(". . . . .",10)
-          sleep(0.2)
-          shell.run("clear")
-          cprint("  X I O  ",9)
-          cprint("  . . .  ",10)
-          sleep(0.2)
-          shell.run("clear")
-          cprint("    I    ",9)
-          cprint("    .    ",10)
-          sleep(0.2)
-          shell.run("clear")
-          cprint("         ",9)
-          cprint("         ",10)
-          sleep(1)
-            if setting.variables.temp.first_update == false then
-              setting.variables.temp.first_update = true
-              edge.render(1,1,mx,my,colors.cyan,colors.cyan,"",colors.black,false)
-              edge.render(16,7,34,12,colors.white,colors.cyan,"",colors.black,true)
-              edge.render(17,8,34,8,colors.white,colors.cyan,productName.." is updating ",colors.black,false)
-              edge.render(17,10,34,10,colors.white,colors.cyan,"  Please wait.",colors.black,false)
-              execUpd()
-              writesettings()
-              if hasRednet then
-                rednet.close(detectedSide)
-              end
-              os.shutdown()
-            end
-            writesettings()
-            sleep(0.5)
-            if hasRednet then
-              rednet.close(detectedSide)
-            end
-            os.shutdown()
-          end
+          os.shutdown()
+        end
       end
     end
     if event == "terminate" then
@@ -348,10 +313,10 @@ function filebrowser(startDir,select)
     if x >= 42 and y == 3 and x <= 45 and y == 3 then
       edge.log("F:"..fs.getDir(files))
       if fs.getDir(files) == ".." then
-	  	break
+	  	  files = "/"
       else
         files = "/"..fs.getDir(files).."/"
-        --filebrowser(files, fileselect)
+        filebrowser(files, fileselect)
       end
     end
     if x >= 7 and x <= 7+string.len("<New folder>") and y == 4 and button == 1 then
@@ -467,6 +432,7 @@ function filebrowser(startDir,select)
               shell.run("edit "..files..f_file[i])
             else
               shell.run("home/prg/luaide.app "..files..f_file[i])
+              filebrowser(files, fileselect)
             end
             --parallel.waitForAll(filebrowser)
             break

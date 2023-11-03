@@ -539,7 +539,11 @@ function settings_draw(page)
     edge.render(2,6,mx-2,6,colors.white,colors.cyan,productName.." "..version.." "..version_sub,colors.gray)
     edge.render(2,7,mx-2,7,colors.white,colors.cyan,"Current user: "..setting.variables.users[currentUser].displayName.." debugID: "..setting.variables.temp.debugID,colors.gray)
     edge.render(2,8,mx-2,8,colors.white,colors.cyan,"App Version "..appversion,colors.gray)
-    edge.render(2,9,mx-2,9,colors.white,colors.cyan,"Latest (remote) version ".._G.latestversion,colors.gray)
+    if _G.latestversion == "-1" then 
+      edge.render(2,9,mx-2,9,colors.white,colors.cyan,"Could not determine latest version.",colors.gray)
+    else 
+      edge.render(2,9,mx-2,9,colors.white,colors.cyan,"Latest (remote) version ".._G.latestversion,colors.gray)
+    end
 
     if setting.variables.temp.installDate ~= nil then
       -- if os.day()-setting.variables.temp.installDate > 31 then
